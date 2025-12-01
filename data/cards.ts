@@ -6,7 +6,7 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's1', text: 'You’re upset with your partner when they ask you where you’re going.', category: 'Relationships' },
   { id: 's2', text: 'Your partner who gained weight quickly is asking "how do I look?"', category: 'Relationships' },
   { id: 's3', text: 'Your partner is asking about your past in order to prove a point. Say something to start a fight.', category: 'Relationships' },
-  { id: 's4', text: 'Your partner catches the hickey on your inner thigh which you both know they didn&apos;t give you. What do you say to divert the situation?', category: 'Relationships' },
+  { id: 's4', text: 'Your partner catches the hickey on your inner thigh which you both know they did not give you. What do you say to divert the situation?', category: 'Relationships' },
   { id: 's5', text: 'You are tired of your partner playing video games all day. What do you say to trigger them?', category: 'Relationships' },
   { id: 's6', text: 'This relationship is clearly over, and petty is your middle name. Instead of parting ways on a high note, you say...', category: 'Relationships' },
   { id: 's7', text: 'Your partner has been telling you how to dress for an event, down to your underwear. What words put her in her place?', category: 'Relationships' },

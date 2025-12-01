@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { colors } from '@/styles/commonStyles';
 import { useGameState } from '@/hooks/useGameState';
@@ -41,6 +41,8 @@ export default function GameScreen() {
 
   const [selectedCardId, setSelectedCardId] = useState<string | undefined>();
   const [showExchangeOptions, setShowExchangeOptions] = useState(false);
+  const [showPassPhoneModal, setShowPassPhoneModal] = useState(false);
+  const [nextPlayerName, setNextPlayerName] = useState('');
 
   useEffect(() => {
     initializeGame(playerCount, playerNames);
@@ -62,6 +64,11 @@ export default function GameScreen() {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ y: 0, animated: true });
     }
+  };
+
+  const showPassPhonePrompt = (nextPlayer: string) => {
+    setNextPlayerName(nextPlayer);
+    setShowPassPhoneModal(true);
   };
 
   const handlePlayCard = () => {
@@ -87,6 +94,14 @@ export default function GameScreen() {
     setTimeout(() => {
       scrollToTop();
     }, 100);
+
+    // Show pass phone prompt
+    setTimeout(() => {
+      const nextPlayer = getNextPlayer();
+      if (nextPlayer && !gameState.roundComplete) {
+        showPassPhonePrompt(nextPlayer.name);
+      }
+    }, 200);
   };
 
   const handlePass = () => {
@@ -117,6 +132,11 @@ export default function GameScreen() {
             setTimeout(() => {
               scrollToTop();
             }, 100);
+
+            // Show pass phone prompt
+            setTimeout(() => {
+              showPassPhonePrompt(nextPlayer.name);
+            }, 200);
           },
         },
       ]
@@ -215,6 +235,14 @@ export default function GameScreen() {
         setTimeout(() => {
           scrollToTop();
         }, 100);
+
+        // Show pass phone prompt for the first player of the new round
+        setTimeout(() => {
+          const firstPlayer = gameState.players[gameState.currentPlayerIndex];
+          if (firstPlayer) {
+            showPassPhonePrompt(firstPlayer.name);
+          }
+        }, 200);
       }
     }, 1500);
   };
@@ -405,6 +433,40 @@ export default function GameScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* Pass Phone Modal */}
+      <Modal
+        visible={showPassPhoneModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowPassPhoneModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalIconContainer}>
+              <IconSymbol
+                ios_icon_name="arrow.triangle.2.circlepath"
+                android_material_icon_name="sync"
+                size={64}
+                color={colors.primary}
+              />
+            </View>
+            
+            <Text style={styles.modalTitle}>Pass the Phone!</Text>
+            <Text style={styles.modalMessage}>
+              Please pass the phone to
+            </Text>
+            <Text style={styles.modalPlayerName}>{nextPlayerName}</Text>
+            
+            <Button
+              title="Ready"
+              onPress={() => setShowPassPhoneModal(false)}
+              variant="primary"
+              style={styles.modalButton}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -588,5 +650,49 @@ const styles = StyleSheet.create({
   },
   awardButton: {
     marginTop: 12,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    padding: 32,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: colors.primary,
+  },
+  modalIconContainer: {
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: colors.primary,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 18,
+    color: colors.textSecondary,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalPlayerName: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: colors.text,
+    marginBottom: 32,
+    textAlign: 'center',
+  },
+  modalButton: {
+    width: '100%',
+    minWidth: 200,
   },
 });

@@ -33,7 +33,7 @@ export default function RulesScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Setup</Text>
+        <Text style={styles.sectionTitle}>Overview</Text>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>1.</Text>
           <Text style={styles.ruleText}>Game is for 18+ players only</Text>
@@ -44,7 +44,7 @@ export default function RulesScreen() {
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>3.</Text>
-          <Text style={styles.ruleText}>Shuffle the response cards</Text>
+          <Text style={styles.ruleText}>Game is played on one device</Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>4.</Text>
@@ -52,7 +52,7 @@ export default function RulesScreen() {
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>5.</Text>
-          <Text style={styles.ruleText}>Place scenario cards face down in the middle</Text>
+          <Text style={styles.ruleText}>Pass the device to each player when it&apos;s their turn</Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>6.</Text>

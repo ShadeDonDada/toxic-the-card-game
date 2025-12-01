@@ -74,7 +74,7 @@ export default function GameSetupScreen() {
         <Text style={styles.sectionTitle}>Quick Reminders</Text>
         <View style={styles.reminderItem}>
           <Text style={styles.reminderBullet}>•</Text>
-          <Text style={styles.reminderText}>Each player draws 6 cards</Text>
+          <Text style={styles.reminderText}>Each player has 6 cards</Text>
         </View>
         <View style={styles.reminderItem}>
           <Text style={styles.reminderBullet}>•</Text>
@@ -90,7 +90,7 @@ export default function GameSetupScreen() {
         </View>
         <View style={styles.reminderItem}>
           <Text style={styles.reminderBullet}>•</Text>
-          <Text style={styles.reminderText}>Playing while drinking is highly encouraged 🍺</Text>
+          <Text style={styles.reminderText}>Playing while drinking is highly encouraged 🍺 21+</Text>
         </View>
       </View>
 
