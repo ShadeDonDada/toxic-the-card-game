@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
@@ -12,9 +12,11 @@ export default function HomeScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
-        <Text style={styles.logo}>☠️</Text>
-        <Text style={styles.title}>TOXIC</Text>
-        <Text style={styles.subtitle}>The Card Game</Text>
+        <Image
+          source={require('@/assets/images/e8f37e8e-4b32-4755-b17f-9e37f4ee6b15.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
         <Text style={styles.tagline}>&quot;Extracting the poison out of you&quot;</Text>
       </View>
 
@@ -88,23 +90,9 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   logo: {
-    fontSize: 80,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: '900',
-    color: colors.primary,
-    letterSpacing: 4,
-    textShadowColor: colors.accent,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
-  },
-  subtitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    marginTop: 5,
+    width: 280,
+    height: 200,
+    marginBottom: 20,
   },
   tagline: {
     fontSize: 16,
