@@ -35,6 +35,23 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's28', text: 'Your co-workers are bothered by your lack of interest in joining their lunch circle. What do you say when they make a comment about it?', category: 'Work' },
   { id: 's29', text: 'The customer who is in the wrong now is insulting you for not giving them what they want. Your manager just walked away to allow you to respond how you wish. What do you say?', category: 'Work' },
   { id: 's30', text: 'There was an altercation at work where you were not in the wrong, however, they let you go over it. What are your parting words?', category: 'Work' },
+  
+  // Family Category
+  { id: 's31', text: 'Your parents make a comment about how you are living your life, knowing that they&apos;ve walked the same path. How do you respond?', category: 'Family' },
+  { id: 's32', text: 'Your grandparents just said that you&apos;ll be single forever. What do you say back?', category: 'Family' },
+  { id: 's33', text: 'You just found out your dad isn&apos;t your biological father, and no one knows who he can be. How do you respond?', category: 'Family' },
+  { id: 's34', text: 'Your uncle is going off again about all that he&apos;s accomplished by the time he was your age. What do you say to end the conversation?', category: 'Family' },
+  { id: 's35', text: 'Your child asks for money to go on a date with their partner who you openly dislike. What do you say?', category: 'Family' },
+  { id: 's36', text: 'Your teenager makes a comment about how you&apos;ve lost your skills due to old age. What do you respond with?', category: 'Family' },
+  { id: 's37', text: 'Your aunt asks you to come over and help her with some tasks. Her new boyfriend is over, and he is criticizing everything you do. Your aunt steps out for a moment. What do you say to him?', category: 'Family' },
+  { id: 's38', text: 'Your stepparent says that you will never get what you want, because your parent will always take their side. What do you say?', category: 'Family' },
+  { id: 's39', text: 'You let your sibling move in with you for some time, and they&apos;re way too comfortable. They&apos;ve become a slob and take too long in the washroom. They just asked you if they can stay 6 more months. What do you say?', category: 'Family' },
+  { id: 's40', text: 'You just caught your mom cheating on your dad. You pull her aside and say this to her...', category: 'Family' },
+  { id: 's41', text: 'Your child begged you to go to the most expensive college in the country. You make it happen, only to be told in their last semester that they&apos;re dropping out. What do you say to them?', category: 'Family' },
+  { id: 's42', text: 'Your parents just compared you to your siblings&apos; success for the third time today. What do you say?', category: 'Family' },
+  { id: 's43', text: 'You just found out that your entire family knew about your partner&apos;s affair, and they helped them keep the secret for months. What do you say?', category: 'Family' },
+  { id: 's44', text: 'Your new sister-in-law just challenged you to a rap battle, and then used a jab from a childhood story your brother told her. What do you say next?', category: 'Family' },
+  { id: 's45', text: 'The in-laws are coming over, and they make a comment about how small your place is. What do you say?', category: 'Family' },
 ];
 
 export const responseCards: ResponseCard[] = [
