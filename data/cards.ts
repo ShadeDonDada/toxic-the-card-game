@@ -86,6 +86,40 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's73', text: 'In the middle of sexting, your partner drops a joke about seeing someone else if you can&apos;t give them what they want. What do you reply with?', category: 'Sex' },
   { id: 's74', text: 'You finally get to the point of having sex with your date, and they have a large tattoo of a Jesus face staring at you the entire time. What do you say to them?', category: 'Sex' },
   { id: 's75', text: 'You open your eyes in the middle of having sex and see your partner playing a game on their phone. Say something.', category: 'Sex' },
+  
+  // Pets Category
+  { id: 's76', text: 'After kissing your date goodbye, you see them walk up to their door and kiss their dog on the mouth. What do you text them right away?', category: 'Pets' },
+  { id: 's77', text: 'You just found out your partner swaps spit with their dog for fun. How do you address this?', category: 'Pets' },
+  { id: 's78', text: 'Instead of talking to your friend about how disturbing it is that they let their pet watch while they have sex, you say this...', category: 'Pets' },
+  { id: 's79', text: 'You just found out this person takes their cat for a walk with a leash. How do you get at them?', category: 'Pets' },
+  { id: 's80', text: 'Jake the pet parrot just repeated the words your friend says when they&apos;re masturbating at home. How do you get at them?', category: 'Pets' },
+  { id: 's81', text: 'Your new partner does this thing where they take food off from your plate to feed their dog. It&apos;s been a week of this. Say something to them when they try this today.', category: 'Pets' },
+  { id: 's82', text: 'Your partner just told you they don&apos;t need to have kids, because they&apos;re thinking about bringing home three more cats. How do you respond?', category: 'Pets' },
+  { id: 's83', text: 'Your partner just ripped up your favorite shirt to make socks for the dog. What do you say to this?', category: 'Pets' },
+  { id: 's84', text: 'You join your new friend for dinner at their parents and learn very quickly that the highchair at the table is for their dog and not for a child. Say something to get you out of dinner.', category: 'Pets' },
+  { id: 's85', text: 'You make plans with a tinder date to meet at the dog park, and they show up wearing matching clothes with their dog. Say something.', category: 'Pets' },
+  { id: 's86', text: 'Your sister asks you to watch her cat for her while she runs into the store. Her cat is in a baby stroller. Say something.', category: 'Pets' },
+  { id: 's87', text: 'You go over to your date&apos;s place for the first time and learn quickly that they&apos;re the type to speak in third person on behalf of their pets. Say something to end the night.', category: 'Pets' },
+  { id: 's88', text: 'Your mother-in-law says it would mean the world to her if you did a nude photo shoot with the family Chikwawa. How do you respond?', category: 'Pets' },
+  { id: 's89', text: 'Your uncle says that a dog is a man&apos;s best friend, so having sex without allowing your dog to watch is wrong. Say something.', category: 'Pets' },
+  { id: 's90', text: 'You learn quickly that your co-worker thinks it&apos;s normal to talk dirty to their cats. What do you say to this?', category: 'Pets' },
+  
+  // Public Scenarios Category
+  { id: 's91', text: 'That person who just cut you off is now at the red light beside you. Say something.', category: 'Public Scenarios' },
+  { id: 's92', text: 'You got pulled over by a cop who interrogated you for several minutes, before apologizing to say they&apos;ve got the wrong person. How do you respond?', category: 'Public Scenarios' },
+  { id: 's93', text: 'You go out of your way to help a blind person cross the road, only to learn they&apos;re not blind. Say something to them.', category: 'Public Scenarios' },
+  { id: 's94', text: 'You&apos;ve been working to lose weight, and finally treat yourself to a burger. The waitress looks you up and down, and says "are you sure about that"? What do you say next?', category: 'Public Scenarios' },
+  { id: 's95', text: 'On your subway trip, someone decides to skip over all the other empty seats just to come to the seat beside you. Say something to them.', category: 'Public Scenarios' },
+  { id: 's96', text: 'You&apos;re at the bar and take a shot at the person beside you which doesn&apos;t land. Say one last thing', category: 'Public Scenarios' },
+  { id: 's97', text: 'The cashier calls you out for not donating to their charity. Say something in response.', category: 'Public Scenarios' },
+  { id: 's98', text: 'The barista gets your order wrong, and then tells you, you should be grateful she&apos;s giving you a free drink. Say something in response.', category: 'Public Scenarios' },
+  { id: 's99', text: 'You ask someone at the fitness center if they&apos;re finishing up with the rack. They say yes, then five minutes later invite their friend over to use the rack while you&apos;re standing there waiting. Say something to them.', category: 'Public Scenarios' },
+  { id: 's100', text: 'There&apos;s a lineup at the public washroom and you really need to go. The next stall becomes empty, and you walk up to use it, finding the person left an absolute mess. What do you turn around to say?', category: 'Public Scenarios' },
+  { id: 's101', text: 'You&apos;re at a public pool when you hear the person beside you say, "it&apos;s okay, I can pee right in the pool as I swim". Say something to them.', category: 'Public Scenarios' },
+  { id: 's102', text: 'Your professor calls you out in front of the entire class for doing your own assignment. What&apos;s your response?', category: 'Public Scenarios' },
+  { id: 's103', text: 'You go to sign up for a membership to your local club, and the attendant assumes your age to be 10 years older than you are. When you share your true age, he asks for ID. What do you say next?', category: 'Public Scenarios' },
+  { id: 's104', text: 'A worker at the store keeps following you around insinuating you might shoplift. What do you turn around and say?', category: 'Public Scenarios' },
+  { id: 's105', text: 'The front desk attendant at the physician&apos;s office repeats the purpose of your visit way too loud. Say something to them.', category: 'Public Scenarios' },
 ];
 
 export const responseCards: ResponseCard[] = [
