@@ -43,6 +43,7 @@ export default function GameScreen() {
   const [showExchangeOptions, setShowExchangeOptions] = useState(false);
   const [showPassPhoneModal, setShowPassPhoneModal] = useState(false);
   const [nextPlayerName, setNextPlayerName] = useState('');
+  const [showPointSelection, setShowPointSelection] = useState(false);
 
   useEffect(() => {
     initializeGame(playerCount, playerNames);
@@ -95,12 +96,9 @@ export default function GameScreen() {
       scrollToTop();
     }, 100);
 
-    // Show pass phone prompt
+    // Show point selection after card is played
     setTimeout(() => {
-      const nextPlayer = getNextPlayer();
-      if (nextPlayer && !gameState.roundComplete) {
-        showPassPhonePrompt(nextPlayer.name);
-      }
+      setShowPointSelection(true);
     }, 200);
   };
 
@@ -206,6 +204,7 @@ export default function GameScreen() {
     }
 
     awardPoint(playerId);
+    setShowPointSelection(false);
     
     setTimeout(() => {
       if (gameState.scenarioDeck.length === 0) {
@@ -245,6 +244,25 @@ export default function GameScreen() {
         }, 200);
       }
     }, 1500);
+  };
+
+  const handleContinueWithoutPoint = () => {
+    setShowPointSelection(false);
+    
+    // Check if all players have played
+    if (gameState.roundComplete) {
+      // If round is complete, we should show point selection again
+      setShowPointSelection(true);
+      return;
+    }
+    
+    // Show pass phone prompt for next player
+    setTimeout(() => {
+      const nextPlayer = getNextPlayer();
+      if (nextPlayer) {
+        showPassPhonePrompt(nextPlayer.name);
+      }
+    }, 100);
   };
 
   // Get previous and next player names for display
@@ -323,10 +341,14 @@ export default function GameScreen() {
           </View>
         )}
 
-        {gameState.roundComplete ? (
-          <View style={styles.roundCompleteContainer}>
-            <Text style={styles.roundCompleteTitle}>Round Complete! 🎉</Text>
-            <Text style={styles.roundCompleteSubtitle}>Review the played cards and award a point</Text>
+        {showPointSelection ? (
+          <View style={styles.pointSelectionContainer}>
+            <Text style={styles.pointSelectionTitle}>Who Gets the Point? 🏆</Text>
+            <Text style={styles.pointSelectionSubtitle}>
+              {gameState.roundComplete 
+                ? 'All players have answered! Review the cards and award a point.'
+                : 'Review the played cards so far and decide if anyone deserves a point, or continue playing.'}
+            </Text>
             
             <View style={styles.playedCardsContainer}>
               {gameState.playedCards.map((played, index) => {
@@ -354,6 +376,15 @@ export default function GameScreen() {
                 );
               })}
             </View>
+
+            {!gameState.roundComplete && (
+              <Button
+                title="Continue Playing (No Point Yet)"
+                onPress={handleContinueWithoutPoint}
+                variant="secondary"
+                style={styles.continueButton}
+              />
+            )}
           </View>
         ) : (
           <>
@@ -368,6 +399,27 @@ export default function GameScreen() {
                 ))}
               </View>
             </View>
+
+            {gameState.playedCards.length > 0 && (
+              <View style={styles.playedCardsPreviewContainer}>
+                <Text style={styles.playedCardsPreviewTitle}>Played Cards This Round</Text>
+                {gameState.playedCards.map((played, index) => {
+                  const player = gameState.players.find(p => p.id === played.playerId);
+                  const displayText = played.card.isCustom && played.card.customText 
+                    ? played.card.customText 
+                    : played.card.text;
+                  
+                  return (
+                    <View key={index} style={styles.playedCardPreviewItem}>
+                      <Text style={styles.playedCardPreviewPlayer}>{player?.name}</Text>
+                      <View style={styles.playedCardPreviewWrapper}>
+                        <Text style={styles.playedCardPreviewText}>{displayText}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
 
             {showExchangeOptions ? (
               <View style={styles.exchangeContainer}>
@@ -564,6 +616,44 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: colors.primary,
   },
+  playedCardsPreviewContainer: {
+    padding: 20,
+    backgroundColor: colors.card,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
+  },
+  playedCardsPreviewTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  playedCardPreviewItem: {
+    marginBottom: 12,
+  },
+  playedCardPreviewPlayer: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 6,
+  },
+  playedCardPreviewWrapper: {
+    backgroundColor: colors.darkGreen,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
+  },
+  playedCardPreviewText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    lineHeight: 20,
+  },
   actionsContainer: {
     padding: 20,
     gap: 12,
@@ -591,17 +681,17 @@ const styles = StyleSheet.create({
   exchangeButton: {
     width: '100%',
   },
-  roundCompleteContainer: {
+  pointSelectionContainer: {
     padding: 20,
   },
-  roundCompleteTitle: {
+  pointSelectionTitle: {
     fontSize: 28,
     fontWeight: '900',
     color: colors.primary,
     textAlign: 'center',
     marginBottom: 8,
   },
-  roundCompleteSubtitle: {
+  pointSelectionSubtitle: {
     fontSize: 16,
     color: colors.textSecondary,
     textAlign: 'center',
@@ -650,6 +740,9 @@ const styles = StyleSheet.create({
   },
   awardButton: {
     marginTop: 12,
+  },
+  continueButton: {
+    width: '100%',
   },
   modalOverlay: {
     flex: 1,
