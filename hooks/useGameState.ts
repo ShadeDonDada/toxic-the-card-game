@@ -213,35 +213,58 @@ export function useGameState() {
     });
   }, []);
 
-  const exchangeCard = useCallback((fromPlayerId: string, toPlayerId: string, cardId: string) => {
-    console.log('Exchanging card from', fromPlayerId, 'to', toPlayerId);
+  const exchangeCard = useCallback((fromPlayerId: string, cardId: string, direction: 'previous' | 'next') => {
+    console.log('Exchanging card from', fromPlayerId, 'with', direction, 'player');
     
     setGameState((prev) => {
-      const fromPlayer = prev.players.find((p) => p.id === fromPlayerId);
-      const toPlayer = prev.players.find((p) => p.id === toPlayerId);
+      const fromPlayerIndex = prev.players.findIndex((p) => p.id === fromPlayerId);
+      const fromPlayer = prev.players[fromPlayerIndex];
       
-      if (!fromPlayer || !toPlayer || fromPlayer.hasExchanged) {
-        console.log('Exchange not allowed');
+      if (!fromPlayer || fromPlayer.hasExchanged) {
+        console.log('Exchange not allowed - player has already exchanged');
         return prev;
       }
       
       const card = fromPlayer.hand.find((c) => c.id === cardId);
       if (!card) {
-        console.log('Card not found');
+        console.log('Card not found in player hand');
         return prev;
       }
       
+      // Calculate target player index based on direction
+      let toPlayerIndex: number;
+      if (direction === 'previous') {
+        // Previous player (counterclockwise, so +1)
+        toPlayerIndex = (fromPlayerIndex + 1) % prev.players.length;
+      } else {
+        // Next player (clockwise, so -1)
+        toPlayerIndex = fromPlayerIndex - 1;
+        if (toPlayerIndex < 0) {
+          toPlayerIndex = prev.players.length - 1;
+        }
+      }
+      
+      const toPlayer = prev.players[toPlayerIndex];
+      
+      if (!toPlayer || toPlayer.hand.length === 0) {
+        console.log('Target player not found or has no cards');
+        return prev;
+      }
+      
+      // Select a random card from the target player
       const randomToPlayerCard = toPlayer.hand[Math.floor(Math.random() * toPlayer.hand.length)];
       
-      const updatedPlayers = prev.players.map((p) => {
-        if (p.id === fromPlayerId) {
+      console.log(`Exchanging ${card.text} with ${randomToPlayerCard.text}`);
+      
+      const updatedPlayers = prev.players.map((p, index) => {
+        if (index === fromPlayerIndex) {
           return {
             ...p,
             hand: [...p.hand.filter((c) => c.id !== cardId), randomToPlayerCard],
             hasExchanged: true,
           };
         }
-        if (p.id === toPlayerId) {
+        if (index === toPlayerIndex) {
           return {
             ...p,
             hand: [...p.hand.filter((c) => c.id !== randomToPlayerCard.id), card],

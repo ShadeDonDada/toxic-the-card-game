@@ -111,20 +111,54 @@ export default function GameScreen() {
       Alert.alert('Exchange Not Available', 'You have already exchanged a card this round.');
       return;
     }
+
+    if (!selectedCardId) {
+      Alert.alert('Select a Card', 'Please select a card from your hand to exchange.');
+      return;
+    }
     
     setShowExchangeOptions(true);
   };
 
-  const handleExchangeWithPlayer = (targetPlayerId: string) => {
+  const handleExchangeWithDirection = (direction: 'previous' | 'next') => {
     if (!selectedCardId || !currentPlayer) {
       Alert.alert('Select a Card', 'Please select a card from your hand to exchange.');
       setShowExchangeOptions(false);
       return;
     }
+
+    // Calculate the target player index
+    const currentIndex = gameState.currentPlayerIndex;
+    let targetIndex: number;
     
-    exchangeCard(currentPlayer.id, targetPlayerId, selectedCardId);
-    setSelectedCardId(undefined);
-    setShowExchangeOptions(false);
+    if (direction === 'previous') {
+      // Previous player (counterclockwise, so +1)
+      targetIndex = (currentIndex + 1) % gameState.players.length;
+    } else {
+      // Next player (clockwise, so -1)
+      targetIndex = currentIndex - 1;
+      if (targetIndex < 0) {
+        targetIndex = gameState.players.length - 1;
+      }
+    }
+    
+    const targetPlayer = gameState.players[targetIndex];
+    
+    Alert.alert(
+      'Exchange Card',
+      `Exchange your selected card with a random card from ${targetPlayer.name}?`,
+      [
+        { text: 'Cancel', style: 'cancel', onPress: () => setShowExchangeOptions(false) },
+        {
+          text: 'Exchange',
+          onPress: () => {
+            exchangeCard(currentPlayer.id, selectedCardId, direction);
+            setSelectedCardId(undefined);
+            setShowExchangeOptions(false);
+          },
+        },
+      ]
+    );
   };
 
   const handleAwardPoint = (playerId: string) => {
@@ -161,6 +195,20 @@ export default function GameScreen() {
         nextRound();
       }
     }, 1500);
+  };
+
+  // Get previous and next player names for display
+  const getPreviousPlayer = () => {
+    const prevIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+    return gameState.players[prevIndex];
+  };
+
+  const getNextPlayer = () => {
+    let nextIndex = gameState.currentPlayerIndex - 1;
+    if (nextIndex < 0) {
+      nextIndex = gameState.players.length - 1;
+    }
+    return gameState.players[nextIndex];
   };
 
   if (!gameState.gameStarted || !currentPlayer) {
@@ -269,18 +317,25 @@ export default function GameScreen() {
 
             {showExchangeOptions ? (
               <View style={styles.exchangeContainer}>
-                <Text style={styles.exchangeTitle}>Select a player to exchange with:</Text>
-                {gameState.players
-                  .filter(p => p.id !== currentPlayer.id)
-                  .map((player, index) => (
-                    <Button
-                      key={index}
-                      title={player.name}
-                      onPress={() => handleExchangeWithPlayer(player.id)}
-                      variant="secondary"
-                      style={styles.exchangeButton}
-                    />
-                  ))}
+                <Text style={styles.exchangeTitle}>Exchange card with:</Text>
+                <Text style={styles.exchangeSubtitle}>
+                  Choose to exchange with the previous or next player
+                </Text>
+                
+                <Button
+                  title={`← Previous Player (${getPreviousPlayer().name})`}
+                  onPress={() => handleExchangeWithDirection('previous')}
+                  variant="secondary"
+                  style={styles.exchangeButton}
+                />
+                
+                <Button
+                  title={`Next Player (${getNextPlayer().name}) →`}
+                  onPress={() => handleExchangeWithDirection('next')}
+                  variant="secondary"
+                  style={styles.exchangeButton}
+                />
+                
                 <Button
                   title="Cancel"
                   onPress={() => setShowExchangeOptions(false)}
@@ -306,7 +361,7 @@ export default function GameScreen() {
                     style={styles.actionButton}
                   />
                   <Button
-                    title="Exchange Card"
+                    title={currentPlayer.hasExchanged ? "Already Exchanged" : "Exchange Card"}
                     onPress={handleExchange}
                     variant="secondary"
                     disabled={currentPlayer.hasExchanged || !selectedCardId}
@@ -433,9 +488,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   exchangeTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
     color: colors.text,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  exchangeSubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
     marginBottom: 8,
     textAlign: 'center',
   },
