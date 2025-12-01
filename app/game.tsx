@@ -96,10 +96,25 @@ export default function GameScreen() {
       scrollToTop();
     }, 100);
 
-    // Show point selection after card is played
-    setTimeout(() => {
-      setShowPointSelection(true);
-    }, 200);
+    // Check if all players have now played
+    const willBeRoundComplete = gameState.playedCards.length + 1 === gameState.players.length;
+    
+    if (willBeRoundComplete) {
+      // All players have answered - show point selection
+      setTimeout(() => {
+        setShowPointSelection(true);
+      }, 200);
+    } else {
+      // More players need to answer - show pass phone modal
+      const nextPlayerIndex = gameState.currentPlayerIndex - 1 < 0 
+        ? gameState.players.length - 1 
+        : gameState.currentPlayerIndex - 1;
+      const nextPlayer = gameState.players[nextPlayerIndex];
+      
+      setTimeout(() => {
+        showPassPhonePrompt(nextPlayer.name);
+      }, 200);
+    }
   };
 
   const handlePass = () => {
@@ -246,25 +261,6 @@ export default function GameScreen() {
     }, 1500);
   };
 
-  const handleContinueWithoutPoint = () => {
-    setShowPointSelection(false);
-    
-    // Check if all players have played
-    if (gameState.roundComplete) {
-      // If round is complete, we should show point selection again
-      setShowPointSelection(true);
-      return;
-    }
-    
-    // Show pass phone prompt for next player
-    setTimeout(() => {
-      const nextPlayer = getNextPlayer();
-      if (nextPlayer) {
-        showPassPhonePrompt(nextPlayer.name);
-      }
-    }, 100);
-  };
-
   // Get previous and next player names for display
   const getPreviousPlayer = () => {
     const prevIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
@@ -345,9 +341,7 @@ export default function GameScreen() {
           <View style={styles.pointSelectionContainer}>
             <Text style={styles.pointSelectionTitle}>Who Gets the Point? 🏆</Text>
             <Text style={styles.pointSelectionSubtitle}>
-              {gameState.roundComplete 
-                ? 'All players have answered! Review the cards and award a point.'
-                : 'Review the played cards so far and decide if anyone deserves a point, or continue playing.'}
+              All players have answered! Review the cards and award a point.
             </Text>
             
             <View style={styles.playedCardsContainer}>
@@ -376,15 +370,6 @@ export default function GameScreen() {
                 );
               })}
             </View>
-
-            {!gameState.roundComplete && (
-              <Button
-                title="Continue Playing (No Point Yet)"
-                onPress={handleContinueWithoutPoint}
-                variant="secondary"
-                style={styles.continueButton}
-              />
-            )}
           </View>
         ) : (
           <>
@@ -740,9 +725,6 @@ const styles = StyleSheet.create({
   },
   awardButton: {
     marginTop: 12,
-  },
-  continueButton: {
-    width: '100%',
   },
   modalOverlay: {
     flex: 1,
