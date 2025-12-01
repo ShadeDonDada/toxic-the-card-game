@@ -145,6 +145,9 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginBottom: 30,
     textAlign: 'center',
+    textShadowColor: colors.accent,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   card: {
     backgroundColor: colors.card,
@@ -152,8 +155,8 @@ const styles = StyleSheet.create({
     padding: 24,
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: colors.secondary,
-    boxShadow: '0px 4px 8px rgba(148, 0, 211, 0.15)',
+    borderColor: colors.cardBorder,
+    boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
     elevation: 4,
   },
   sectionTitle: {
@@ -186,7 +189,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   warningCard: {
-    backgroundColor: colors.highlight,
+    backgroundColor: colors.darkGreen,
     borderColor: colors.accent,
     alignItems: 'center',
   },

@@ -23,6 +23,15 @@ export function Button({ title, onPress, variant = 'primary', disabled, style }:
     }
   };
 
+  const getTextColor = () => {
+    switch (variant) {
+      case 'secondary':
+        return colors.primary;
+      default:
+        return colors.black;
+    }
+  };
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -30,12 +39,13 @@ export function Button({ title, onPress, variant = 'primary', disabled, style }:
       style={[
         styles.button,
         { backgroundColor: getBackgroundColor() },
+        variant === 'secondary' && styles.secondaryButton,
         disabled && styles.disabled,
         style,
       ]}
       activeOpacity={0.8}
     >
-      <Text style={styles.buttonText}>{title}</Text>
+      <Text style={[styles.buttonText, { color: getTextColor() }]}>{title}</Text>
     </TouchableOpacity>
   );
 }
@@ -48,11 +58,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 200,
-    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0px 4px 6px rgba(0, 255, 65, 0.3)',
     elevation: 3,
+    borderWidth: 2,
+    borderColor: colors.primary,
+  },
+  secondaryButton: {
+    borderColor: colors.cardBorder,
   },
   buttonText: {
-    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '700',
   },

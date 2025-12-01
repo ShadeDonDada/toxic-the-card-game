@@ -12,7 +12,7 @@ export default function HomeScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
-        <Text style={styles.logo}>💀</Text>
+        <Text style={styles.logo}>☠️</Text>
         <Text style={styles.title}>TOXIC</Text>
         <Text style={styles.subtitle}>The Card Game</Text>
         <Text style={styles.tagline}>&quot;Extracting the poison out of you&quot;</Text>
@@ -96,6 +96,9 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: colors.primary,
     letterSpacing: 4,
+    textShadowColor: colors.accent,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   subtitle: {
     fontSize: 20,
@@ -115,8 +118,8 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 30,
     borderWidth: 2,
-    borderColor: colors.secondary,
-    boxShadow: '0px 4px 8px rgba(148, 0, 211, 0.15)',
+    borderColor: colors.cardBorder,
+    boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
     elevation: 4,
   },
   descriptionText: {
@@ -136,8 +139,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.secondary,
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
   },
   featureText: {
     fontSize: 18,

@@ -9,6 +9,7 @@ export default function TabLayout() {
       backBehavior="history"
       ignoresTopSafeArea
       tabBarActiveTintColor={colors.primary}
+      tabBarInactiveTintColor={colors.textSecondary}
     >
       <NativeTabs.Screen
         name="(home)"

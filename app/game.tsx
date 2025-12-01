@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     backgroundColor: colors.card,
     borderBottomWidth: 2,
-    borderBottomColor: colors.secondary,
+    borderBottomColor: colors.primary,
   },
   backButton: {
     marginRight: 16,
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: colors.secondary,
+    borderColor: colors.cardBorder,
   },
   scoresTitle: {
     fontSize: 18,
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: colors.secondary,
+    borderColor: colors.cardBorder,
   },
   playedCardPlayer: {
     fontSize: 18,
