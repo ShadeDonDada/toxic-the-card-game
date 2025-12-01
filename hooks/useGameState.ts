@@ -25,7 +25,7 @@ export function useGameState() {
     return shuffled;
   };
 
-  const initializeGame = useCallback((playerCount: number) => {
+  const initializeGame = useCallback((playerCount: number, playerNames: string[] = []) => {
     console.log('Initializing game with', playerCount, 'players');
     
     const shuffledScenarios = shuffleArray(scenarioCards);
@@ -45,7 +45,7 @@ export function useGameState() {
       
       players.push({
         id: `player-${i + 1}`,
-        name: `Player ${i + 1}`,
+        name: playerNames[i] || `Player ${i + 1}`,
         hand,
         score: 0,
         hasExchanged: false,

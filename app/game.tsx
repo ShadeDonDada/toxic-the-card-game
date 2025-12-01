@@ -13,6 +13,18 @@ export default function GameScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const playerCount = parseInt(params.playerCount as string) || 4;
+  const playerNamesParam = params.playerNames as string;
+  
+  let playerNames: string[] = [];
+  try {
+    playerNames = playerNamesParam ? JSON.parse(playerNamesParam) : [];
+  } catch (e) {
+    console.log('Error parsing player names:', e);
+  }
+  
+  if (playerNames.length === 0) {
+    playerNames = Array.from({ length: playerCount }, (_, i) => `Player ${i + 1}`);
+  }
   
   const {
     gameState,
@@ -29,7 +41,7 @@ export default function GameScreen() {
   const [showExchangeOptions, setShowExchangeOptions] = useState(false);
 
   useEffect(() => {
-    initializeGame(playerCount);
+    initializeGame(playerCount, playerNames);
   }, [playerCount, initializeGame]);
 
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
@@ -91,35 +103,39 @@ export default function GameScreen() {
   };
 
   const handleAwardPoint = (playerId: string) => {
-    awardPoint(playerId);
-    Alert.alert('Point Awarded!', `${gameState.players.find(p => p.id === playerId)?.name} gets a point!`);
-  };
-
-  const handleNextRound = () => {
-    if (gameState.scenarioDeck.length === 0) {
-      Alert.alert(
-        'Game Over!',
-        'No more scenarios! Check the scores to see who won.',
-        [
-          {
-            text: 'View Scores',
-            onPress: () => {
-              console.log('Viewing scores');
-            },
-          },
-          {
-            text: 'New Game',
-            onPress: () => {
-              resetGame();
-              router.back();
-            },
-          },
-        ]
-      );
+    const player = gameState.players.find(p => p.id === playerId);
+    if (!player) {
+      console.log('Player not found');
       return;
     }
+
+    awardPoint(playerId);
     
-    nextRound();
+    setTimeout(() => {
+      if (gameState.scenarioDeck.length === 0) {
+        Alert.alert(
+          'Game Over!',
+          `${player.name} wins the final round! Check the scores to see who won the game.`,
+          [
+            {
+              text: 'View Final Scores',
+              onPress: () => {
+                console.log('Viewing final scores');
+              },
+            },
+            {
+              text: 'New Game',
+              onPress: () => {
+                resetGame();
+                router.back();
+              },
+            },
+          ]
+        );
+      } else {
+        nextRound();
+      }
+    }, 1500);
   };
 
   if (!gameState.gameStarted || !currentPlayer) {
@@ -202,13 +218,6 @@ export default function GameScreen() {
                 );
               })}
             </View>
-
-            <Button
-              title="Next Round"
-              onPress={handleNextRound}
-              variant="primary"
-              style={styles.nextRoundButton}
-            />
           </View>
         ) : (
           <>
@@ -434,8 +443,5 @@ const styles = StyleSheet.create({
   },
   awardButton: {
     marginTop: 12,
-  },
-  nextRoundButton: {
-    width: '100%',
   },
 });

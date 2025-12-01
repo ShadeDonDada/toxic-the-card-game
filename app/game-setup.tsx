@@ -12,7 +12,7 @@ export default function GameSetupScreen() {
 
   const handleStartGame = () => {
     router.push({
-      pathname: '/game',
+      pathname: '/player-names',
       params: { playerCount: playerCount.toString() },
     });
   };
@@ -95,7 +95,7 @@ export default function GameSetupScreen() {
       </View>
 
       <Button
-        title="Start Game"
+        title="Continue"
         onPress={handleStartGame}
         variant="primary"
         style={styles.startButton}
