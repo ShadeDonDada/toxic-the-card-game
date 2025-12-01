@@ -176,6 +176,30 @@ export function useGameState() {
     });
   }, []);
 
+  const changeScenarioAndContinue = useCallback(() => {
+    console.log('All players passed - changing scenario and continuing play');
+    
+    setGameState((prev) => {
+      if (prev.scenarioDeck.length === 0) {
+        console.log('No more scenarios available');
+        return prev;
+      }
+      
+      const nextScenario = prev.scenarioDeck[0];
+      const remainingScenarios = prev.scenarioDeck.slice(1);
+      
+      // Reset played cards and keep the same player order
+      // The current player index is already set to the next player
+      return {
+        ...prev,
+        currentScenario: nextScenario,
+        scenarioDeck: remainingScenarios,
+        playedCards: [],
+        roundComplete: false,
+      };
+    });
+  }, []);
+
   const exchangeCard = useCallback((fromPlayerId: string, cardId: string, direction: 'previous' | 'next') => {
     console.log('Exchanging card from', fromPlayerId, 'with', direction, 'player');
     
@@ -316,5 +340,6 @@ export function useGameState() {
     awardPoint,
     resetGame,
     updateCustomText,
+    changeScenarioAndContinue,
   };
 }

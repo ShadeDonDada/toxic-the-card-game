@@ -54,7 +54,7 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's45', text: 'The in-laws are coming over, and they make a comment about how small your place is. What do you say?', category: 'Family' },
   
   // Friends Category
-  { id: 's46', text: 'Your best friends new partner just commented "that is why you are single" to something you just said. How do you respond?', category: 'Friends' },
+  { id: 's46', text: 'Your best friends new partner just commented "that&apos;s why you are single" to something you just said. How do you respond?', category: 'Friends' },
   { id: 's47', text: 'You just found out one of your friends is sleeping with another one of your friends partners. This is the same friend that called you a mess earlier this week. What do you say to them?', category: 'Friends' },
   { id: 's48', text: 'Your friend who would never give you a ride when you asked is now asking you for one. What do you say to them?', category: 'Friends' },
   { id: 's49', text: 'Your friend just announced they are pregnant and has no idea who the father could be. What do you say?', category: 'Friends' },

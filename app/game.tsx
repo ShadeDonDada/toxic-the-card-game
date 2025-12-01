@@ -37,6 +37,7 @@ export default function GameScreen() {
     awardPoint,
     resetGame,
     updateCustomText,
+    changeScenarioAndContinue,
   } = useGameState();
 
   const [selectedCardId, setSelectedCardId] = useState<string | undefined>();
@@ -70,6 +71,12 @@ export default function GameScreen() {
   const showPassPhonePrompt = (nextPlayer: string) => {
     setNextPlayerName(nextPlayer);
     setShowPassPhoneModal(true);
+  };
+
+  const checkIfAllPlayersPassed = () => {
+    // Check if all played cards are "PASSED" entries
+    return gameState.playedCards.length === gameState.players.length &&
+           gameState.playedCards.every(played => played.card.text === 'PASSED');
   };
 
   const handlePlayCard = () => {
@@ -150,10 +157,63 @@ export default function GameScreen() {
             const willBeRoundComplete = gameState.playedCards.length + 1 === gameState.players.length;
             
             if (willBeRoundComplete) {
-              // All players have answered or passed - show point selection
-              setTimeout(() => {
-                setShowPointSelection(true);
-              }, 200);
+              // Check if all players passed
+              const willAllPass = gameState.playedCards.every(played => played.card.text === 'PASSED');
+              
+              if (willAllPass) {
+                // All players passed - change scenario and continue
+                setTimeout(() => {
+                  if (gameState.scenarioDeck.length === 0) {
+                    Alert.alert(
+                      'Game Over!',
+                      'All players passed and there are no more scenarios. Check the scores to see who won!',
+                      [
+                        {
+                          text: 'View Final Scores',
+                          onPress: () => {
+                            console.log('Viewing final scores');
+                          },
+                        },
+                        {
+                          text: 'New Game',
+                          onPress: () => {
+                            resetGame();
+                            router.replace('/(tabs)/(home)/');
+                          },
+                        },
+                      ]
+                    );
+                  } else {
+                    Alert.alert(
+                      'All Players Passed!',
+                      'Everyone passed on this scenario. A new scenario will be presented.',
+                      [
+                        {
+                          text: 'Continue',
+                          onPress: () => {
+                            changeScenarioAndContinue();
+                            
+                            // Scroll to top after changing scenario
+                            setTimeout(() => {
+                              scrollToTop();
+                            }, 100);
+
+                            // Show pass phone prompt for the next player
+                            setTimeout(() => {
+                              showPassPhonePrompt(nextPlayer.name);
+                            }, 200);
+                          },
+                        },
+                      ]
+                    );
+                  }
+                }, 200);
+              } else {
+                // Some players played cards - show point selection
+                setTimeout(() => {
+                  setShowPointSelection(true);
+                }, 200);
+              }
             } else {
               // Show pass phone prompt for next player
               setTimeout(() => {
