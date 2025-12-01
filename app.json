@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "Toxic - The Card Game",
@@ -15,8 +16,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.Natively",
+      "requireFullScreen": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIViewControllerBasedStatusBarAppearance": false,
+        "UIStatusBarHidden": true
       }
     },
     "android": {
@@ -25,7 +29,11 @@
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Natively"
+      "package": "com.anonymous.Natively",
+      "statusBar": {
+        "hidden": true,
+        "translucent": true
+      }
     },
     "web": {
       "favicon": "./assets/images/final_quest_240x240.png",

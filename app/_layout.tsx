@@ -79,7 +79,7 @@ export default function RootLayout() {
   
   return (
     <>
-      <StatusBar style="auto" animated />
+      <StatusBar hidden />
         <ThemeProvider
           value={colorScheme === "dark" ? CustomDarkTheme : CustomDefaultTheme}
         >
@@ -103,6 +103,13 @@ export default function RootLayout() {
               />
               <Stack.Screen
                 name="game"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="player-names"
                 options={{
                   headerShown: false,
                   presentation: "card",
@@ -133,7 +140,7 @@ export default function RootLayout() {
                 }}
               />
             </Stack>
-            <SystemBars style={"auto"} />
+            <SystemBars style={"light"} hidden />
             </GestureHandlerRootView>
           </WidgetProvider>
         </ThemeProvider>
