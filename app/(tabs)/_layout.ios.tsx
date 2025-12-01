@@ -1,25 +1,16 @@
 
 import React from 'react';
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { colors } from '@/styles/commonStyles';
+import { Stack } from 'expo-router';
 
 export default function TabLayout() {
   return (
-    <NativeTabs
-      backBehavior="history"
-      ignoresTopSafeArea
-      tabBarActiveTintColor={colors.primary}
-      tabBarInactiveTintColor={colors.textSecondary}
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: 'none',
+      }}
     >
-      <NativeTabs.Screen
-        name="(home)"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ focused }) => ({
-            sfSymbol: focused ? 'house.fill' : 'house',
-          }),
-        }}
-      />
-    </NativeTabs>
+      <Stack.Screen key="home" name="(home)" />
+    </Stack>
   );
 }
