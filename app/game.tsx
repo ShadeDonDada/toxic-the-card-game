@@ -132,7 +132,7 @@ export default function GameScreen() {
     
     Alert.alert(
       'Pass Turn',
-      `Are you sure you want to pass? ${nextPlayer.name} will receive a point and a new round will begin.`,
+      'Are you sure you want to pass? The game will continue to the next player.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -146,10 +146,20 @@ export default function GameScreen() {
               scrollToTop();
             }, 100);
 
-            // Show pass phone prompt
-            setTimeout(() => {
-              showPassPhonePrompt(nextPlayer.name);
-            }, 200);
+            // Check if all players have now played or passed
+            const willBeRoundComplete = gameState.playedCards.length + 1 === gameState.players.length;
+            
+            if (willBeRoundComplete) {
+              // All players have answered or passed - show point selection
+              setTimeout(() => {
+                setShowPointSelection(true);
+              }, 200);
+            } else {
+              // Show pass phone prompt for next player
+              setTimeout(() => {
+                showPassPhonePrompt(nextPlayer.name);
+              }, 200);
+            }
           },
         },
       ]
@@ -341,12 +351,25 @@ export default function GameScreen() {
           <View style={styles.pointSelectionContainer}>
             <Text style={styles.pointSelectionTitle}>Who Gets the Point? 🏆</Text>
             <Text style={styles.pointSelectionSubtitle}>
-              All players have answered! Review the cards and award a point.
+              All players have responded! Review the cards and award a point.
             </Text>
             
             <View style={styles.playedCardsContainer}>
               {gameState.playedCards.map((played, index) => {
                 const player = gameState.players.find(p => p.id === played.playerId);
+                const isPassed = played.card.text === 'PASSED';
+                
+                if (isPassed) {
+                  return (
+                    <View key={index} style={styles.playedCardItem}>
+                      <Text style={styles.playedCardPlayer}>{player?.name}</Text>
+                      <View style={[styles.playedCardWrapper, styles.passedCardWrapper]}>
+                        <Text style={styles.passedCardText}>⏭️ PASSED</Text>
+                      </View>
+                    </View>
+                  );
+                }
+                
                 const displayText = played.card.isCustom && played.card.customText 
                   ? played.card.customText 
                   : played.card.text;
@@ -650,12 +673,22 @@ const styles = StyleSheet.create({
     minHeight: 80,
     justifyContent: 'center',
   },
+  passedCardWrapper: {
+    backgroundColor: colors.textSecondary,
+    opacity: 0.6,
+  },
   playedCardText: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
     textAlign: 'center',
     lineHeight: 22,
+  },
+  passedCardText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    textAlign: 'center',
   },
   customBadge: {
     fontSize: 12,
