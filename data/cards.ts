@@ -52,6 +52,23 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's43', text: 'You just found out that your entire family knew about your partner&apos;s affair, and they helped them keep the secret for months. What do you say?', category: 'Family' },
   { id: 's44', text: 'Your new sister-in-law just challenged you to a rap battle, and then used a jab from a childhood story your brother told her. What do you say next?', category: 'Family' },
   { id: 's45', text: 'The in-laws are coming over, and they make a comment about how small your place is. What do you say?', category: 'Family' },
+  
+  // Friends Category
+  { id: 's46', text: 'Your best friend&apos;s new partner just commented "that&apos;s why you&apos;re single" to something you just said. How do you respond?', category: 'Friends' },
+  { id: 's47', text: 'You just found out one of your friends is sleeping with another one of your friend&apos;s partners. This is the same friend that called you a mess earlier this week. What do you say to them?', category: 'Friends' },
+  { id: 's48', text: 'Your friend who would never give you a ride when you asked is now asking you for one. What do you say to them?', category: 'Friends' },
+  { id: 's49', text: 'Your friend just announced they&apos;re pregnant and has no idea who the father could be. What do you say?', category: 'Friends' },
+  { id: 's50', text: 'Your friend is on the rebound and announces they want to be more than friends. After trying it out, you don&apos;t even want to be their friend anymore. Say something to end this situation-ship.', category: 'Friends' },
+  { id: 's51', text: 'Your friend is constantly running late when it&apos;s something for you. Now they&apos;re asking for a favor. What do you say?', category: 'Friends' },
+  { id: 's52', text: 'Your friend goes after the one you had your eye on, knowingly. What do you say to ruin it for them?', category: 'Friends' },
+  { id: 's53', text: 'Your friend just came over and demolished your entire fridge. On your next hangout session, you ask them to pick you up a drink and they bring it to you with the bill. How do you respond to this?', category: 'Friends' },
+  { id: 's54', text: 'Your friend&apos;s roommate comes home and tells you; you need to leave now. What do you say?', category: 'Friends' },
+  { id: 's55', text: 'Your friend gets drunk during a games night and spills a bunch of your personal information. What do you say to them the next day?', category: 'Friends' },
+  { id: 's56', text: 'You find out that your friend cancelled on you to go do something with the rest of your friends, without you. What do you say the next time they try to make plans with you?', category: 'Friends' },
+  { id: 's57', text: 'Your friend chose someone else to be their best man/maid of honor, who pulled out days before the wedding. What do you say when they come to you with the pity ask?', category: 'Friends' },
+  { id: 's58', text: 'You find out your best friend spent the past week trying to convince your partner to leave you by highlighting a bunch of negative things about you. You walk up to them and say...', category: 'Friends' },
+  { id: 's59', text: 'Your friend decides to take back their terrible ex right after asking you for advice, where you responded not to. What do you say to them?', category: 'Friends' },
+  { id: 's60', text: 'Your friend asks you to entertain their dates friend while they do their thing. You ask for the same in return the next time you go out, and they say no. Say something to ruin their night.', category: 'Friends' },
 ];
 
 export const responseCards: ResponseCard[] = [
