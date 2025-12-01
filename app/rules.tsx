@@ -44,7 +44,7 @@ export default function RulesScreen() {
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>3.</Text>
-          <Text style={styles.ruleText}>Game is played on one device</Text>
+          <Text style={styles.ruleText}>Game is played on one phone</Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>4.</Text>
@@ -52,7 +52,7 @@ export default function RulesScreen() {
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>5.</Text>
-          <Text style={styles.ruleText}>Pass the device to each player when it&apos;s their turn</Text>
+          <Text style={styles.ruleText}>Pass the phone to each player when it&apos;s their turn</Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>6.</Text>
