@@ -50,6 +50,18 @@ export default function ThankYouScreen() {
           Remember to keep it light-hearted and enjoy the laughs with your friends!
         </Text>
       </View>
+
+      <View style={styles.contactCard}>
+        <IconSymbol
+          ios_icon_name="envelope.fill"
+          android_material_icon_name="email"
+          size={32}
+          color={colors.primary}
+          style={styles.contactIcon}
+        />
+        <Text style={styles.contactLabel}>Contact:</Text>
+        <Text style={styles.contactEmail}>sa.pennant@gmail.com</Text>
+      </View>
     </ScrollView>
   );
 }
@@ -118,5 +130,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     fontWeight: '600',
+  },
+  contactCard: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
+    boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
+    elevation: 4,
+    alignItems: 'center',
+  },
+  contactIcon: {
+    marginBottom: 12,
+  },
+  contactLabel: {
+    fontSize: 16,
+    color: colors.text,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  contactEmail: {
+    fontSize: 18,
+    color: colors.primary,
+    fontWeight: '700',
   },
 });
