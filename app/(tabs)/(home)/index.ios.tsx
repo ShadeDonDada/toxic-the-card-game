@@ -90,10 +90,11 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 30,
+    width: '100%',
   },
   logo: {
-    width: screenWidth * 0.95,
-    height: (screenWidth * 0.95) * 0.8,
+    width: screenWidth - 20,
+    height: (screenWidth - 20) * 0.8,
     marginBottom: 20,
   },
   tagline: {
