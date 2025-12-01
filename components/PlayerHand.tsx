@@ -10,9 +10,16 @@ interface PlayerHandProps {
   onCardPress: (cardId: string) => void;
   selectedCardId?: string;
   disabled?: boolean;
+  onCustomTextChange?: (cardId: string, text: string) => void;
 }
 
-export function PlayerHand({ cards, onCardPress, selectedCardId, disabled }: PlayerHandProps) {
+export function PlayerHand({ 
+  cards, 
+  onCardPress, 
+  selectedCardId, 
+  disabled,
+  onCustomTextChange 
+}: PlayerHandProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Your Hand ({cards.length} cards)</Text>
@@ -29,6 +36,13 @@ export function PlayerHand({ cards, onCardPress, selectedCardId, disabled }: Pla
               onPress={() => onCardPress(card.id)}
               selected={selectedCardId === card.id}
               disabled={disabled}
+              isCustom={card.isCustom}
+              customText={card.customText}
+              onCustomTextChange={(text) => {
+                if (onCustomTextChange) {
+                  onCustomTextChange(card.id, text);
+                }
+              }}
             />
           </View>
         ))}

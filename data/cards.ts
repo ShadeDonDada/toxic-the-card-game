@@ -200,4 +200,6 @@ export const responseCards: ResponseCard[] = [
   { id: 'r58', text: 'Send a passive-aggressive "Hope you&apos;re well!"' },
   { id: 'r59', text: 'Make a vision board without them in it' },
   { id: 'r60', text: 'Tell them you&apos;re too busy for drama while creating more drama' },
+  { id: 'r61', text: 'Create your own response', isCustom: true },
+  { id: 'r62', text: 'Create your own response', isCustom: true },
 ];

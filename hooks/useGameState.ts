@@ -38,7 +38,7 @@ export function useGameState() {
       const hand: ResponseCard[] = [];
       for (let j = 0; j < 6; j++) {
         if (deckIndex < shuffledResponses.length) {
-          hand.push(shuffledResponses[deckIndex]);
+          hand.push({ ...shuffledResponses[deckIndex] });
           deckIndex++;
         }
       }
@@ -67,6 +67,32 @@ export function useGameState() {
     });
   }, []);
 
+  const updateCustomText = useCallback((playerId: string, cardId: string, customText: string) => {
+    console.log('Updating custom text for player', playerId, 'card', cardId);
+    
+    setGameState((prev) => {
+      const updatedPlayers = prev.players.map((p) => {
+        if (p.id === playerId) {
+          return {
+            ...p,
+            hand: p.hand.map((c) => {
+              if (c.id === cardId && c.isCustom) {
+                return { ...c, customText };
+              }
+              return c;
+            }),
+          };
+        }
+        return p;
+      });
+      
+      return {
+        ...prev,
+        players: updatedPlayers,
+      };
+    });
+  }, []);
+
   const playCard = useCallback((playerId: string, cardId: string) => {
     console.log('Player', playerId, 'playing card', cardId);
     
@@ -80,6 +106,12 @@ export function useGameState() {
       const card = player.hand.find((c) => c.id === cardId);
       if (!card) {
         console.log('Card not found in player hand');
+        return prev;
+      }
+
+      // Check if it's a custom card without text
+      if (card.isCustom && (!card.customText || card.customText.trim() === '')) {
+        console.log('Custom card needs text');
         return prev;
       }
       
@@ -244,5 +276,6 @@ export function useGameState() {
     nextRound,
     awardPoint,
     resetGame,
+    updateCustomText,
   };
 }

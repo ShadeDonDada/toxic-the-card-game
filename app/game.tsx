@@ -35,6 +35,7 @@ export default function GameScreen() {
     nextRound,
     awardPoint,
     resetGame,
+    updateCustomText,
   } = useGameState();
 
   const [selectedCardId, setSelectedCardId] = useState<string | undefined>();
@@ -50,9 +51,25 @@ export default function GameScreen() {
     setSelectedCardId(cardId);
   };
 
+  const handleCustomTextChange = (cardId: string, text: string) => {
+    if (currentPlayer) {
+      updateCustomText(currentPlayer.id, cardId, text);
+    }
+  };
+
   const handlePlayCard = () => {
     if (!selectedCardId || !currentPlayer) {
       console.log('No card selected or no current player');
+      return;
+    }
+
+    const selectedCard = currentPlayer.hand.find(c => c.id === selectedCardId);
+    if (selectedCard?.isCustom && (!selectedCard.customText || selectedCard.customText.trim() === '')) {
+      Alert.alert(
+        'Custom Response Required',
+        'Please type your custom response before playing this card.',
+        [{ text: 'OK' }]
+      );
       return;
     }
     
@@ -204,10 +221,19 @@ export default function GameScreen() {
             <View style={styles.playedCardsContainer}>
               {gameState.playedCards.map((played, index) => {
                 const player = gameState.players.find(p => p.id === played.playerId);
+                const displayText = played.card.isCustom && played.card.customText 
+                  ? played.card.customText 
+                  : played.card.text;
+                
                 return (
                   <View key={index} style={styles.playedCardItem}>
                     <Text style={styles.playedCardPlayer}>{player?.name}</Text>
-                    <GameCard text={played.card.text} type="response" />
+                    <View style={styles.playedCardWrapper}>
+                      <Text style={styles.playedCardText}>{displayText}</Text>
+                      {played.card.isCustom && (
+                        <Text style={styles.customBadge}>✏️ Custom</Text>
+                      )}
+                    </View>
                     <Button
                       title="Award Point"
                       onPress={() => handleAwardPoint(played.playerId)}
@@ -260,6 +286,7 @@ export default function GameScreen() {
                   cards={currentPlayer.hand}
                   onCardPress={handleCardSelect}
                   selectedCardId={selectedCardId}
+                  onCustomTextChange={handleCustomTextChange}
                 />
 
                 <View style={styles.actionsContainer}>
@@ -440,6 +467,29 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginBottom: 12,
     textAlign: 'center',
+  },
+  playedCardWrapper: {
+    backgroundColor: colors.darkGreen,
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
+    minHeight: 80,
+    justifyContent: 'center',
+  },
+  playedCardText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  customBadge: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.accent,
+    textAlign: 'center',
+    marginTop: 8,
   },
   awardButton: {
     marginTop: 12,

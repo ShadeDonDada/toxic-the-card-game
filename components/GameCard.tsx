@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { colors } from '@/styles/commonStyles';
 
 interface GameCardProps {
@@ -9,14 +9,40 @@ interface GameCardProps {
   onPress?: () => void;
   selected?: boolean;
   disabled?: boolean;
+  isCustom?: boolean;
+  customText?: string;
+  onCustomTextChange?: (text: string) => void;
 }
 
-export function GameCard({ text, type, onPress, selected, disabled }: GameCardProps) {
+export function GameCard({ 
+  text, 
+  type, 
+  onPress, 
+  selected, 
+  disabled, 
+  isCustom,
+  customText,
+  onCustomTextChange 
+}: GameCardProps) {
   const isScenario = type === 'scenario';
+  const [localCustomText, setLocalCustomText] = useState(customText || '');
+  
+  const handleTextChange = (newText: string) => {
+    setLocalCustomText(newText);
+    if (onCustomTextChange) {
+      onCustomTextChange(newText);
+    }
+  };
+
+  const handleCardPress = () => {
+    if (onPress && !disabled) {
+      onPress();
+    }
+  };
   
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={handleCardPress}
       disabled={disabled || !onPress}
       activeOpacity={0.7}
       style={[
@@ -24,11 +50,29 @@ export function GameCard({ text, type, onPress, selected, disabled }: GameCardPr
         isScenario ? styles.scenarioCard : styles.responseCard,
         selected && styles.selectedCard,
         disabled && styles.disabledCard,
+        isCustom && styles.customCard,
       ]}
     >
-      <Text style={[styles.cardText, isScenario && styles.scenarioText]}>
-        {text}
-      </Text>
+      {isCustom ? (
+        <View style={styles.customContainer}>
+          <Text style={styles.customLabel}>✏️ Create Your Own Response</Text>
+          <TextInput
+            style={styles.customInput}
+            placeholder="Type your toxic response here..."
+            placeholderTextColor={colors.textSecondary}
+            value={localCustomText}
+            onChangeText={handleTextChange}
+            multiline
+            maxLength={200}
+            textAlign="center"
+          />
+          <Text style={styles.characterCount}>{localCustomText.length}/200</Text>
+        </View>
+      ) : (
+        <Text style={[styles.cardText, isScenario && styles.scenarioText]}>
+          {text}
+        </Text>
+      )}
       {isScenario && (
         <View style={styles.scenarioBadge}>
           <Text style={styles.badgeText}>SCENARIO</Text>
@@ -56,6 +100,11 @@ const styles = StyleSheet.create({
   responseCard: {
     backgroundColor: colors.card,
     borderColor: colors.cardBorder,
+  },
+  customCard: {
+    backgroundColor: colors.darkGreen,
+    borderColor: colors.accent,
+    borderStyle: 'dashed',
   },
   selectedCard: {
     borderColor: colors.accent,
@@ -92,5 +141,33 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 10,
     fontWeight: '800',
+  },
+  customContainer: {
+    width: '100%',
+    gap: 8,
+  },
+  customLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.accent,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  customInput: {
+    backgroundColor: colors.card,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 15,
+    color: colors.text,
+    minHeight: 80,
+    textAlignVertical: 'top',
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
+  },
+  characterCount: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    textAlign: 'right',
+    marginTop: 4,
   },
 });
