@@ -5,11 +5,11 @@
     "slug": "Toxic - The Card Game",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/natively-dark.png",
+    "icon": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/natively-dark.png",
+      "image": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -25,7 +25,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/natively-dark.png",
+        "foregroundImage": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png",
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
@@ -36,7 +36,7 @@
       }
     },
     "web": {
-      "favicon": "./assets/images/final_quest_240x240.png",
+      "favicon": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png",
       "bundler": "metro"
     },
     "plugins": [

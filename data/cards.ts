@@ -3,7 +3,7 @@ import { ScenarioCard, ResponseCard } from '@/types/game';
 
 export const scenarioCards: ScenarioCard[] = [
   // Relationships Category
-  { id: 's1', text: 'You&apos;re upset with your partner when they ask you where you&apos;re going.', category: 'Relationships' },
+  { id: 's1', text: 'You’re upset with your partner when they ask you where you’re going.', category: 'Relationships' },
   { id: 's2', text: 'Your partner who gained weight quickly is asking "how do I look?"', category: 'Relationships' },
   { id: 's3', text: 'Your partner is asking about your past in order to prove a point. Say something to start a fight.', category: 'Relationships' },
   { id: 's4', text: 'Your partner catches the hickey on your inner thigh which you both know they didn&apos;t give you. What do you say to divert the situation?', category: 'Relationships' },
@@ -259,4 +259,5 @@ export const responseCards: ResponseCard[] = [
   { id: 'r117', text: 'You make me sick.' },
   { id: 'r118', text: 'Create your own response.', isCustom: true },
   { id: 'r119', text: 'Create your own response.', isCustom: true },
+	{ id: 'r120', text: 'Create your own response.', isCustom: true },
 ];
