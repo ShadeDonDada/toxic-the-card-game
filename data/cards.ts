@@ -69,6 +69,23 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's58', text: 'You find out your best friend spent the past week trying to convince your partner to leave you by highlighting a bunch of negative things about you. You walk up to them and say...', category: 'Friends' },
   { id: 's59', text: 'Your friend decides to take back their terrible ex right after asking you for advice, where you responded not to. What do you say to them?', category: 'Friends' },
   { id: 's60', text: 'Your friend asks you to entertain their dates friend while they do their thing. You ask for the same in return the next time you go out, and they say no. Say something to ruin their night.', category: 'Friends' },
+  
+  // Sex Category
+  { id: 's61', text: 'They&apos;re into animal sounds, and not the usual kind. They ask you to make geese sounds while they hit it from the back. What words do you hit them with?', category: 'Sex' },
+  { id: 's62', text: 'You&apos;re into them because they keep you on your toes. But today, they want to dip yours in several condiments and suck on them. What are your last words to them?', category: 'Sex' },
+  { id: 's63', text: 'The Mariah Carey high notes they hit when they cum is starting to get on your nerves. How do you get them to quit?', category: 'Sex' },
+  { id: 's64', text: 'The alcohol is wearing off, and you look up as you&apos;re giving head to a face you can&apos;t look at sober. Say something to kill the mood.', category: 'Sex' },
+  { id: 's65', text: 'You chose the wrong person to leave the bar with. You&apos;re clearly getting cat-fished, and the night won&apos;t get better. What are your parting words?', category: 'Sex' },
+  { id: 's66', text: 'This sex sucks and you&apos;re not looking to stroke their ego when your partner asks &apos;do you like this?&apos; You say...', category: 'Sex' },
+  { id: 's67', text: 'You&apos;re bored, horny and in the mood for angry sex. Say something to start a fight and get you some.', category: 'Sex' },
+  { id: 's68', text: 'You&apos;re a freak, and your casual partner clearly isn&apos;t. They tell you you&apos;re abnormal as a result. What do you respond with?', category: 'Sex' },
+  { id: 's69', text: 'Your boyfriend cums five minutes into sex for the third time this week. What is the next thing you say?', category: 'Sex' },
+  { id: 's70', text: 'You just had a threesome, and you like the new partner way more. Say something to end it with your current partner.', category: 'Sex' },
+  { id: 's71', text: 'You were just about to cum, and your partner stopped a split second before. Get even with your words.', category: 'Sex' },
+  { id: 's72', text: 'You just learned about your partners hidden fetish, and it involves you two pretending to be your parents having sex. Say something to get rid of them forever.', category: 'Sex' },
+  { id: 's73', text: 'In the middle of sexting, your partner drops a joke about seeing someone else if you can&apos;t give them what they want. What do you reply with?', category: 'Sex' },
+  { id: 's74', text: 'You finally get to the point of having sex with your date, and they have a large tattoo of a Jesus face staring at you the entire time. What do you say to them?', category: 'Sex' },
+  { id: 's75', text: 'You open your eyes in the middle of having sex and see your partner playing a game on their phone. Say something.', category: 'Sex' },
 ];
 
 export const responseCards: ResponseCard[] = [
