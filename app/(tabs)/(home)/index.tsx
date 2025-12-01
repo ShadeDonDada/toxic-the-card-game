@@ -71,6 +71,12 @@ export default function HomeScreen() {
           variant="secondary"
           style={styles.button}
         />
+        <Button
+          title="Thank You"
+          onPress={() => router.push('/thank-you')}
+          variant="secondary"
+          style={styles.button}
+        />
       </View>
     </ScrollView>
   );
