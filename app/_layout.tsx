@@ -1,6 +1,6 @@
 
 import "react-native-reanimated";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
 import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -20,7 +20,7 @@ import { WidgetProvider } from "@/contexts/WidgetContext";
 SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
-  initialRouteName: "(tabs)",
+  initialRouteName: "splash",
 };
 
 export default function RootLayout() {
@@ -32,7 +32,8 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      // Don't hide splash screen immediately, let the splash component handle it
+      console.log('Fonts loaded');
     }
   }, [loaded]);
 
@@ -86,6 +87,7 @@ export default function RootLayout() {
           <WidgetProvider>
             <GestureHandlerRootView>
             <Stack>
+              <Stack.Screen name="splash" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="game-setup"
@@ -96,6 +98,13 @@ export default function RootLayout() {
               />
               <Stack.Screen
                 name="rules"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="thank-you"
                 options={{
                   headerShown: false,
                   presentation: "card",
