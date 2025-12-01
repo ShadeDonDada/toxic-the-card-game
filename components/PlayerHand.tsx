@@ -1,0 +1,59 @@
+
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { GameCard } from './GameCard';
+import { ResponseCard } from '@/types/game';
+import { colors } from '@/styles/commonStyles';
+
+interface PlayerHandProps {
+  cards: ResponseCard[];
+  onCardPress: (cardId: string) => void;
+  selectedCardId?: string;
+  disabled?: boolean;
+}
+
+export function PlayerHand({ cards, onCardPress, selectedCardId, disabled }: PlayerHandProps) {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Your Hand ({cards.length} cards)</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {cards.map((card, index) => (
+          <View key={index} style={styles.cardWrapper}>
+            <GameCard
+              text={card.text}
+              type="response"
+              onPress={() => onCardPress(card.id)}
+              selected={selectedCardId === card.id}
+              disabled={disabled}
+            />
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 12,
+    paddingHorizontal: 16,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  cardWrapper: {
+    width: 200,
+    marginRight: 12,
+  },
+});
