@@ -92,8 +92,8 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   logo: {
-    width: screenWidth - 40,
-    height: (screenWidth - 40) * 0.8,
+    width: screenWidth * 0.95,
+    height: (screenWidth * 0.95) * 0.8,
     marginBottom: 20,
   },
   tagline: {
