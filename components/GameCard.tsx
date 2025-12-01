@@ -53,6 +53,11 @@ export function GameCard({
         isCustom && styles.customCard,
       ]}
     >
+      {isScenario && (
+        <View style={styles.scenarioBadge}>
+          <Text style={styles.badgeText}>SCENARIO</Text>
+        </View>
+      )}
       {isCustom ? (
         <View style={styles.customContainer}>
           <Text style={styles.customLabel}>✏️ Create Your Own Response</Text>
@@ -73,11 +78,6 @@ export function GameCard({
           {text}
         </Text>
       )}
-      {isScenario && (
-        <View style={styles.scenarioBadge}>
-          <Text style={styles.badgeText}>SCENARIO</Text>
-        </View>
-      )}
     </TouchableOpacity>
   );
 }
@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
   scenarioCard: {
     backgroundColor: colors.black,
     borderColor: colors.primary,
+    paddingTop: 40,
   },
   responseCard: {
     backgroundColor: colors.card,
@@ -128,8 +129,8 @@ const styles = StyleSheet.create({
   },
   scenarioBadge: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 10,
+    left: 10,
     backgroundColor: colors.darkGreen,
     paddingHorizontal: 8,
     paddingVertical: 4,

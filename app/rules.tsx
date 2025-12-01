@@ -65,7 +65,7 @@ export default function RulesScreen() {
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>7.</Text>
           <Text style={styles.ruleText}>
-            Objective: Create the most toxic scenario through the cards
+            Create the most toxic scenario through the cards
           </Text>
         </View>
         <View style={styles.ruleItem}>
@@ -97,7 +97,7 @@ export default function RulesScreen() {
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>13.</Text>
           <Text style={styles.ruleText}>
-            Playing while drinking is highly encouraged 🍺
+            Playing while drinking is highly encouraged 🍺 21+
           </Text>
         </View>
       </View>
