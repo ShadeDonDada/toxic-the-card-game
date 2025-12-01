@@ -83,15 +83,23 @@ export default function GameScreen() {
       return;
     }
     
+    // Calculate next player
+    let nextPlayerIndex = gameState.currentPlayerIndex - 1;
+    if (nextPlayerIndex < 0) {
+      nextPlayerIndex = gameState.players.length - 1;
+    }
+    const nextPlayer = gameState.players[nextPlayerIndex];
+    
     Alert.alert(
       'Pass Turn',
-      'Are you sure you want to pass? You won&apos;t play a card this turn.',
+      `Are you sure you want to pass? ${nextPlayer.name} will receive a point and a new round will begin.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Pass',
           onPress: () => {
             passCard(currentPlayer.id);
+            setSelectedCardId(undefined);
           },
         },
       ]

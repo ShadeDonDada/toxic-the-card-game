@@ -145,17 +145,70 @@ export function useGameState() {
   }, []);
 
   const passCard = useCallback((playerId: string) => {
-    console.log('Player', playerId, 'passing');
+    console.log('Player', playerId, 'passing - awarding point to next player and starting new round');
     
     setGameState((prev) => {
+      // Calculate next player index (counterclockwise)
       let nextPlayerIndex = prev.currentPlayerIndex - 1;
       if (nextPlayerIndex < 0) {
         nextPlayerIndex = prev.players.length - 1;
       }
       
+      const nextPlayerId = prev.players[nextPlayerIndex].id;
+      
+      // Check if there are more scenarios
+      if (prev.scenarioDeck.length === 0) {
+        console.log('No more scenarios available');
+        return prev;
+      }
+      
+      // Get next scenario
+      const nextScenario = prev.scenarioDeck[0];
+      const remainingScenarios = prev.scenarioDeck.slice(1);
+      
+      // Shuffle all response cards to create a fresh deck
+      const allResponseCards = shuffleArray(responseCards);
+      let deckIndex = 0;
+      
+      // Deal new hands to all players (6 cards each)
+      const updatedPlayers = prev.players.map((p) => {
+        const newHand: ResponseCard[] = [];
+        for (let i = 0; i < 6; i++) {
+          if (deckIndex < allResponseCards.length) {
+            newHand.push({ ...allResponseCards[deckIndex] });
+            deckIndex++;
+          }
+        }
+        
+        // Award point to next player
+        if (p.id === nextPlayerId) {
+          return {
+            ...p,
+            hand: newHand,
+            score: p.score + 1,
+            hasExchanged: false,
+          };
+        }
+        
+        return {
+          ...p,
+          hand: newHand,
+          hasExchanged: false,
+        };
+      });
+      
+      const remainingDeck = allResponseCards.slice(deckIndex);
+      
       return {
         ...prev,
+        players: updatedPlayers,
         currentPlayerIndex: nextPlayerIndex,
+        currentScenario: nextScenario,
+        scenarioDeck: remainingScenarios,
+        responseDeck: remainingDeck,
+        playedCards: [],
+        round: prev.round + 1,
+        roundComplete: false,
       };
     });
   }, []);
