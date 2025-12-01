@@ -10,6 +10,7 @@ export interface Player {
 export interface ScenarioCard {
   id: string;
   text: string;
+  category?: string;
 }
 
 export interface ResponseCard {
