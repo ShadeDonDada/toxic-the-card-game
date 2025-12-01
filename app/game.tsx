@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { colors } from '@/styles/commonStyles';
@@ -14,6 +14,7 @@ export default function GameScreen() {
   const params = useLocalSearchParams();
   const playerCount = parseInt(params.playerCount as string) || 4;
   const playerNamesParam = params.playerNames as string;
+  const scrollViewRef = useRef<ScrollView>(null);
   
   let playerNames: string[] = [];
   try {
@@ -57,6 +58,12 @@ export default function GameScreen() {
     }
   };
 
+  const scrollToTop = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    }
+  };
+
   const handlePlayCard = () => {
     if (!selectedCardId || !currentPlayer) {
       console.log('No card selected or no current player');
@@ -75,6 +82,11 @@ export default function GameScreen() {
     
     playCard(currentPlayer.id, selectedCardId);
     setSelectedCardId(undefined);
+    
+    // Scroll to top after playing the card
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
   };
 
   const handlePass = () => {
@@ -100,6 +112,11 @@ export default function GameScreen() {
           onPress: () => {
             passCard(currentPlayer.id);
             setSelectedCardId(undefined);
+            
+            // Scroll to top after passing
+            setTimeout(() => {
+              scrollToTop();
+            }, 100);
           },
         },
       ]
@@ -193,6 +210,11 @@ export default function GameScreen() {
         );
       } else {
         nextRound();
+        
+        // Scroll to top after awarding point and starting new round
+        setTimeout(() => {
+          scrollToTop();
+        }, 100);
       }
     }, 1500);
   };
@@ -258,7 +280,11 @@ export default function GameScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        ref={scrollViewRef}
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollContent}
+      >
         {gameState.currentScenario && (
           <View style={styles.scenarioContainer}>
             <Text style={styles.scenarioLabel}>Current Scenario</Text>
