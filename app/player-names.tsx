@@ -17,16 +17,30 @@ export default function PlayerNamesScreen() {
 
   const handleNameChange = (index: number, name: string) => {
     const updatedNames = [...playerNames];
-    updatedNames[index] = name || `Player ${index + 1}`;
+    updatedNames[index] = name;
     setPlayerNames(updatedNames);
   };
 
+  const handleNameBlur = (index: number) => {
+    // Only set default name if the field is empty when user finishes editing
+    if (!playerNames[index] || playerNames[index].trim() === '') {
+      const updatedNames = [...playerNames];
+      updatedNames[index] = `Player ${index + 1}`;
+      setPlayerNames(updatedNames);
+    }
+  };
+
   const handleStartGame = () => {
+    // Ensure all names are filled before starting
+    const finalNames = playerNames.map((name, index) => 
+      name && name.trim() !== '' ? name : `Player ${index + 1}`
+    );
+    
     router.push({
       pathname: '/game',
       params: { 
         playerCount: playerCount.toString(),
-        playerNames: JSON.stringify(playerNames),
+        playerNames: JSON.stringify(finalNames),
       },
     });
   };
@@ -67,6 +81,7 @@ export default function PlayerNamesScreen() {
                 style={styles.nameInput}
                 value={name}
                 onChangeText={(text) => handleNameChange(index, text)}
+                onBlur={() => handleNameBlur(index)}
                 placeholder={`Player ${index + 1}`}
                 placeholderTextColor={colors.textSecondary}
                 maxLength={20}
