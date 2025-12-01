@@ -1,10 +1,12 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -90,8 +92,8 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   logo: {
-    width: 280,
-    height: 200,
+    width: screenWidth - 40,
+    height: (screenWidth - 40) * 0.8,
     marginBottom: 20,
   },
   tagline: {

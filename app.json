@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Toxic Reaction",
-    "slug": "Toxic Reaction",
+    "name": "Toxic - The Card Game",
+    "slug": "Toxic - The Card Game",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/natively-dark.png",
@@ -44,5 +44,5 @@
       "router": {}
     }
   },
-  "scheme": "Toxic Reaction"
+  "scheme": "Toxic - The Card Game"
 }
