@@ -127,7 +127,7 @@ export default function GameScreen() {
               text: 'New Game',
               onPress: () => {
                 resetGame();
-                router.back();
+                router.replace('/(tabs)/(home)/');
               },
             },
           ]
@@ -162,7 +162,7 @@ export default function GameScreen() {
                   style: 'destructive',
                   onPress: () => {
                     resetGame();
-                    router.back();
+                    router.replace('/(tabs)/(home)/');
                   },
                 },
               ]
