@@ -120,6 +120,23 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's103', text: 'You go to sign up for a membership to your local club, and the attendant assumes your age to be 10 years older than you are. When you share your true age, he asks for ID. What do you say next?', category: 'Public Scenarios' },
   { id: 's104', text: 'A worker at the store keeps following you around insinuating you might shoplift. What do you turn around and say?', category: 'Public Scenarios' },
   { id: 's105', text: 'The front desk attendant at the physician&apos;s office repeats the purpose of your visit way too loud. Say something to them.', category: 'Public Scenarios' },
+  
+  // Self-Reflection Category
+  { id: 's106', text: 'You&apos;re late for every event and someone calls you out about it in front of everyone. What do you reply?', category: 'Self-Reflection' },
+  { id: 's107', text: 'Someone comments on the way you binge watch every show. Reply.', category: 'Self-Reflection' },
+  { id: 's108', text: 'You have been procrastinating a project at home & your family calls you out about it. Reply.', category: 'Self-Reflection' },
+  { id: 's109', text: 'You&apos;re called out about your lying. How do you reply?', category: 'Self-Reflection' },
+  { id: 's110', text: 'Knowing you have house chores; however, you decide to sleep in & your family calls you lazy, Reply.', category: 'Self-Reflection' },
+  { id: 's111', text: 'You partner buys you a gift & it&apos;s nothing you wanted. Reply.', category: 'Self-Reflection' },
+  { id: 's112', text: 'Your partner wants to leave you because you only care about yourself. Reply to them.', category: 'Self-Reflection' },
+  { id: 's113', text: 'You ask someone to do something, & they don&apos;t do it in a time you allocated now you&apos;re upset. Say something.', category: 'Self-Reflection' },
+  { id: 's114', text: 'You&apos;re a "know it all". Someone calls you out. Say something.', category: 'Self-Reflection' },
+  { id: 's115', text: 'Someone calls you out for always playing the victim roll. Say something.', category: 'Self-Reflection' },
+  { id: 's116', text: 'You get upset at your partner for something you drummed up. They call you out about it, reply.', category: 'Self-Reflection' },
+  { id: 's117', text: 'Your partner always has opportunities however says your fear makes them not want to include you. Reply.', category: 'Self-Reflection' },
+  { id: 's118', text: 'You never finish anything & it&apos;s annoying to everyone else, so you get called out. Reply.', category: 'Self-Reflection' },
+  { id: 's119', text: 'You overthink too much & it created issues with your partner. What&apos;s one of your replies in the argument?', category: 'Self-Reflection' },
+  { id: 's120', text: 'You noticed someone is getting too close to you. Say something to keep them at bay.', category: 'Self-Reflection' },
 ];
 
 export const responseCards: ResponseCard[] = [
