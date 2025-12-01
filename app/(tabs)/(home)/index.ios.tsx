@@ -71,6 +71,18 @@ export default function HomeScreen() {
           variant="secondary"
           style={styles.button}
         />
+        <Button
+          title="Thank You"
+          onPress={() => router.push('/thank-you')}
+          variant="secondary"
+          style={styles.button}
+        />
+      </View>
+
+      <View style={styles.copyrightContainer}>
+        <Text style={styles.copyrightText}>
+          © 2025 Steven A. Pennant. All rights reserved.
+        </Text>
       </View>
     </ScrollView>
   );
@@ -145,5 +157,18 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '100%',
+  },
+  copyrightContainer: {
+    marginTop: 40,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: colors.cardBorder,
+    width: '100%',
+    alignItems: 'center',
+  },
+  copyrightText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
 });
