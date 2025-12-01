@@ -385,27 +385,6 @@ export default function GameScreen() {
               </View>
             </View>
 
-            {gameState.playedCards.length > 0 && (
-              <View style={styles.playedCardsPreviewContainer}>
-                <Text style={styles.playedCardsPreviewTitle}>Played Cards This Round</Text>
-                {gameState.playedCards.map((played, index) => {
-                  const player = gameState.players.find(p => p.id === played.playerId);
-                  const displayText = played.card.isCustom && played.card.customText 
-                    ? played.card.customText 
-                    : played.card.text;
-                  
-                  return (
-                    <View key={index} style={styles.playedCardPreviewItem}>
-                      <Text style={styles.playedCardPreviewPlayer}>{player?.name}</Text>
-                      <View style={styles.playedCardPreviewWrapper}>
-                        <Text style={styles.playedCardPreviewText}>{displayText}</Text>
-                      </View>
-                    </View>
-                  );
-                })}
-              </View>
-            )}
-
             {showExchangeOptions ? (
               <View style={styles.exchangeContainer}>
                 <Text style={styles.exchangeTitle}>Exchange card with:</Text>
@@ -600,44 +579,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '900',
     color: colors.primary,
-  },
-  playedCardsPreviewContainer: {
-    padding: 20,
-    backgroundColor: colors.card,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.cardBorder,
-  },
-  playedCardsPreviewTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  playedCardPreviewItem: {
-    marginBottom: 12,
-  },
-  playedCardPreviewPlayer: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.primary,
-    marginBottom: 6,
-  },
-  playedCardPreviewWrapper: {
-    backgroundColor: colors.darkGreen,
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: colors.cardBorder,
-  },
-  playedCardPreviewText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    lineHeight: 20,
   },
   actionsContainer: {
     padding: 20,
