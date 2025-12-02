@@ -342,6 +342,56 @@ export function useGameState() {
     });
   }, []);
 
+  const restartGameWithSamePlayers = useCallback(() => {
+    console.log('Restarting game with same players');
+    
+    setGameState((prev) => {
+      // Extract player names from current players
+      const playerNames = prev.players.map(p => p.name);
+      const playerCount = prev.players.length;
+      
+      // Shuffle and deal new cards
+      const shuffledScenarios = shuffleArray(scenarioCards);
+      const shuffledResponses = shuffleArray(responseCards);
+      
+      const players: Player[] = [];
+      let deckIndex = 0;
+      
+      for (let i = 0; i < playerCount; i++) {
+        const hand: ResponseCard[] = [];
+        for (let j = 0; j < 6; j++) {
+          if (deckIndex < shuffledResponses.length) {
+            hand.push({ ...shuffledResponses[deckIndex] });
+            deckIndex++;
+          }
+        }
+        
+        players.push({
+          id: `player-${i + 1}`,
+          name: playerNames[i],
+          hand,
+          score: 0,
+          hasExchanged: false,
+        });
+      }
+      
+      const remainingDeck = shuffledResponses.slice(deckIndex);
+      
+      return {
+        players,
+        currentPlayerIndex: 0,
+        currentScenario: shuffledScenarios[0],
+        scenarioDeck: shuffledScenarios.slice(1),
+        responseDeck: remainingDeck,
+        playedCards: [],
+        round: 1,
+        gameStarted: true,
+        roundComplete: false,
+        gameComplete: false,
+      };
+    });
+  }, []);
+
   return {
     gameState,
     initializeGame,
@@ -351,6 +401,7 @@ export function useGameState() {
     nextRound,
     awardPoint,
     resetGame,
+    restartGameWithSamePlayers,
     updateCustomText,
     changeScenarioAndContinue,
   };

@@ -36,6 +36,7 @@ export default function GameScreen() {
     nextRound,
     awardPoint,
     resetGame,
+    restartGameWithSamePlayers,
     updateCustomText,
     changeScenarioAndContinue,
   } = useGameState();
@@ -349,9 +350,16 @@ export default function GameScreen() {
   };
 
   const handlePlayAgain = () => {
+    console.log('Play Again pressed - restarting with same players');
     setShowGameOverModal(false);
-    resetGame();
-    router.replace('/(tabs)/(home)/');
+    
+    // Use the new function to restart with same players
+    restartGameWithSamePlayers();
+    
+    // Scroll to top after restarting
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
   };
 
   // Get previous and next player names for display
