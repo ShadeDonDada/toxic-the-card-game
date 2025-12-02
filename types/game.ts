@@ -30,4 +30,5 @@ export interface GameState {
   round: number;
   gameStarted: boolean;
   roundComplete: boolean;
+  gameComplete: boolean;
 }

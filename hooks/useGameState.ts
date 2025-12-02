@@ -14,6 +14,7 @@ export function useGameState() {
     round: 1,
     gameStarted: false,
     roundComplete: false,
+    gameComplete: false,
   });
 
   const shuffleArray = <T,>(array: T[]): T[] => {
@@ -64,6 +65,7 @@ export function useGameState() {
       round: 1,
       gameStarted: true,
       roundComplete: false,
+      gameComplete: false,
     });
   }, []);
 
@@ -91,6 +93,11 @@ export function useGameState() {
         players: updatedPlayers,
       };
     });
+  }, []);
+
+  const checkGameComplete = useCallback((players: Player[]) => {
+    // Game is complete when at least one player has no cards left
+    return players.some(player => player.hand.length === 0);
   }, []);
 
   const playCard = useCallback((playerId: string, cardId: string) => {
@@ -134,15 +141,19 @@ export function useGameState() {
       
       const allPlayersPlayed = updatedPlayedCards.length === prev.players.length;
       
+      // Check if game is complete (any player has no cards left)
+      const isGameComplete = checkGameComplete(updatedPlayers);
+      
       return {
         ...prev,
         players: updatedPlayers,
         playedCards: updatedPlayedCards,
         currentPlayerIndex: nextPlayerIndex,
         roundComplete: allPlayersPlayed,
+        gameComplete: isGameComplete,
       };
     });
-  }, []);
+  }, [checkGameComplete]);
 
   const passCard = useCallback((playerId: string) => {
     console.log('Player', playerId, 'passing - continuing to next player');
@@ -327,6 +338,7 @@ export function useGameState() {
       round: 1,
       gameStarted: false,
       roundComplete: false,
+      gameComplete: false,
     });
   }, []);
 

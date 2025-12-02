@@ -45,10 +45,22 @@ export default function GameScreen() {
   const [showPassPhoneModal, setShowPassPhoneModal] = useState(false);
   const [nextPlayerName, setNextPlayerName] = useState('');
   const [showPointSelection, setShowPointSelection] = useState(false);
+  const [showGameOverModal, setShowGameOverModal] = useState(false);
 
   useEffect(() => {
     initializeGame(playerCount, playerNames);
   }, [playerCount, initializeGame]);
+
+  // Check for game completion
+  useEffect(() => {
+    if (gameState.gameComplete && gameState.roundComplete) {
+      console.log('Game complete! Showing winner announcement');
+      setShowPointSelection(false);
+      setTimeout(() => {
+        setShowGameOverModal(true);
+      }, 500);
+    }
+  }, [gameState.gameComplete, gameState.roundComplete]);
 
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
@@ -77,6 +89,20 @@ export default function GameScreen() {
     // Check if all played cards are "PASSED" entries
     return gameState.playedCards.length === gameState.players.length &&
            gameState.playedCards.every(played => played.card.text === 'PASSED');
+  };
+
+  const getWinner = () => {
+    if (gameState.players.length === 0) return null;
+    
+    const sortedPlayers = [...gameState.players].sort((a, b) => b.score - a.score);
+    const highestScore = sortedPlayers[0].score;
+    const winners = sortedPlayers.filter(p => p.score === highestScore);
+    
+    return {
+      winners,
+      isTie: winners.length > 1,
+      highestScore,
+    };
   };
 
   const handlePlayCard = () => {
@@ -171,14 +197,7 @@ export default function GameScreen() {
                         {
                           text: 'View Final Scores',
                           onPress: () => {
-                            console.log('Viewing final scores');
-                          },
-                        },
-                        {
-                          text: 'New Game',
-                          onPress: () => {
-                            resetGame();
-                            router.replace('/(tabs)/(home)/');
+                            setShowGameOverModal(true);
                           },
                         },
                       ]
@@ -292,7 +311,11 @@ export default function GameScreen() {
     setShowPointSelection(false);
     
     setTimeout(() => {
-      if (gameState.scenarioDeck.length === 0) {
+      // Check if game is complete after awarding point
+      if (gameState.gameComplete) {
+        console.log('Game complete after awarding point');
+        setShowGameOverModal(true);
+      } else if (gameState.scenarioDeck.length === 0) {
         Alert.alert(
           'Game Over!',
           `${player.name} wins the final round! Check the scores to see who won the game.`,
@@ -300,14 +323,7 @@ export default function GameScreen() {
             {
               text: 'View Final Scores',
               onPress: () => {
-                console.log('Viewing final scores');
-              },
-            },
-            {
-              text: 'New Game',
-              onPress: () => {
-                resetGame();
-                router.replace('/(tabs)/(home)/');
+                setShowGameOverModal(true);
               },
             },
           ]
@@ -331,6 +347,12 @@ export default function GameScreen() {
     }, 1500);
   };
 
+  const handlePlayAgain = () => {
+    setShowGameOverModal(false);
+    resetGame();
+    router.replace('/(tabs)/(home)/');
+  };
+
   // Get previous and next player names for display
   const getPreviousPlayer = () => {
     const prevIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
@@ -352,6 +374,8 @@ export default function GameScreen() {
       </View>
     );
   }
+
+  const winnerInfo = getWinner();
 
   return (
     <View style={styles.container}>
@@ -463,6 +487,9 @@ export default function GameScreen() {
                   <View key={index} style={styles.scoreItem}>
                     <Text style={styles.scorePlayerName}>{player.name}</Text>
                     <Text style={styles.scoreValue}>{player.score}</Text>
+                    <Text style={styles.cardsLeftText}>
+                      {player.hand.length} {player.hand.length === 1 ? 'card' : 'cards'} left
+                    </Text>
                   </View>
                 ))}
               </View>
@@ -566,6 +593,88 @@ export default function GameScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Game Over Modal */}
+      <Modal
+        visible={showGameOverModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowGameOverModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.gameOverModalContent}>
+            <View style={styles.modalIconContainer}>
+              <IconSymbol
+                ios_icon_name="trophy.fill"
+                android_material_icon_name="emoji_events"
+                size={80}
+                color={colors.accent}
+              />
+            </View>
+            
+            <Text style={styles.gameOverTitle}>Game Over!</Text>
+            
+            {winnerInfo && (
+              <>
+                {winnerInfo.isTie ? (
+                  <>
+                    <Text style={styles.gameOverSubtitle}>It&apos;s a Tie!</Text>
+                    <View style={styles.winnersContainer}>
+                      {winnerInfo.winners.map((winner, index) => (
+                        <Text key={index} style={styles.winnerName}>
+                          {winner.name}
+                        </Text>
+                      ))}
+                    </View>
+                    <Text style={styles.winnerScore}>
+                      {winnerInfo.highestScore} {winnerInfo.highestScore === 1 ? 'point' : 'points'}
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.gameOverSubtitle}>Winner!</Text>
+                    <Text style={styles.winnerName}>{winnerInfo.winners[0].name}</Text>
+                    <Text style={styles.winnerScore}>
+                      {winnerInfo.highestScore} {winnerInfo.highestScore === 1 ? 'point' : 'points'}
+                    </Text>
+                  </>
+                )}
+              </>
+            )}
+            
+            <View style={styles.finalScoresContainer}>
+              <Text style={styles.finalScoresTitle}>Final Scores</Text>
+              {gameState.players
+                .sort((a, b) => b.score - a.score)
+                .map((player, index) => (
+                  <View key={index} style={styles.finalScoreItem}>
+                    <Text style={styles.finalScoreRank}>#{index + 1}</Text>
+                    <Text style={styles.finalScorePlayerName}>{player.name}</Text>
+                    <Text style={styles.finalScoreValue}>{player.score}</Text>
+                  </View>
+                ))}
+            </View>
+            
+            <Button
+              title="Play Again"
+              onPress={handlePlayAgain}
+              variant="primary"
+              style={styles.playAgainButton}
+            />
+            
+            <Button
+              title="Back to Home"
+              onPress={() => {
+                setShowGameOverModal(false);
+                resetGame();
+                router.replace('/(tabs)/(home)/');
+              }}
+              variant="secondary"
+              style={styles.playAgainButton}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -662,6 +771,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '900',
     color: colors.primary,
+  },
+  cardsLeftText: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    marginTop: 2,
+    fontStyle: 'italic',
   },
   actionsContainer: {
     padding: 20,
@@ -803,5 +918,93 @@ const styles = StyleSheet.create({
   modalButton: {
     width: '100%',
     minWidth: 200,
+  },
+  gameOverModalContent: {
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    padding: 32,
+    width: '100%',
+    maxWidth: 450,
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: colors.accent,
+  },
+  gameOverTitle: {
+    fontSize: 36,
+    fontWeight: '900',
+    color: colors.accent,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  gameOverSubtitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  winnersContainer: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  winnerName: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: colors.text,
+    textAlign: 'center',
+    marginVertical: 4,
+  },
+  winnerScore: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  finalScoresContainer: {
+    width: '100%',
+    backgroundColor: colors.background,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
+  },
+  finalScoresTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  finalScoreItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.cardBorder,
+  },
+  finalScoreRank: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.textSecondary,
+    width: 40,
+  },
+  finalScorePlayerName: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  finalScoreValue: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: colors.primary,
+    minWidth: 40,
+    textAlign: 'right',
+  },
+  playAgainButton: {
+    width: '100%',
+    marginTop: 8,
   },
 });
