@@ -28,8 +28,8 @@ export function PlayerHand({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {cards.map((card, index) => (
-          <View key={index} style={styles.cardWrapper}>
+        {cards.map((card) => (
+          <View key={card.id} style={styles.cardWrapper}>
             <GameCard
               text={card.text}
               type="response"
