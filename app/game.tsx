@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { colors } from '@/styles/commonStyles';
 import { useGameState } from '@/hooks/useGameState';
@@ -612,12 +612,11 @@ export default function GameScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.gameOverModalContent}>
-            <View style={styles.modalIconContainer}>
-              <IconSymbol
-                ios_icon_name="trophy.fill"
-                android_material_icon_name="emoji_events"
-                size={80}
-                color={colors.accent}
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('@/assets/images/4699b8a2-6958-45ba-a143-4641ee3ade8f.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
               />
             </View>
             
@@ -937,6 +936,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 3,
     borderColor: colors.accent,
+  },
+  logoContainer: {
+    marginBottom: 24,
+    width: 200,
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   gameOverTitle: {
     fontSize: 36,
