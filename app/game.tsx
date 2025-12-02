@@ -51,16 +51,7 @@ export default function GameScreen() {
     initializeGame(playerCount, playerNames);
   }, [playerCount, initializeGame]);
 
-  // Check for game completion
-  useEffect(() => {
-    if (gameState.gameComplete && gameState.roundComplete) {
-      console.log('Game complete! Showing winner announcement');
-      setShowPointSelection(false);
-      setTimeout(() => {
-        setShowGameOverModal(true);
-      }, 500);
-    }
-  }, [gameState.gameComplete, gameState.roundComplete]);
+  // Removed the automatic game completion check - we'll handle it after point is awarded
 
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
@@ -307,15 +298,24 @@ export default function GameScreen() {
       return;
     }
 
+    // Award the point first
     awardPoint(playerId);
     setShowPointSelection(false);
     
+    // Wait for state to update, then check game completion
     setTimeout(() => {
-      // Check if game is complete after awarding point
-      if (gameState.gameComplete) {
-        console.log('Game complete after awarding point');
-        setShowGameOverModal(true);
+      // Re-check the updated game state after the point has been awarded
+      // We need to check the players' hands to see if anyone is out of cards
+      const anyPlayerOutOfCards = gameState.players.some(p => p.id === playerId ? player.hand.length === 0 : p.hand.length === 0);
+      
+      if (anyPlayerOutOfCards) {
+        // Game is complete - show winner announcement
+        console.log('Game complete after awarding point - a player has no cards left');
+        setTimeout(() => {
+          setShowGameOverModal(true);
+        }, 500);
       } else if (gameState.scenarioDeck.length === 0) {
+        // No more scenarios but players still have cards
         Alert.alert(
           'Game Over!',
           `${player.name} wins the final round! Check the scores to see who won the game.`,
@@ -329,6 +329,7 @@ export default function GameScreen() {
           ]
         );
       } else {
+        // Continue to next round
         nextRound();
         
         // Scroll to top after awarding point and starting new round
@@ -344,7 +345,7 @@ export default function GameScreen() {
           }
         }, 200);
       }
-    }, 1500);
+    }, 100);
   };
 
   const handlePlayAgain = () => {
