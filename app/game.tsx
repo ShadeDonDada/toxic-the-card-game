@@ -640,7 +640,7 @@ export default function GameScreen() {
                   </>
                 ) : (
                   <>
-                    <Text style={styles.gameOverSubtitle}>Winner!</Text>
+                    <Text style={styles.gameOverSubtitle}>Toxic Winner!</Text>
                     <Text style={styles.winnerName}>{winnerInfo.winners[0].name}</Text>
                     <Text style={styles.winnerScore}>
                       {winnerInfo.highestScore} {winnerInfo.highestScore === 1 ? 'point' : 'points'}
@@ -939,8 +939,8 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 24,
-    width: 200,
-    height: 120,
+    width: 320,
+    height: 200,
     justifyContent: 'center',
     alignItems: 'center',
   },
