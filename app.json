@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "Toxic - The Card Game",
@@ -8,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png",
+      "image": "./assets/images/62b14892-bec0-4f79-a1b2-390183b945dd.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },

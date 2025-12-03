@@ -1,10 +1,12 @@
 
 import React, { useEffect } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { router } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
+
+const { width, height } = Dimensions.get('window');
 
 export default function SplashScreenComponent() {
   useEffect(() => {
@@ -21,7 +23,7 @@ export default function SplashScreenComponent() {
     <View style={styles.container}>
       <View style={styles.content}>
         <Image
-          source={require('../assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png')}
+          source={require('../assets/images/62b14892-bec0-4f79-a1b2-390183b945dd.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -43,13 +45,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
   logo: {
-    width: 240,
-    height: 240,
+    width: width * 0.9,
+    height: height * 0.8,
   },
   footer: {
     paddingBottom: 40,
+    paddingHorizontal: 20,
     alignItems: 'center',
   },
   copyright: {
