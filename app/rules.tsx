@@ -48,15 +48,15 @@ export default function RulesScreen() {
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>4.</Text>
-          <Text style={styles.ruleText}>Choose your prize & points system</Text>
+          <Text style={styles.ruleText}>Choose each others consequences</Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>5.</Text>
-          <Text style={styles.ruleText}>Pass the phone to each player when it&apos;s their turn</Text>
+          <Text style={styles.ruleText}>Pass the phone to each player when it`s their turn</Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>6.</Text>
-          <Text style={styles.ruleText}>Each player draws 6 response cards</Text>
+          <Text style={styles.ruleText}>Each player gets 6 response cards</Text>
         </View>
       </View>
 
@@ -65,7 +65,7 @@ export default function RulesScreen() {
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>7.</Text>
           <Text style={styles.ruleText}>
-            Create the most toxic scenario through the cards
+            Create the most toxic conversation through the cards
           </Text>
         </View>
         <View style={styles.ruleItem}>
@@ -79,13 +79,13 @@ export default function RulesScreen() {
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>10.</Text>
           <Text style={styles.ruleText}>
-            During play, a player can request to exchange a card with any player once per round
+            During play, a player can request to exchange a random card with any player once per round
           </Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={styles.ruleNumber}>11.</Text>
           <Text style={styles.ruleText}>
-            Each round is completed when every player&apos;s hand is empty
+            Each round is completed when every player`s hand is empty
           </Text>
         </View>
         <View style={styles.ruleItem}>

@@ -614,7 +614,7 @@ export default function GameScreen() {
           <View style={styles.gameOverModalContent}>
             <View style={styles.logoContainer}>
               <Image
-                source={require('@/assets/images/4699b8a2-6958-45ba-a143-4641ee3ade8f.png')}
+                source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
                 style={styles.logoImage}
                 resizeMode="contain"
               />

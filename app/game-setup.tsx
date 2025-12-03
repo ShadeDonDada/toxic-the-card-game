@@ -86,7 +86,7 @@ export default function GameSetupScreen() {
         </View>
         <View style={styles.reminderItem}>
           <Text style={styles.reminderBullet}>•</Text>
-          <Text style={styles.reminderText}>Decide your own prize & points system</Text>
+          <Text style={styles.reminderText}>Decide your own consequences</Text>
         </View>
         <View style={styles.reminderItem}>
           <Text style={styles.reminderBullet}>•</Text>
