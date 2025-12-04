@@ -42,7 +42,7 @@ export default function RulesScreen() {
         </View>
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>2.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Between 2-10 players recommended</Text>
+          <Text style={[styles.ruleText, { color: colors.text }]}>Between 2-10 players</Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>3.</Text>
@@ -58,7 +58,7 @@ export default function RulesScreen() {
         </View>
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>6.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Each player gets 6 response cards</Text>
+          <Text style={[styles.ruleText, { color: colors.text }]}>Over 100 scenarios & responses</Text>
         </View>
       </View>
 
@@ -72,7 +72,7 @@ export default function RulesScreen() {
         </View>
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>8.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Players choose who goes first</Text>
+          <Text style={[styles.ruleText, { color: colors.text }]}>Each player starts with 6 cards</Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>9.</Text>

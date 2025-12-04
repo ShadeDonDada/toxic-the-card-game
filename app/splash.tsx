@@ -52,8 +52,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   logo: {
-    width: width * 0.9,
-    height: height * 0.8,
+    width: width * 1.9,
+    height: height * 1.8,
   },
   footer: {
     paddingBottom: 40,

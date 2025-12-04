@@ -332,20 +332,17 @@ export default function GameScreen() {
           ]
         );
       } else {
-        // Continue to next round
-        nextRound();
+        // Continue to next round with the winner as the starting player
+        nextRound(playerId);
         
         // Scroll to top after awarding point and starting new round
         setTimeout(() => {
           scrollToTop();
         }, 100);
 
-        // Show pass phone prompt for the first player of the new round
+        // Show pass phone prompt for the winner (who goes first in the next round)
         setTimeout(() => {
-          const firstPlayer = gameState.players[gameState.currentPlayerIndex];
-          if (firstPlayer) {
-            showPassPhonePrompt(firstPlayer.name);
-          }
+          showPassPhonePrompt(player.name);
         }, 200);
       }
     }, 100);
@@ -472,7 +469,7 @@ export default function GameScreen() {
                 return (
                   <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                     <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
-                    <View style={[styles.playedCardWrapper, { backgroundColor: colorScheme === 'dark' ? '#ffffff' : '#ffffff', borderColor: colors.cardBorder }]}>
+                    <View style={[styles.playedCardWrapper, { backgroundColor: colorScheme === 'dark' ? '#006622' : '#ffffff', borderColor: colors.cardBorder }]}>
                       <Text style={[styles.playedCardText, { color: '#000000' }]}>{displayText}</Text>
                       {played.card.isCustom && (
                         <Text style={[styles.customBadge, { color: colors.accent }]}>✏️ Custom</Text>
@@ -907,7 +904,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 24,
-    width: 520,
+    width: 420,
     height: 200,
     justifyContent: 'center',
     alignItems: 'center',

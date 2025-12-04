@@ -1,8 +1,7 @@
-
 {
   "expo": {
     "name": "Toxic - The Card Game",
-    "slug": "Toxic - The Card Game",
+    "slug": "toxic-the-card-game",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/2887ca82-5f60-49fd-a5cd-8492bf7f98e9.png",
@@ -29,7 +28,7 @@
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Natively",
+      "package": "com.StevenAndrePennant.ToxicTheCardGame",
       "statusBar": {
         "hidden": true,
         "translucent": true

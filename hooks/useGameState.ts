@@ -278,8 +278,8 @@ export function useGameState() {
     });
   }, []);
 
-  const nextRound = useCallback(() => {
-    console.log('Starting next round');
+  const nextRound = useCallback((winnerPlayerId?: string) => {
+    console.log('Starting next round', winnerPlayerId ? `with winner ${winnerPlayerId}` : '');
     
     setGameState((prev) => {
       if (prev.scenarioDeck.length === 0) {
@@ -295,6 +295,16 @@ export function useGameState() {
         hasExchanged: false,
       }));
       
+      // If a winner is specified, set them as the current player for the next round
+      let nextPlayerIndex = prev.currentPlayerIndex;
+      if (winnerPlayerId) {
+        const winnerIndex = prev.players.findIndex(p => p.id === winnerPlayerId);
+        if (winnerIndex !== -1) {
+          nextPlayerIndex = winnerIndex;
+          console.log('Setting current player to winner at index', winnerIndex);
+        }
+      }
+      
       return {
         ...prev,
         currentScenario: nextScenario,
@@ -303,6 +313,7 @@ export function useGameState() {
         round: prev.round + 1,
         roundComplete: false,
         players: updatedPlayers,
+        currentPlayerIndex: nextPlayerIndex,
       };
     });
   }, []);
