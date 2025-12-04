@@ -17,6 +17,8 @@ export const getColors = (colorScheme: 'light' | 'dark' | null | undefined) => {
     darkGreen: '#006622',
     black: isDark ? '#000000' : '#1a1a1a',
     white: isDark ? '#ffffff' : '#000000',
+    warningBackground: isDark ? '#1a3d1a' : '#e8f5e9',
+    warningText: isDark ? '#00ff41' : '#1b5e20',
   };
 };
 

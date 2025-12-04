@@ -40,7 +40,7 @@ export default function ThankYouScreen() {
         </Text>
       </View>
 
-      <View style={[styles.card, styles.messageCard, { backgroundColor: colors.darkGreen, borderColor: colors.primary }]}>
+      <View style={[styles.card, styles.messageCard, { backgroundColor: colors.warningBackground, borderColor: colors.primary }]}>
         <IconSymbol
           ios_icon_name="face.smiling"
           android_material_icon_name="sentiment-satisfied"
@@ -48,7 +48,7 @@ export default function ThankYouScreen() {
           color={colors.primary}
           style={styles.smileyIcon}
         />
-        <Text style={[styles.messageText, { color: colors.text }]}>
+        <Text style={[styles.messageText, { color: colors.warningText }]}>
           Remember to keep it light-hearted and enjoy the laughs with your friends!
         </Text>
       </View>

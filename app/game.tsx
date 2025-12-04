@@ -459,7 +459,7 @@ export default function GameScreen() {
                     <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                       <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
                       <View style={[styles.playedCardWrapper, styles.passedCardWrapper, { backgroundColor: colors.textSecondary }]}>
-                        <Text style={[styles.passedCardText, { color: colors.text }]}>⏭️ PASSED</Text>
+                        <Text style={[styles.passedCardText, { color: colors.background }]}>⏭️ PASSED</Text>
                       </View>
                     </View>
                   );
@@ -472,8 +472,8 @@ export default function GameScreen() {
                 return (
                   <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                     <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
-                    <View style={[styles.playedCardWrapper, { backgroundColor: colors.darkGreen, borderColor: colors.cardBorder }]}>
-                      <Text style={[styles.playedCardText, { color: colors.text }]}>{displayText}</Text>
+                    <View style={[styles.playedCardWrapper, { backgroundColor: colorScheme === 'dark' ? '#ffffff' : '#ffffff', borderColor: colors.cardBorder }]}>
+                      <Text style={[styles.playedCardText, { color: '#000000' }]}>{displayText}</Text>
                       {played.card.isCustom && (
                         <Text style={[styles.customBadge, { color: colors.accent }]}>✏️ Custom</Text>
                       )}

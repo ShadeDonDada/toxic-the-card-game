@@ -54,7 +54,7 @@ export default function RulesScreen() {
         </View>
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>5.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Pass the phone to each player when it`s their turn</Text>
+          <Text style={[styles.ruleText, { color: colors.text }]}>Pass the phone to each player when it&apos;s their turn</Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>6.</Text>
@@ -87,7 +87,7 @@ export default function RulesScreen() {
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>11.</Text>
           <Text style={[styles.ruleText, { color: colors.text }]}>
-            Each round is completed when every player`s hand is empty
+            Each round is completed when every player&apos;s hand is empty
           </Text>
         </View>
         <View style={styles.ruleItem}>
@@ -104,7 +104,7 @@ export default function RulesScreen() {
         </View>
       </View>
 
-      <View style={[styles.card, styles.warningCard, { backgroundColor: colors.darkGreen, borderColor: colors.accent }]}>
+      <View style={[styles.card, styles.warningCard, { backgroundColor: colors.warningBackground, borderColor: colors.accent }]}>
         <IconSymbol
           ios_icon_name="exclamationmark.triangle.fill"
           android_material_icon_name="warning"
@@ -112,7 +112,7 @@ export default function RulesScreen() {
           color={colors.accent}
           style={styles.warningIcon}
         />
-        <Text style={[styles.warningText, { color: colors.text }]}>
+        <Text style={[styles.warningText, { color: colors.warningText }]}>
           Remember: This is all in good fun! Keep it light-hearted and don&apos;t take things too seriously.
         </Text>
       </View>
