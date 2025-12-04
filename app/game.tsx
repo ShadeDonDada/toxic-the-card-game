@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Image, useColorScheme } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { colors } from '@/styles/commonStyles';
+import { getColors } from '@/styles/commonStyles';
 import { useGameState } from '@/hooks/useGameState';
 import { GameCard } from '@/components/GameCard';
 import { PlayerHand } from '@/components/PlayerHand';
@@ -12,6 +12,8 @@ import { IconSymbol } from '@/components/IconSymbol';
 export default function GameScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const colorScheme = useColorScheme();
+  const colors = getColors(colorScheme);
   const playerCount = parseInt(params.playerCount as string) || 4;
   const playerNamesParam = params.playerNames as string;
   const scrollViewRef = useRef<ScrollView>(null);
@@ -378,8 +380,8 @@ export default function GameScreen() {
 
   if (!gameState.gameStarted || !currentPlayer) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading game...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.loadingText, { color: colors.text }]}>Loading game...</Text>
       </View>
     );
   }
@@ -387,8 +389,8 @@ export default function GameScreen() {
   const winnerInfo = getWinner();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.primary }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => {
@@ -418,8 +420,8 @@ export default function GameScreen() {
         </TouchableOpacity>
         
         <View style={styles.headerInfo}>
-          <Text style={styles.roundText}>Round {gameState.round}</Text>
-          <Text style={styles.playerTurnText}>
+          <Text style={[styles.roundText, { color: colors.textSecondary }]}>Round {gameState.round}</Text>
+          <Text style={[styles.playerTurnText, { color: colors.primary }]}>
             {currentPlayer.name}&apos;s Turn
           </Text>
         </View>
@@ -442,8 +444,8 @@ export default function GameScreen() {
 
         {showPointSelection ? (
           <View style={styles.pointSelectionContainer}>
-            <Text style={styles.pointSelectionTitle}>Who Gets the Point? 🏆</Text>
-            <Text style={styles.pointSelectionSubtitle}>
+            <Text style={[styles.pointSelectionTitle, { color: colors.primary }]}>Who Gets the Point? 🏆</Text>
+            <Text style={[styles.pointSelectionSubtitle, { color: colors.textSecondary }]}>
               All players have responded! Review the cards and award a point.
             </Text>
             
@@ -454,10 +456,10 @@ export default function GameScreen() {
                 
                 if (isPassed) {
                   return (
-                    <View key={index} style={styles.playedCardItem}>
-                      <Text style={styles.playedCardPlayer}>{player?.name}</Text>
-                      <View style={[styles.playedCardWrapper, styles.passedCardWrapper]}>
-                        <Text style={styles.passedCardText}>⏭️ PASSED</Text>
+                    <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+                      <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
+                      <View style={[styles.playedCardWrapper, styles.passedCardWrapper, { backgroundColor: colors.textSecondary }]}>
+                        <Text style={[styles.passedCardText, { color: colors.text }]}>⏭️ PASSED</Text>
                       </View>
                     </View>
                   );
@@ -468,12 +470,12 @@ export default function GameScreen() {
                   : played.card.text;
                 
                 return (
-                  <View key={index} style={styles.playedCardItem}>
-                    <Text style={styles.playedCardPlayer}>{player?.name}</Text>
-                    <View style={styles.playedCardWrapper}>
-                      <Text style={styles.playedCardText}>{displayText}</Text>
+                  <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+                    <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
+                    <View style={[styles.playedCardWrapper, { backgroundColor: colors.darkGreen, borderColor: colors.cardBorder }]}>
+                      <Text style={[styles.playedCardText, { color: colors.text }]}>{displayText}</Text>
                       {played.card.isCustom && (
-                        <Text style={styles.customBadge}>✏️ Custom</Text>
+                        <Text style={[styles.customBadge, { color: colors.accent }]}>✏️ Custom</Text>
                       )}
                     </View>
                     <Button
@@ -489,14 +491,14 @@ export default function GameScreen() {
           </View>
         ) : (
           <>
-            <View style={styles.scoresContainer}>
-              <Text style={styles.scoresTitle}>Scores</Text>
+            <View style={[styles.scoresContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+              <Text style={[styles.scoresTitle, { color: colors.text }]}>Scores</Text>
               <View style={styles.scoresGrid}>
                 {gameState.players.map((player, index) => (
                   <View key={index} style={styles.scoreItem}>
-                    <Text style={styles.scorePlayerName}>{player.name}</Text>
-                    <Text style={styles.scoreValue}>{player.score}</Text>
-                    <Text style={styles.cardsLeftText}>
+                    <Text style={[styles.scorePlayerName, { color: colors.textSecondary }]}>{player.name}</Text>
+                    <Text style={[styles.scoreValue, { color: colors.primary }]}>{player.score}</Text>
+                    <Text style={[styles.cardsLeftText, { color: colors.textSecondary }]}>
                       {player.hand.length} {player.hand.length === 1 ? 'card' : 'cards'} left
                     </Text>
                   </View>
@@ -506,8 +508,8 @@ export default function GameScreen() {
 
             {showExchangeOptions ? (
               <View style={styles.exchangeContainer}>
-                <Text style={styles.exchangeTitle}>Exchange card with:</Text>
-                <Text style={styles.exchangeSubtitle}>
+                <Text style={[styles.exchangeTitle, { color: colors.text }]}>Exchange card with:</Text>
+                <Text style={[styles.exchangeSubtitle, { color: colors.textSecondary }]}>
                   Choose to exchange with the previous or next player
                 </Text>
                 
@@ -577,7 +579,7 @@ export default function GameScreen() {
         onRequestClose={() => setShowPassPhoneModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.primary }]}>
             <View style={styles.modalIconContainer}>
               <IconSymbol
                 ios_icon_name="arrow.triangle.2.circlepath"
@@ -587,11 +589,11 @@ export default function GameScreen() {
               />
             </View>
             
-            <Text style={styles.modalTitle}>Pass the Phone!</Text>
-            <Text style={styles.modalMessage}>
+            <Text style={[styles.modalTitle, { color: colors.primary }]}>Pass the Phone!</Text>
+            <Text style={[styles.modalMessage, { color: colors.textSecondary }]}>
               Please pass the phone to
             </Text>
-            <Text style={styles.modalPlayerName}>{nextPlayerName}</Text>
+            <Text style={[styles.modalPlayerName, { color: colors.text }]}>{nextPlayerName}</Text>
             
             <Button
               title="Ready"
@@ -611,7 +613,7 @@ export default function GameScreen() {
         onRequestClose={() => setShowGameOverModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.gameOverModalContent}>
+          <View style={[styles.gameOverModalContent, { backgroundColor: colors.card, borderColor: colors.accent }]}>
             <View style={styles.logoContainer}>
               <Image
                 source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
@@ -620,29 +622,29 @@ export default function GameScreen() {
               />
             </View>
             
-            <Text style={styles.gameOverTitle}>Game Over!</Text>
+            <Text style={[styles.gameOverTitle, { color: colors.accent }]}>Game Over!</Text>
             
             {winnerInfo && (
               <>
                 {winnerInfo.isTie ? (
                   <>
-                    <Text style={styles.gameOverSubtitle}>It&apos;s a Tie!</Text>
+                    <Text style={[styles.gameOverSubtitle, { color: colors.primary }]}>It&apos;s a Tie!</Text>
                     <View style={styles.winnersContainer}>
                       {winnerInfo.winners.map((winner, index) => (
-                        <Text key={index} style={styles.winnerName}>
+                        <Text key={index} style={[styles.winnerName, { color: colors.text }]}>
                           {winner.name}
                         </Text>
                       ))}
                     </View>
-                    <Text style={styles.winnerScore}>
+                    <Text style={[styles.winnerScore, { color: colors.primary }]}>
                       {winnerInfo.highestScore} {winnerInfo.highestScore === 1 ? 'point' : 'points'}
                     </Text>
                   </>
                 ) : (
                   <>
-                    <Text style={styles.gameOverSubtitle}>Toxic Winner!</Text>
-                    <Text style={styles.winnerName}>{winnerInfo.winners[0].name}</Text>
-                    <Text style={styles.winnerScore}>
+                    <Text style={[styles.gameOverSubtitle, { color: colors.primary }]}>Toxic Winner!</Text>
+                    <Text style={[styles.winnerName, { color: colors.text }]}>{winnerInfo.winners[0].name}</Text>
+                    <Text style={[styles.winnerScore, { color: colors.primary }]}>
                       {winnerInfo.highestScore} {winnerInfo.highestScore === 1 ? 'point' : 'points'}
                     </Text>
                   </>
@@ -650,15 +652,15 @@ export default function GameScreen() {
               </>
             )}
             
-            <View style={styles.finalScoresContainer}>
-              <Text style={styles.finalScoresTitle}>Final Scores</Text>
+            <View style={[styles.finalScoresContainer, { backgroundColor: colors.background, borderColor: colors.cardBorder }]}>
+              <Text style={[styles.finalScoresTitle, { color: colors.text }]}>Final Scores</Text>
               {gameState.players
                 .sort((a, b) => b.score - a.score)
                 .map((player, index) => (
-                  <View key={index} style={styles.finalScoreItem}>
-                    <Text style={styles.finalScoreRank}>#{index + 1}</Text>
-                    <Text style={styles.finalScorePlayerName}>{player.name}</Text>
-                    <Text style={styles.finalScoreValue}>{player.score}</Text>
+                  <View key={index} style={[styles.finalScoreItem, { borderBottomColor: colors.cardBorder }]}>
+                    <Text style={[styles.finalScoreRank, { color: colors.textSecondary }]}>#{index + 1}</Text>
+                    <Text style={[styles.finalScorePlayerName, { color: colors.text }]}>{player.name}</Text>
+                    <Text style={[styles.finalScoreValue, { color: colors.primary }]}>{player.score}</Text>
                   </View>
                 ))}
             </View>
@@ -690,17 +692,14 @@ export default function GameScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background,
   },
   loadingText: {
     fontSize: 18,
-    color: colors.text,
   },
   header: {
     flexDirection: 'row',
@@ -708,9 +707,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 16,
-    backgroundColor: colors.card,
     borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
   },
   backButton: {
     marginRight: 16,
@@ -720,12 +717,10 @@ const styles = StyleSheet.create({
   },
   roundText: {
     fontSize: 14,
-    color: colors.textSecondary,
     fontWeight: '600',
   },
   playerTurnText: {
     fontSize: 20,
-    color: colors.primary,
     fontWeight: '700',
   },
   scrollView: {
@@ -746,17 +741,14 @@ const styles = StyleSheet.create({
   },
   scoresContainer: {
     padding: 20,
-    backgroundColor: colors.card,
     marginHorizontal: 20,
     marginBottom: 20,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: colors.cardBorder,
   },
   scoresTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.text,
     marginBottom: 12,
     textAlign: 'center',
   },
@@ -772,17 +764,14 @@ const styles = StyleSheet.create({
   },
   scorePlayerName: {
     fontSize: 14,
-    color: colors.textSecondary,
     marginBottom: 4,
   },
   scoreValue: {
     fontSize: 24,
     fontWeight: '900',
-    color: colors.primary,
   },
   cardsLeftText: {
     fontSize: 11,
-    color: colors.textSecondary,
     marginTop: 2,
     fontStyle: 'italic',
   },
@@ -800,13 +789,11 @@ const styles = StyleSheet.create({
   exchangeTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: colors.text,
     marginBottom: 4,
     textAlign: 'center',
   },
   exchangeSubtitle: {
     fontSize: 14,
-    color: colors.textSecondary,
     marginBottom: 8,
     textAlign: 'center',
   },
@@ -819,13 +806,11 @@ const styles = StyleSheet.create({
   pointSelectionTitle: {
     fontSize: 28,
     fontWeight: '900',
-    color: colors.primary,
     textAlign: 'center',
     marginBottom: 8,
   },
   pointSelectionSubtitle: {
     fontSize: 16,
-    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -834,49 +819,40 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   playedCardItem: {
-    backgroundColor: colors.card,
     padding: 16,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: colors.cardBorder,
   },
   playedCardPlayer: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.primary,
     marginBottom: 12,
     textAlign: 'center',
   },
   playedCardWrapper: {
-    backgroundColor: colors.darkGreen,
     padding: 16,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: colors.cardBorder,
     minHeight: 80,
     justifyContent: 'center',
   },
   passedCardWrapper: {
-    backgroundColor: colors.textSecondary,
     opacity: 0.6,
   },
   playedCardText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
     textAlign: 'center',
     lineHeight: 22,
   },
   passedCardText: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.text,
     textAlign: 'center',
   },
   customBadge: {
     fontSize: 12,
     fontWeight: '700',
-    color: colors.accent,
     textAlign: 'center',
     marginTop: 8,
   },
@@ -891,14 +867,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 32,
     width: '100%',
     maxWidth: 400,
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: colors.primary,
   },
   modalIconContainer: {
     marginBottom: 24,
@@ -906,20 +880,17 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 28,
     fontWeight: '900',
-    color: colors.primary,
     marginBottom: 16,
     textAlign: 'center',
   },
   modalMessage: {
     fontSize: 18,
-    color: colors.textSecondary,
     marginBottom: 8,
     textAlign: 'center',
   },
   modalPlayerName: {
     fontSize: 32,
     fontWeight: '900',
-    color: colors.text,
     marginBottom: 32,
     textAlign: 'center',
   },
@@ -928,18 +899,16 @@ const styles = StyleSheet.create({
     minWidth: 200,
   },
   gameOverModalContent: {
-    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 32,
     width: '100%',
     maxWidth: 450,
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: colors.accent,
   },
   logoContainer: {
     marginBottom: 24,
-    width: 320,
+    width: 520,
     height: 200,
     justifyContent: 'center',
     alignItems: 'center',
@@ -951,14 +920,12 @@ const styles = StyleSheet.create({
   gameOverTitle: {
     fontSize: 36,
     fontWeight: '900',
-    color: colors.accent,
     marginBottom: 8,
     textAlign: 'center',
   },
   gameOverSubtitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: colors.primary,
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -969,30 +936,25 @@ const styles = StyleSheet.create({
   winnerName: {
     fontSize: 32,
     fontWeight: '900',
-    color: colors.text,
     textAlign: 'center',
     marginVertical: 4,
   },
   winnerScore: {
     fontSize: 20,
     fontWeight: '700',
-    color: colors.primary,
     marginBottom: 24,
     textAlign: 'center',
   },
   finalScoresContainer: {
     width: '100%',
-    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
     borderWidth: 2,
-    borderColor: colors.cardBorder,
   },
   finalScoresTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.text,
     marginBottom: 12,
     textAlign: 'center',
   },
@@ -1001,24 +963,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: colors.cardBorder,
   },
   finalScoreRank: {
     fontSize: 16,
     fontWeight: '700',
-    color: colors.textSecondary,
     width: 40,
   },
   finalScorePlayerName: {
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
   },
   finalScoreValue: {
     fontSize: 20,
     fontWeight: '900',
-    color: colors.primary,
     minWidth: 40,
     textAlign: 'right',
   },

@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, useColorScheme } from 'react-native';
 import { GameCard } from './GameCard';
 import { ResponseCard } from '@/types/game';
-import { colors } from '@/styles/commonStyles';
+import { getColors } from '@/styles/commonStyles';
 
 interface PlayerHandProps {
   cards: ResponseCard[];
@@ -20,9 +20,12 @@ export function PlayerHand({
   disabled,
   onCustomTextChange 
 }: PlayerHandProps) {
+  const colorScheme = useColorScheme();
+  const colors = getColors(colorScheme);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Your Hand ({cards.length} cards)</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Your Hand ({cards.length} cards)</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -58,7 +61,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.text,
     marginBottom: 12,
     paddingHorizontal: 16,
   },

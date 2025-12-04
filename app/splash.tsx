@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions, useColorScheme } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { router } from 'expo-router';
 
@@ -9,7 +9,12 @@ SplashScreen.preventAutoHideAsync();
 const { width, height } = Dimensions.get('window');
 
 export default function SplashScreenComponent() {
+  const colorScheme = useColorScheme();
+  const backgroundColor = colorScheme === 'dark' ? '#000000' : '#0a0a0a';
+  const textColor = colorScheme === 'dark' ? '#FFFFFF' : '#f5f5f5';
+
   useEffect(() => {
+    console.log('Splash screen mounted, color scheme:', colorScheme);
     // Hide the splash screen after a delay
     const timer = setTimeout(() => {
       SplashScreen.hideAsync();
@@ -20,7 +25,7 @@ export default function SplashScreenComponent() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <View style={styles.content}>
         <Image
           source={require('../assets/images/62b14892-bec0-4f79-a1b2-390183b945dd.png')}
@@ -29,7 +34,7 @@ export default function SplashScreenComponent() {
         />
       </View>
       <View style={styles.footer}>
-        <Text style={styles.copyright}>© 2025 Steven A. Pennant. All rights reserved.</Text>
+        <Text style={[styles.copyright, { color: textColor }]}>© 2025 Steven A. Pennant. All rights reserved.</Text>
       </View>
     </View>
   );
@@ -38,7 +43,6 @@ export default function SplashScreenComponent() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
     justifyContent: 'space-between',
   },
   content: {
@@ -57,7 +61,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   copyright: {
-    color: '#FFFFFF',
     fontSize: 12,
     textAlign: 'center',
     opacity: 0.8,

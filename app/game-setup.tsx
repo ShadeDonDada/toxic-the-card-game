@@ -1,16 +1,19 @@
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors } from '@/styles/commonStyles';
+import { getColors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
 
 export default function GameSetupScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = getColors(colorScheme);
   const [playerCount, setPlayerCount] = useState(4);
 
   const handleStartGame = () => {
+    console.log('Starting game with', playerCount, 'players');
     router.push({
       pathname: '/player-names',
       params: { playerCount: playerCount.toString() },
@@ -18,7 +21,7 @@ export default function GameSetupScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => router.back()}
@@ -29,14 +32,14 @@ export default function GameSetupScreen() {
           size={24}
           color={colors.primary}
         />
-        <Text style={styles.backText}>Back</Text>
+        <Text style={[styles.backText, { color: colors.primary }]}>Back</Text>
       </TouchableOpacity>
 
-      <Text style={styles.title}>Game Setup</Text>
+      <Text style={[styles.title, { color: colors.primary, textShadowColor: colors.accent }]}>Game Setup</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Number of Players</Text>
-        <Text style={styles.sectionSubtitle}>Select between 2-10 players</Text>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Number of Players</Text>
+        <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>Select between 2-10 players</Text>
 
         <View style={styles.playerSelector}>
           <TouchableOpacity
@@ -51,9 +54,9 @@ export default function GameSetupScreen() {
             />
           </TouchableOpacity>
 
-          <View style={styles.playerCountDisplay}>
-            <Text style={styles.playerCountNumber}>{playerCount}</Text>
-            <Text style={styles.playerCountLabel}>Players</Text>
+          <View style={[styles.playerCountDisplay, { backgroundColor: colors.background, borderColor: colors.primary }]}>
+            <Text style={[styles.playerCountNumber, { color: colors.primary }]}>{playerCount}</Text>
+            <Text style={[styles.playerCountLabel, { color: colors.textSecondary }]}>Players</Text>
           </View>
 
           <TouchableOpacity
@@ -70,27 +73,27 @@ export default function GameSetupScreen() {
         </View>
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Quick Reminders</Text>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Reminders</Text>
         <View style={styles.reminderItem}>
-          <Text style={styles.reminderBullet}>•</Text>
-          <Text style={styles.reminderText}>Each player has 6 cards</Text>
+          <Text style={[styles.reminderBullet, { color: colors.accent }]}>•</Text>
+          <Text style={[styles.reminderText, { color: colors.text }]}>Each player has 6 cards</Text>
         </View>
         <View style={styles.reminderItem}>
-          <Text style={styles.reminderBullet}>•</Text>
-          <Text style={styles.reminderText}>Play goes counterclockwise</Text>
+          <Text style={[styles.reminderBullet, { color: colors.accent }]}>•</Text>
+          <Text style={[styles.reminderText, { color: colors.text }]}>Play goes counterclockwise</Text>
         </View>
         <View style={styles.reminderItem}>
-          <Text style={styles.reminderBullet}>•</Text>
-          <Text style={styles.reminderText}>One card exchange allowed per round</Text>
+          <Text style={[styles.reminderBullet, { color: colors.accent }]}>•</Text>
+          <Text style={[styles.reminderText, { color: colors.text }]}>One card exchange allowed per round</Text>
         </View>
         <View style={styles.reminderItem}>
-          <Text style={styles.reminderBullet}>•</Text>
-          <Text style={styles.reminderText}>Decide your own consequences</Text>
+          <Text style={[styles.reminderBullet, { color: colors.accent }]}>•</Text>
+          <Text style={[styles.reminderText, { color: colors.text }]}>Decide your own consequences</Text>
         </View>
         <View style={styles.reminderItem}>
-          <Text style={styles.reminderBullet}>•</Text>
-          <Text style={styles.reminderText}>Playing while drinking is highly encouraged 🍺 21+</Text>
+          <Text style={[styles.reminderBullet, { color: colors.accent }]}>•</Text>
+          <Text style={[styles.reminderText, { color: colors.text }]}>Playing while drinking is highly encouraged 🍺 21+</Text>
         </View>
       </View>
 
@@ -107,7 +110,6 @@ export default function GameSetupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   contentContainer: {
     paddingTop: 60,
@@ -121,40 +123,33 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 18,
-    color: colors.primary,
     marginLeft: 8,
     fontWeight: '600',
   },
   title: {
     fontSize: 36,
     fontWeight: '900',
-    color: colors.primary,
     marginBottom: 30,
     textAlign: 'center',
-    textShadowColor: colors.accent,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
   },
   card: {
-    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 24,
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: colors.cardBorder,
     boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
     elevation: 4,
   },
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: colors.textSecondary,
     marginBottom: 24,
     textAlign: 'center',
   },
@@ -168,21 +163,17 @@ const styles = StyleSheet.create({
   },
   playerCountDisplay: {
     alignItems: 'center',
-    backgroundColor: colors.background,
     paddingVertical: 20,
     paddingHorizontal: 40,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: colors.primary,
   },
   playerCountNumber: {
     fontSize: 48,
     fontWeight: '900',
-    color: colors.primary,
   },
   playerCountLabel: {
     fontSize: 16,
-    color: colors.textSecondary,
     marginTop: 4,
   },
   reminderItem: {
@@ -192,13 +183,11 @@ const styles = StyleSheet.create({
   },
   reminderBullet: {
     fontSize: 20,
-    color: colors.accent,
     marginRight: 12,
     fontWeight: '700',
   },
   reminderText: {
     fontSize: 16,
-    color: colors.text,
     flex: 1,
     lineHeight: 24,
   },

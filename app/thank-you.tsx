@@ -1,15 +1,17 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors } from '@/styles/commonStyles';
+import { getColors } from '@/styles/commonStyles';
 import { IconSymbol } from '@/components/IconSymbol';
 
 export default function ThankYouScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = getColors(colorScheme);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => router.back()}
@@ -20,12 +22,12 @@ export default function ThankYouScreen() {
           size={24}
           color={colors.primary}
         />
-        <Text style={styles.backText}>Back</Text>
+        <Text style={[styles.backText, { color: colors.primary }]}>Back</Text>
       </TouchableOpacity>
 
-      <Text style={styles.title}>Thank You</Text>
+      <Text style={[styles.title, { color: colors.primary, textShadowColor: colors.accent }]}>Thank You</Text>
 
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
         <IconSymbol
           ios_icon_name="heart.fill"
           android_material_icon_name="favorite"
@@ -33,12 +35,12 @@ export default function ThankYouScreen() {
           color={colors.accent}
           style={styles.heartIcon}
         />
-        <Text style={styles.bodyText}>
+        <Text style={[styles.bodyText, { color: colors.text }]}>
           First and foremost, I would like to thank you for the purchase and support. This game is intended to be a fun way to realize what is toxic in every and any conversation/ relationship. Enjoy and have fun.
         </Text>
       </View>
 
-      <View style={[styles.card, styles.messageCard]}>
+      <View style={[styles.card, styles.messageCard, { backgroundColor: colors.darkGreen, borderColor: colors.primary }]}>
         <IconSymbol
           ios_icon_name="face.smiling"
           android_material_icon_name="sentiment-satisfied"
@@ -46,12 +48,12 @@ export default function ThankYouScreen() {
           color={colors.primary}
           style={styles.smileyIcon}
         />
-        <Text style={styles.messageText}>
+        <Text style={[styles.messageText, { color: colors.text }]}>
           Remember to keep it light-hearted and enjoy the laughs with your friends!
         </Text>
       </View>
 
-      <View style={styles.contactCard}>
+      <View style={[styles.contactCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
         <IconSymbol
           ios_icon_name="envelope.fill"
           android_material_icon_name="email"
@@ -59,8 +61,8 @@ export default function ThankYouScreen() {
           color={colors.primary}
           style={styles.contactIcon}
         />
-        <Text style={styles.contactLabel}>Contact:</Text>
-        <Text style={styles.contactEmail}>sa.pennant@gmail.com</Text>
+        <Text style={[styles.contactLabel, { color: colors.text }]}>Contact:</Text>
+        <Text style={[styles.contactEmail, { color: colors.primary }]}>sa.pennant@gmail.com</Text>
       </View>
     </ScrollView>
   );
@@ -69,7 +71,6 @@ export default function ThankYouScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   contentContainer: {
     paddingTop: 60,
@@ -83,27 +84,22 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 18,
-    color: colors.primary,
     marginLeft: 8,
     fontWeight: '600',
   },
   title: {
     fontSize: 36,
     fontWeight: '900',
-    color: colors.primary,
     marginBottom: 30,
     textAlign: 'center',
-    textShadowColor: colors.accent,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
   },
   card: {
-    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 32,
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: colors.cardBorder,
     boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
     elevation: 4,
     alignItems: 'center',
@@ -113,31 +109,25 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     fontSize: 18,
-    color: colors.text,
     lineHeight: 28,
     textAlign: 'center',
   },
   messageCard: {
-    backgroundColor: colors.darkGreen,
-    borderColor: colors.primary,
   },
   smileyIcon: {
     marginBottom: 16,
   },
   messageText: {
     fontSize: 16,
-    color: colors.text,
     textAlign: 'center',
     lineHeight: 24,
     fontWeight: '600',
   },
   contactCard: {
-    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 24,
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: colors.cardBorder,
     boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
     elevation: 4,
     alignItems: 'center',
@@ -147,13 +137,11 @@ const styles = StyleSheet.create({
   },
   contactLabel: {
     fontSize: 16,
-    color: colors.text,
     fontWeight: '600',
     marginBottom: 8,
   },
   contactEmail: {
     fontSize: 18,
-    color: colors.primary,
     fontWeight: '700',
   },
 });

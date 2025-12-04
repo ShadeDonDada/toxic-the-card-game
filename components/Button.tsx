@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
-import { colors } from '@/styles/commonStyles';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, useColorScheme } from 'react-native';
+import { getColors } from '@/styles/commonStyles';
 
 interface ButtonProps {
   title: string;
@@ -12,6 +12,9 @@ interface ButtonProps {
 }
 
 export function Button({ title, onPress, variant = 'primary', disabled, style }: ButtonProps) {
+  const colorScheme = useColorScheme();
+  const colors = getColors(colorScheme);
+
   const getBackgroundColor = () => {
     switch (variant) {
       case 'secondary':
@@ -38,8 +41,7 @@ export function Button({ title, onPress, variant = 'primary', disabled, style }:
       disabled={disabled}
       style={[
         styles.button,
-        { backgroundColor: getBackgroundColor() },
-        variant === 'secondary' && styles.secondaryButton,
+        { backgroundColor: getBackgroundColor(), borderColor: variant === 'secondary' ? colors.cardBorder : colors.primary },
         disabled && styles.disabled,
         style,
       ]}
@@ -61,10 +63,6 @@ const styles = StyleSheet.create({
     boxShadow: '0px 4px 6px rgba(0, 255, 65, 0.3)',
     elevation: 3,
     borderWidth: 2,
-    borderColor: colors.primary,
-  },
-  secondaryButton: {
-    borderColor: colors.cardBorder,
   },
   buttonText: {
     fontSize: 18,
