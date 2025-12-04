@@ -434,7 +434,7 @@ export default function GameScreen() {
       >
         {gameState.currentScenario && (
           <View style={styles.scenarioContainer}>
-            <Text style={styles.scenarioLabel}>Current Scenario</Text>
+            <Text style={[styles.scenarioLabel, { color: colors.textSecondary }]}>Current Scenario</Text>
             <GameCard
               text={gameState.currentScenario.text}
               type="scenario"
@@ -735,7 +735,6 @@ const styles = StyleSheet.create({
   scenarioLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: colors.textSecondary,
     marginBottom: 12,
     textAlign: 'center',
   },
