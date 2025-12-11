@@ -24,7 +24,6 @@ export default function SettingsScreen() {
     } else if (themeMode === 'dark') {
       return { ios: 'moon.fill', android: 'nightlight' };
     } else {
-      // System mode - show what's currently active
       return effectiveColorScheme === 'dark' 
         ? { ios: 'moon.fill', android: 'nightlight' }
         : { ios: 'sun.max.fill', android: 'wb_sunny' };
@@ -93,8 +92,8 @@ export default function SettingsScreen() {
                 </View>
                 {themeMode === option.value && (
                   <IconSymbol
-                    ios_icon_name={option.value === 'light' ? 'sun.max.fill' : option.value === 'dark' ? 'moon.fill' : 'checkmark.circle.fill'}
-                    android_material_icon_name={option.value === 'light' ? 'wb_sunny' : option.value === 'dark' ? 'nightlight' : 'check_circle'}
+                    ios_icon_name="checkmark.circle.fill"
+                    android_material_icon_name="check_circle"
                     size={24}
                     color={colors.primary}
                   />
