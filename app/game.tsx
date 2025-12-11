@@ -1,7 +1,8 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Image, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
 import { useGameState } from '@/hooks/useGameState';
 import { GameCard } from '@/components/GameCard';
@@ -12,8 +13,8 @@ import { IconSymbol } from '@/components/IconSymbol';
 export default function GameScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const colorScheme = useColorScheme();
-  const colors = getColors(colorScheme);
+  const { effectiveColorScheme } = useTheme();
+  const colors = getColors(effectiveColorScheme);
   const playerCount = parseInt(params.playerCount as string) || 4;
   const playerNamesParam = params.playerNames as string;
   const scrollViewRef = useRef<ScrollView>(null);
@@ -469,7 +470,7 @@ export default function GameScreen() {
                 return (
                   <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                     <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
-                    <View style={[styles.playedCardWrapper, { backgroundColor: colorScheme === 'dark' ? '#006622' : '#ffffff', borderColor: colors.cardBorder }]}>
+                    <View style={[styles.playedCardWrapper, { backgroundColor: effectiveColorScheme === 'dark' ? '#006622' : '#ffffff', borderColor: colors.cardBorder }]}>
                       <Text style={[styles.playedCardText, { color: '#000000' }]}>{displayText}</Text>
                       {played.card.isCustom && (
                         <Text style={[styles.customBadge, { color: colors.accent }]}>✏️ Custom</Text>

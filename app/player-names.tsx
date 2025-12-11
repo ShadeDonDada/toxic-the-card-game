@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -9,8 +10,8 @@ import { IconSymbol } from '@/components/IconSymbol';
 export default function PlayerNamesScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const colorScheme = useColorScheme();
-  const colors = getColors(colorScheme);
+  const { effectiveColorScheme } = useTheme();
+  const colors = getColors(effectiveColorScheme);
   const playerCount = parseInt(params.playerCount as string) || 4;
   
   const [playerNames, setPlayerNames] = useState<string[]>(

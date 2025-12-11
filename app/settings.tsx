@@ -18,6 +18,21 @@ export default function SettingsScreen() {
     { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
   ];
 
+  const getSelectedIcon = () => {
+    if (themeMode === 'light') {
+      return { ios: 'sun.max.fill', android: 'wb_sunny' };
+    } else if (themeMode === 'dark') {
+      return { ios: 'moon.fill', android: 'nightlight' };
+    } else {
+      // System mode - show what's currently active
+      return effectiveColorScheme === 'dark' 
+        ? { ios: 'moon.fill', android: 'nightlight' }
+        : { ios: 'sun.max.fill', android: 'wb_sunny' };
+    }
+  };
+
+  const selectedIcon = getSelectedIcon();
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView 
@@ -26,8 +41,8 @@ export default function SettingsScreen() {
       >
         <View style={styles.header}>
           <IconSymbol
-            ios_icon_name="gear"
-            android_material_icon_name="settings"
+            ios_icon_name={selectedIcon.ios}
+            android_material_icon_name={selectedIcon.android}
             size={60}
             color={colors.primary}
           />
@@ -78,8 +93,8 @@ export default function SettingsScreen() {
                 </View>
                 {themeMode === option.value && (
                   <IconSymbol
-                    ios_icon_name="checkmark.circle.fill"
-                    android_material_icon_name="check_circle"
+                    ios_icon_name={option.value === 'light' ? 'sun.max.fill' : option.value === 'dark' ? 'moon.fill' : 'checkmark.circle.fill'}
+                    android_material_icon_name={option.value === 'light' ? 'wb_sunny' : option.value === 'dark' ? 'nightlight' : 'check_circle'}
                     size={24}
                     color={colors.primary}
                   />

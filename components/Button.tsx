@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, useColorScheme } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
 
 interface ButtonProps {
@@ -12,8 +13,8 @@ interface ButtonProps {
 }
 
 export function Button({ title, onPress, variant = 'primary', disabled, style }: ButtonProps) {
-  const colorScheme = useColorScheme();
-  const colors = getColors(colorScheme);
+  const { effectiveColorScheme } = useTheme();
+  const colors = getColors(effectiveColorScheme);
 
   const getBackgroundColor = () => {
     switch (variant) {

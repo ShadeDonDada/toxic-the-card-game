@@ -1,15 +1,16 @@
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
 
 export default function GameSetupScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const colors = getColors(colorScheme);
+  const { effectiveColorScheme } = useTheme();
+  const colors = getColors(effectiveColorScheme);
   const [playerCount, setPlayerCount] = useState(4);
 
   const handleStartGame = () => {
