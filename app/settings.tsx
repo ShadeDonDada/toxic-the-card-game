@@ -18,20 +18,6 @@ export default function SettingsScreen() {
     { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
   ];
 
-  const getSelectedIcon = () => {
-    if (themeMode === 'light') {
-      return { ios: 'sun.max.fill', android: 'wb_sunny' };
-    } else if (themeMode === 'dark') {
-      return { ios: 'moon.fill', android: 'nightlight' };
-    } else {
-      return effectiveColorScheme === 'dark' 
-        ? { ios: 'moon.fill', android: 'nightlight' }
-        : { ios: 'sun.max.fill', android: 'wb_sunny' };
-    }
-  };
-
-  const selectedIcon = getSelectedIcon();
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView 
@@ -40,8 +26,8 @@ export default function SettingsScreen() {
       >
         <View style={styles.header}>
           <IconSymbol
-            ios_icon_name={selectedIcon.ios}
-            android_material_icon_name={selectedIcon.android}
+            ios_icon_name="gear"
+            android_material_icon_name="settings"
             size={60}
             color={colors.primary}
           />
