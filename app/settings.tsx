@@ -13,7 +13,7 @@ export default function SettingsScreen() {
   const colors = getColors(effectiveColorScheme);
 
   const themeOptions: Array<{ value: 'light' | 'dark' | 'system'; label: string; icon: string; androidIcon: string }> = [
-    { value: 'light', label: 'Light Mode', icon: 'sun.max.fill', androidIcon: 'wb_sunny' },
+    { value: 'light', label: 'Light Mode', icon: 'lightbulb.fill', androidIcon: 'lightbulb' },
     { value: 'dark', label: 'Dark Mode', icon: 'moon.fill', androidIcon: 'nightlight' },
     { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
   ];
@@ -78,8 +78,8 @@ export default function SettingsScreen() {
                 </View>
                 {themeMode === option.value && (
                   <IconSymbol
-                    ios_icon_name="checkmark.circle.fill"
-                    android_material_icon_name="check_circle"
+                    ios_icon_name="lightbulb.fill"
+                    android_material_icon_name="lightbulb"
                     size={24}
                     color={colors.primary}
                   />
