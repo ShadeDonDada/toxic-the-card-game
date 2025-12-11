@@ -81,7 +81,7 @@ export default function GameSetupScreen() {
         </View>
         <View style={styles.reminderItem}>
           <Text style={[styles.reminderBullet, { color: colors.accent }]}>•</Text>
-          <Text style={[styles.reminderText, { color: colors.text }]}>Play goes counterclockwise</Text>
+          <Text style={[styles.reminderText, { color: colors.text }]}>Player 1 goes first</Text>
         </View>
         <View style={styles.reminderItem}>
           <Text style={[styles.reminderBullet, { color: colors.accent }]}>•</Text>

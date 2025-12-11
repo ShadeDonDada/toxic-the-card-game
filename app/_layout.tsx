@@ -6,16 +6,17 @@ import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useColorScheme, Alert } from "react-native";
+import { Alert } from "react-native";
 import { useNetworkState } from "expo-network";
 import {
   DarkTheme,
   DefaultTheme,
   Theme,
-  ThemeProvider,
+  ThemeProvider as NavigationThemeProvider,
 } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { WidgetProvider } from "@/contexts/WidgetContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -24,7 +25,6 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const networkState = useNetworkState();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
@@ -81,9 +81,8 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar hidden />
-        <ThemeProvider
-          value={colorScheme === "dark" ? CustomDarkTheme : CustomDefaultTheme}
-        >
+      <ThemeProvider>
+        <NavigationThemeProvider value={CustomDarkTheme}>
           <WidgetProvider>
             <GestureHandlerRootView>
             <Stack>
@@ -105,6 +104,13 @@ export default function RootLayout() {
               />
               <Stack.Screen
                 name="thank-you"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="settings"
                 options={{
                   headerShown: false,
                   presentation: "card",
@@ -152,7 +158,8 @@ export default function RootLayout() {
             <SystemBars style={"light"} hidden />
             </GestureHandlerRootView>
           </WidgetProvider>
-        </ThemeProvider>
+        </NavigationThemeProvider>
+      </ThemeProvider>
     </>
   );
 }

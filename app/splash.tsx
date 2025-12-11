@@ -19,7 +19,7 @@ export default function SplashScreenComponent() {
     const timer = setTimeout(() => {
       SplashScreen.hideAsync();
       router.replace('/(tabs)');
-    }, 5000);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);

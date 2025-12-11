@@ -17,7 +17,7 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's12', text: 'You show up on a first date from tinder and they look nothing like their pictures. How do you get out of this date? (Or what do you write on the napkin while they are in the bathroom before you bail on this date?)', category: 'Relationships' },
   { id: 's13', text: 'Your date leans over the table to take some of your food off your plate with their hands and without asking. How do you get revenge with your words?', category: 'Relationships' },
   { id: 's14', text: 'Your date laughs so hard that they pee themselves in public. What are your last words before you walk away?', category: 'Relationships' },
-  { id: 's15', text: 'You cannot stand one of your partnes family members. What do you say to get them to stop talking to you forever?', category: 'Relationships' },
+  { id: 's15', text: 'You cannot stand one of your partner`s family members. What do you say to get them to stop talking to you forever?', category: 'Relationships' },
   
   // Work Category
   { id: 's16', text: 'Your co-worker shows up late again and you must stay overtime. They tell you their dog died and that is why they are was late. What do you say?', category: 'Work' },
@@ -55,7 +55,7 @@ export const scenarioCards: ScenarioCard[] = [
   
   // Friends Category
   { id: 's46', text: 'Your best friend`s new partner just commented "that`s "why you are single" to something you just said. How do you respond?', category: 'Friends' },
-  { id: 's47', text: 'You just found out one of your friends is sleeping with another one of your friend`s partners. This is the same friend that called you a mess earlier this week. What do you say to them?', category: 'Friends' },
+  { id: 's47', text: 'You just found out one of your friends is sleeping with another one of your friend`s partner. This is the same friend that called you a mess earlier this week. What do you say to them?', category: 'Friends' },
   { id: 's48', text: 'Your friend who would never give you a ride when you asked is now asking you for one. What do you say to them?', category: 'Friends' },
   { id: 's49', text: 'Your friend just announced they are pregnant and has no idea who the father could be. What do you say?', category: 'Friends' },
   { id: 's50', text: 'Your friend is on the rebound and announces they want to be more than friends. After trying it out, you do not even want to be their friend anymore. Say something to end this situation-ship.', category: 'Friends' },
@@ -82,9 +82,9 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's69', text: 'Your boyfriend cums five minutes into sex for the third time this week. What is the next thing you say?', category: 'Sex' },
   { id: 's70', text: 'You just had a threesome, and you like the new partner way more. Say something to end it with your current partner.', category: 'Sex' },
   { id: 's71', text: 'You were just about to cum, and your partner stopped a split second before. Get even with your words.', category: 'Sex' },
-  { id: 's72', text: 'You just learned about your partners hidden fetish, and it involves you two pretending to be your parents having sex. Say something to get rid of them forever.', category: 'Sex' },
+  { id: 's72', text: 'You just learned about your partner`s hidden fetish, and it involves you two pretending to be your parents having sex. Say something to get rid of them forever.', category: 'Sex' },
   { id: 's73', text: 'In the middle of sexting, your partner drops a joke about seeing someone else if you can`t give them what they want. What do you reply with?', category: 'Sex' },
-  { id: 's74', text: 'You finally get to the point of having sex with your date, and they have a large tattoo of a religous face staring at you the entire time. What do you say to them?', category: 'Sex' },
+  { id: 's74', text: 'You finally get to the point of having sex with your date, and they have a large tattoo of a religious face staring at you the entire time. What do you say to them?', category: 'Sex' },
   { id: 's75', text: 'You open your eyes in the middle of having sex and see your partner playing a game on their phone. Say something.', category: 'Sex' },
   
   // Pets Category
@@ -96,12 +96,12 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's81', text: 'Your new partner does this thing where they take food off from your plate to feed their dog. It`s been a week of this. Say something to them when they try this today.', category: 'Pets' },
   { id: 's82', text: 'Your partner just told you they do not need to have kids, because they are thinking about bringing home three more cats. How do you respond?', category: 'Pets' },
   { id: 's83', text: 'Your partner just ripped up your favorite shirt to make socks for the dog. What do you say to this?', category: 'Pets' },
-  { id: 's84', text: 'You join your new friend for dinner at their parents and learn very quickly that the highchair at the table is for their dog and not for a child. Say something to get you out of dinner.', category: 'Pets' },
+  { id: 's84', text: 'You join your new friend for dinner at their parent`s and learn very quickly that the highchair at the table is for their dog and not for a child. Say something to get you out of dinner.', category: 'Pets' },
   { id: 's85', text: 'You make plans with a date to meet at the dog park, and they show up wearing matching clothes with their dog. Say something.', category: 'Pets' },
   { id: 's86', text: 'Your sister asks you to watch her cat for her while she runs into the store. Her cat is in a baby stroller. Say something.', category: 'Pets' },
   { id: 's87', text: 'You go over to your dates place for the first time and learn quickly that they are the type to speak in third person on behalf of their pets. Say something to end the night.', category: 'Pets' },
-  { id: 's88', text: 'Your mother-in-law says it would mean the world to her if you did a nude photo shoot with the family Chikwawa. How do you respond?', category: 'Pets' },
-  { id: 's89', text: 'Your uncle says that a dog is a mans best friend, so having sex without allowing your dog to watch is wrong. Say something.', category: 'Pets' },
+  { id: 's88', text: 'Your mother-in-law says it would mean the world to her if you did a nude photo shoot with the family Chi Wawa. How do you respond?', category: 'Pets' },
+  { id: 's89', text: 'Your uncle says that a dog is a man`s best friend, so having sex without allowing your dog to watch is wrong. Say something.', category: 'Pets' },
   { id: 's90', text: 'You learn quickly that your co-worker thinks it is normal to talk dirty to their cats. What do you say to this?', category: 'Pets' },
   
   // Public Scenarios Category
@@ -119,7 +119,7 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's102', text: 'Your professor calls you out in front of the entire class for doing your own assignment. What is your response?', category: 'Public Scenarios' },
   { id: 's103', text: 'You go to sign up for a membership to your local club, and the attendant assumes your age to be 10 years older than you are. When you share your true age, he asks for ID. What do you say next?', category: 'Public Scenarios' },
   { id: 's104', text: 'A worker at the store keeps following you around insinuating you might shoplift. What do you turn around and say?', category: 'Public Scenarios' },
-  { id: 's105', text: 'The front desk attendant at the physicians office repeats the purpose of your visit way too loud. Say something to them.', category: 'Public Scenarios' },
+  { id: 's105', text: 'The front desk attendant at the physician`s office repeats the purpose of your visit way too loud. Say something to them.', category: 'Public Scenarios' },
   
   // Self-Reflection Category
   { id: 's106', text: 'You are late for every event and someone calls you out about it in front of everyone. What do you reply?', category: 'Self-Reflection' },
@@ -130,11 +130,11 @@ export const scenarioCards: ScenarioCard[] = [
   { id: 's111', text: 'You partner buys you a gift & it is nothing you wanted. Reply.', category: 'Self-Reflection' },
   { id: 's112', text: 'Your partner wants to leave you because you only care about yourself. Reply to them.', category: 'Self-Reflection' },
   { id: 's113', text: 'You ask someone to do something, & they do not do it in a time you allocated now you are upset. Say something.', category: 'Self-Reflection' },
-  { id: 's114', text: 'You are a "know it all". Someone calls you out. Say something.', category: 'Self-Reflection' },
+  { id: 's114', text: 'You`re a "know it all". Someone calls you out. Say something.', category: 'Self-Reflection' },
   { id: 's115', text: 'Someone calls you out for always playing the victim roll. Say something.', category: 'Self-Reflection' },
   { id: 's116', text: 'You get upset at your partner for something you drummed up. They call you out about it, reply.', category: 'Self-Reflection' },
   { id: 's117', text: 'Your partner always has opportunities however says your fear makes them not want to include you. Reply.', category: 'Self-Reflection' },
-  { id: 's118', text: 'You never finish anything & it is annoying to everyone else, so you get called out. Reply.', category: 'Self-Reflection' },
+  { id: 's118', text: 'You never finish anything & it`s annoying to everyone else, so you get called out. Reply.', category: 'Self-Reflection' },
   { id: 's119', text: 'You overthink too much & it created issues with your partner. What is one of your replies in the argument?', category: 'Self-Reflection' },
   { id: 's120', text: 'You noticed someone is getting too close to you. Say something to keep them at bay.', category: 'Self-Reflection' },
 ];
@@ -153,7 +153,7 @@ export const responseCards: ResponseCard[] = [
   { id: 'r11', text: 'I have not cum to the thought of you.' },
   { id: 'r12', text: 'I canceled my subscription to your bullsh*t' },
   { id: 'r13', text: 'JESUS CHRIST!' },
-  { id: 'r14', text: 'I do not know.' },
+  { id: 'r14', text: 'I don`t know.' },
   { id: 'r15', text: 'Holy!' },
   { id: 'r16', text: '…' },
   { id: 'r17', text: 'Who the f*ck are you talking to?' },
@@ -163,7 +163,7 @@ export const responseCards: ResponseCard[] = [
   { id: 'r21', text: 'Your ass must get jealous for all the shit your mouth spits.' },
   { id: 'r22', text: 'SHUT-THE- F*CK-UP' },
   { id: 'r23', text: 'Shut up' },
-  { id: 'r24', text: 'You are a piece of sh*t' },
+  { id: 'r24', text: 'You`re a piece of sh*t' },
   { id: 'r25', text: 'Who the f*ck does this?' },
   { id: 'r26', text: 'No wonder your ex left.' },
   { id: 'r27', text: 'So what…' },
@@ -260,4 +260,5 @@ export const responseCards: ResponseCard[] = [
   { id: 'r118', text: 'Create your own response.', isCustom: true },
   { id: 'r119', text: 'Create your own response.', isCustom: true },
 	{ id: 'r120', text: 'Create your own response.', isCustom: true },
+	{ id: 'r121', text: 'You got me f*cked up'},
 ];

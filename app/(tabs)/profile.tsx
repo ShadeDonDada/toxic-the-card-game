@@ -36,7 +36,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.infoRow}>
             <IconSymbol ios_icon_name="location.fill" android_material_icon_name="location-on" size={20} color={theme.dark ? '#98989D' : '#666'} />
-            <Text style={[styles.infoText, { color: theme.colors.text }]}>Toronto, Can</Text>
+            <Text style={[styles.infoText, { color: theme.colors.text }]}>Toronto, Canada</Text>
           </View>
         </GlassView>
       </ScrollView>

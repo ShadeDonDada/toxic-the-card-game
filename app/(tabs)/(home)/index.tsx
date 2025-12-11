@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Dimensions, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -10,8 +11,8 @@ const { width: screenWidth } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const colors = getColors(colorScheme);
+  const { effectiveColorScheme } = useTheme();
+  const colors = getColors(effectiveColorScheme);
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
@@ -76,6 +77,12 @@ export default function HomeScreen() {
         <Button
           title="Thank You"
           onPress={() => router.push('/thank-you')}
+          variant="secondary"
+          style={styles.button}
+        />
+        <Button
+          title="Settings"
+          onPress={() => router.push('/settings')}
           variant="secondary"
           style={styles.button}
         />
