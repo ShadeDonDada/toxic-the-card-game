@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
@@ -13,14 +13,22 @@ export default function HomeScreen() {
   const router = useRouter();
   const { effectiveColorScheme } = useTheme();
   const colors = getColors(effectiveColorScheme);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
+        {!imageLoaded && (
+          <View style={[styles.logoPlaceholder, { backgroundColor: colors.card }]}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        )}
         <Image
           source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
-          style={styles.logo}
+          style={[styles.logo, { opacity: imageLoaded ? 1 : 0 }]}
           resizeMode="contain"
+          onLoad={() => setImageLoaded(true)}
+          fadeDuration={0}
         />
         <Text style={[styles.tagline, { color: colors.textSecondary }]}>&quot;Extracting the poison out of you&quot;</Text>
       </View>
@@ -112,9 +120,18 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     width: '100%',
   },
+  logoPlaceholder: {
+    width: screenWidth * 0.6,
+    height: screenWidth * 0.6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
+    position: 'absolute',
+    top: 0,
+  },
   logo: {
-    width: screenWidth - 20,
-    height: (screenWidth - 20) * 0.8,
+    width: screenWidth * 0.6,
+    height: screenWidth * 0.6,
     marginBottom: 20,
   },
   tagline: {
