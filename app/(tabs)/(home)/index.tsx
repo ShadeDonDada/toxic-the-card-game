@@ -1,11 +1,19 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSequence,
+  withRepeat,
+  Easing,
+} from 'react-native-reanimated';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -15,6 +23,50 @@ export default function HomeScreen() {
   const colors = getColors(effectiveColorScheme);
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  // Animation values
+  const scale = useSharedValue(0.5);
+  const opacity = useSharedValue(0);
+  const glowOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    if (imageLoaded) {
+      // Scale and fade in animation
+      scale.value = withSequence(
+        withTiming(1.1, { duration: 600, easing: Easing.out(Easing.cubic) }),
+        withTiming(1, { duration: 300, easing: Easing.inOut(Easing.cubic) })
+      );
+      
+      opacity.value = withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) });
+      
+      // Pulsating glow effect (repeats 3 times then stops)
+      glowOpacity.value = withSequence(
+        withTiming(0, { duration: 0 }),
+        withRepeat(
+          withSequence(
+            withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease) }),
+            withTiming(0.3, { duration: 500, easing: Easing.inOut(Easing.ease) })
+          ),
+          3,
+          false
+        ),
+        withTiming(0, { duration: 500 })
+      );
+    }
+  }, [imageLoaded]);
+
+  const animatedLogoStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+      opacity: opacity.value,
+    };
+  });
+
+  const animatedGlowStyle = useAnimatedStyle(() => {
+    return {
+      opacity: glowOpacity.value,
+    };
+  });
+
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
@@ -23,13 +75,37 @@ export default function HomeScreen() {
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
         )}
-        <Image
-          source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
-          style={[styles.logo, { opacity: imageLoaded ? 1 : 0 }]}
-          resizeMode="contain"
-          onLoad={() => setImageLoaded(true)}
-          fadeDuration={0}
-        />
+        <View style={styles.logoContainer}>
+          {/* Glow effect layers */}
+          <Animated.View
+            style={[
+              styles.glowLayer,
+              animatedGlowStyle,
+              {
+                backgroundColor: colors.primary,
+                boxShadow: `0px 0px 60px 30px ${colors.primary}`,
+              },
+            ]}
+          />
+          <Animated.View
+            style={[
+              styles.glowLayer,
+              animatedGlowStyle,
+              {
+                backgroundColor: colors.accent,
+                boxShadow: `0px 0px 40px 20px ${colors.accent}`,
+              },
+            ]}
+          />
+          {/* Logo */}
+          <Animated.Image
+            source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
+            style={[styles.logo, animatedLogoStyle]}
+            resizeMode="contain"
+            onLoad={() => setImageLoaded(true)}
+            fadeDuration={0}
+          />
+        </View>
         <Text style={[styles.tagline, { color: colors.textSecondary }]}>&quot;Extracting the poison out of you&quot;</Text>
       </View>
 
@@ -129,10 +205,23 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
   },
-  logo: {
+  logoContainer: {
     width: screenWidth * 0.6,
     height: screenWidth * 0.6,
     marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  glowLayer: {
+    position: 'absolute',
+    width: screenWidth * 0.6,
+    height: screenWidth * 0.6,
+    borderRadius: (screenWidth * 0.6) / 2,
+    opacity: 0,
+  },
+  logo: {
+    width: screenWidth * 0.6,
+    height: screenWidth * 0.6,
   },
   tagline: {
     fontSize: 16,
