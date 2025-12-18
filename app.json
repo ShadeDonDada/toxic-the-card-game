@@ -1,9 +1,8 @@
-
 {
   "expo": {
     "name": "Toxic - The Card Game",
-    "slug": "toxic-the-card-game",
-    "version": "1.0.3",
+    "slug": "Toxic - The Card Game",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/37a4463c-0dea-4f5f-9b33-cea6e0e6fe48.png",
     "userInterfaceStyle": "automatic",
@@ -25,7 +24,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/30bb78b4-7ad8-49c0-b5b7-de3843592db5.png",
+        "foregroundImage": "./assets/images/5458815b-3a9c-4d98-a205-ba7b8b0259ba.png",
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
