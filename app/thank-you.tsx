@@ -37,7 +37,7 @@ export default function ThankYouScreen() {
           style={styles.heartIcon}
         />
         <Text style={[styles.bodyText, { color: colors.text }]}>
-          First and foremost, I would like to thank you for the purchase and support. This game is intended to be a fun way to realize what is toxic in every and any conversation/ relationship. Enjoy and have fun.
+          First and foremost, I would like to thank you for the purchase and support. This game is intended to be a fun way to realize what is toxic in every and any conversation/relationship. Enjoy and have fun.
         </Text>
       </View>
 
