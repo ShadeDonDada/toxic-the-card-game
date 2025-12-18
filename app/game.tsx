@@ -50,12 +50,11 @@ export default function GameScreen() {
   const [nextPlayerName, setNextPlayerName] = useState('');
   const [showPointSelection, setShowPointSelection] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   useEffect(() => {
     initializeGame(playerCount, playerNames);
   }, [playerCount, initializeGame]);
-
-  // Removed the automatic game completion check - we'll handle it after point is awarded
 
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
@@ -78,10 +77,15 @@ export default function GameScreen() {
   const showPassPhonePrompt = (nextPlayer: string) => {
     setNextPlayerName(nextPlayer);
     setShowPassPhoneModal(true);
+    setIsPlayerReady(false);
+  };
+
+  const handleReadyPress = () => {
+    setShowPassPhoneModal(false);
+    setIsPlayerReady(true);
   };
 
   const checkIfAllPlayersPassed = () => {
-    // Check if all played cards are "PASSED" entries
     return gameState.playedCards.length === gameState.players.length &&
            gameState.playedCards.every(played => played.card.text === 'PASSED');
   };
@@ -119,21 +123,17 @@ export default function GameScreen() {
     playCard(currentPlayer.id, selectedCardId);
     setSelectedCardId(undefined);
     
-    // Scroll to top after playing the card
     setTimeout(() => {
       scrollToTop();
     }, 100);
 
-    // Check if all players have now played
     const willBeRoundComplete = gameState.playedCards.length + 1 === gameState.players.length;
     
     if (willBeRoundComplete) {
-      // All players have answered - show point selection
       setTimeout(() => {
         setShowPointSelection(true);
       }, 200);
     } else {
-      // More players need to answer - show pass phone modal
       const nextPlayerIndex = gameState.currentPlayerIndex - 1 < 0 
         ? gameState.players.length - 1 
         : gameState.currentPlayerIndex - 1;
@@ -151,7 +151,6 @@ export default function GameScreen() {
       return;
     }
     
-    // Calculate next player
     let nextPlayerIndex = gameState.currentPlayerIndex - 1;
     if (nextPlayerIndex < 0) {
       nextPlayerIndex = gameState.players.length - 1;
@@ -169,20 +168,16 @@ export default function GameScreen() {
             passCard(currentPlayer.id);
             setSelectedCardId(undefined);
             
-            // Scroll to top after passing
             setTimeout(() => {
               scrollToTop();
             }, 100);
 
-            // Check if all players have now played or passed
             const willBeRoundComplete = gameState.playedCards.length + 1 === gameState.players.length;
             
             if (willBeRoundComplete) {
-              // Check if all players passed
               const willAllPass = gameState.playedCards.every(played => played.card.text === 'PASSED');
               
               if (willAllPass) {
-                // All players passed - change scenario and continue
                 setTimeout(() => {
                   if (gameState.scenarioDeck.length === 0) {
                     Alert.alert(
@@ -207,12 +202,10 @@ export default function GameScreen() {
                           onPress: () => {
                             changeScenarioAndContinue();
                             
-                            // Scroll to top after changing scenario
                             setTimeout(() => {
                               scrollToTop();
                             }, 100);
 
-                            // Show pass phone prompt for the next player
                             setTimeout(() => {
                               showPassPhonePrompt(nextPlayer.name);
                             }, 200);
@@ -223,13 +216,11 @@ export default function GameScreen() {
                   }
                 }, 200);
               } else {
-                // Some players played cards - show point selection
                 setTimeout(() => {
                   setShowPointSelection(true);
                 }, 200);
               }
             } else {
-              // Show pass phone prompt for next player
               setTimeout(() => {
                 showPassPhonePrompt(nextPlayer.name);
               }, 200);
@@ -261,15 +252,12 @@ export default function GameScreen() {
       return;
     }
 
-    // Calculate the target player index
     const currentIndex = gameState.currentPlayerIndex;
     let targetIndex: number;
     
     if (direction === 'previous') {
-      // Previous player (counterclockwise, so +1)
       targetIndex = (currentIndex + 1) % gameState.players.length;
     } else {
-      // Next player (clockwise, so -1)
       targetIndex = currentIndex - 1;
       if (targetIndex < 0) {
         targetIndex = gameState.players.length - 1;
@@ -302,24 +290,18 @@ export default function GameScreen() {
       return;
     }
 
-    // Award the point first
     awardPoint(playerId);
     setShowPointSelection(false);
     
-    // Wait for state to update, then check game completion
     setTimeout(() => {
-      // Re-check the updated game state after the point has been awarded
-      // We need to check the players' hands to see if anyone is out of cards
       const anyPlayerOutOfCards = gameState.players.some(p => p.id === playerId ? player.hand.length === 0 : p.hand.length === 0);
       
       if (anyPlayerOutOfCards) {
-        // Game is complete - show winner announcement
         console.log('Game complete after awarding point - a player has no cards left');
         setTimeout(() => {
           setShowGameOverModal(true);
         }, 500);
       } else if (gameState.scenarioDeck.length === 0) {
-        // No more scenarios but players still have cards
         Alert.alert(
           'Game Over!',
           `${player.name} wins the final round! Check the scores to see who won the game.`,
@@ -333,15 +315,12 @@ export default function GameScreen() {
           ]
         );
       } else {
-        // Continue to next round with the winner as the starting player
         nextRound(playerId);
         
-        // Scroll to top after awarding point and starting new round
         setTimeout(() => {
           scrollToTop();
         }, 100);
 
-        // Show pass phone prompt for the winner (who goes first in the next round)
         setTimeout(() => {
           showPassPhonePrompt(player.name);
         }, 200);
@@ -353,16 +332,13 @@ export default function GameScreen() {
     console.log('Play Again pressed - restarting with same players');
     setShowGameOverModal(false);
     
-    // Use the new function to restart with same players
     restartGameWithSamePlayers();
     
-    // Scroll to top after restarting
     setTimeout(() => {
       scrollToTop();
     }, 100);
   };
 
-  // Get previous and next player names for display
   const getPreviousPlayer = () => {
     const prevIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
     return gameState.players[prevIndex];
@@ -425,151 +401,184 @@ export default function GameScreen() {
         </View>
       </View>
 
-      <ScrollView 
-        ref={scrollViewRef}
-        style={styles.scrollView} 
-        contentContainerStyle={styles.scrollContent}
-      >
-        {gameState.currentScenario && (
-          <View style={styles.scenarioContainer}>
-            <Text style={[styles.scenarioLabel, { color: colors.textSecondary }]}>Current Scenario</Text>
-            <GameCard
-              text={gameState.currentScenario.text}
-              type="scenario"
-            />
-          </View>
-        )}
-
-        {showPointSelection ? (
-          <View style={styles.pointSelectionContainer}>
-            <Text style={[styles.pointSelectionTitle, { color: colors.primary }]}>Who Gets the Point? 🏆</Text>
-            <Text style={[styles.pointSelectionSubtitle, { color: colors.textSecondary }]}>
-              All players have responded! Review the cards and award a point.
+      {!isPlayerReady ? (
+        <View style={styles.readyScreenContainer}>
+          <View style={styles.readyScreenContent}>
+            <View style={styles.readyIconContainer}>
+              <IconSymbol
+                ios_icon_name="eye.slash.fill"
+                android_material_icon_name="visibility_off"
+                size={80}
+                color={colors.primary}
+              />
+            </View>
+            
+            <Text style={[styles.readyTitle, { color: colors.primary }]}>
+              {currentPlayer.name}&apos;s Turn
             </Text>
             
-            <View style={styles.playedCardsContainer}>
-              {gameState.playedCards.map((played, index) => {
-                const player = gameState.players.find(p => p.id === played.playerId);
-                const isPassed = played.card.text === 'PASSED';
-                
-                if (isPassed) {
+            <Text style={[styles.readyMessage, { color: colors.textSecondary }]}>
+              Make sure other players aren&apos;t looking at the screen.
+            </Text>
+            
+            <Text style={[styles.readySubMessage, { color: colors.text }]}>
+              Press the button below when you&apos;re ready to view your cards.
+            </Text>
+            
+            <Button
+              title="I'm Ready - Show My Cards"
+              onPress={() => setIsPlayerReady(true)}
+              variant="primary"
+              style={styles.readyButton}
+            />
+          </View>
+        </View>
+      ) : (
+        <ScrollView 
+          ref={scrollViewRef}
+          style={styles.scrollView} 
+          contentContainerStyle={styles.scrollContent}
+        >
+          {gameState.currentScenario && (
+            <View style={styles.scenarioContainer}>
+              <Text style={[styles.scenarioLabel, { color: colors.textSecondary }]}>Current Scenario</Text>
+              <GameCard
+                text={gameState.currentScenario.text}
+                type="scenario"
+              />
+            </View>
+          )}
+
+          {showPointSelection ? (
+            <View style={styles.pointSelectionContainer}>
+              <Text style={[styles.pointSelectionTitle, { color: colors.primary }]}>Who Gets the Point? 🏆</Text>
+              <Text style={[styles.pointSelectionSubtitle, { color: colors.textSecondary }]}>
+                All players have responded! Review the cards and award a point.
+              </Text>
+              
+              <View style={styles.playedCardsContainer}>
+                {gameState.playedCards.map((played, index) => {
+                  const player = gameState.players.find(p => p.id === played.playerId);
+                  const isPassed = played.card.text === 'PASSED';
+                  
+                  if (isPassed) {
+                    return (
+                      <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+                        <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
+                        <View style={[styles.playedCardWrapper, styles.passedCardWrapper, { backgroundColor: colors.textSecondary }]}>
+                          <Text style={[styles.passedCardText, { color: colors.background }]}>⏭️ PASSED</Text>
+                        </View>
+                      </View>
+                    );
+                  }
+                  
+                  const displayText = played.card.isCustom && played.card.customText 
+                    ? played.card.customText 
+                    : played.card.text;
+                  
                   return (
                     <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                       <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
-                      <View style={[styles.playedCardWrapper, styles.passedCardWrapper, { backgroundColor: colors.textSecondary }]}>
-                        <Text style={[styles.passedCardText, { color: colors.background }]}>⏭️ PASSED</Text>
+                      <View style={[styles.playedCardWrapper, { backgroundColor: effectiveColorScheme === 'dark' ? '#006622' : '#ffffff', borderColor: colors.cardBorder }]}>
+                        <Text style={[styles.playedCardText, { color: '#000000' }]}>{displayText}</Text>
+                        {played.card.isCustom && (
+                          <Text style={[styles.customBadge, { color: colors.accent }]}>✏️ Custom</Text>
+                        )}
                       </View>
+                      <Button
+                        title="Award Point"
+                        onPress={() => handleAwardPoint(played.playerId)}
+                        variant="accent"
+                        style={styles.awardButton}
+                      />
                     </View>
                   );
-                }
-                
-                const displayText = played.card.isCustom && played.card.customText 
-                  ? played.card.customText 
-                  : played.card.text;
-                
-                return (
-                  <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                    <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
-                    <View style={[styles.playedCardWrapper, { backgroundColor: effectiveColorScheme === 'dark' ? '#006622' : '#ffffff', borderColor: colors.cardBorder }]}>
-                      <Text style={[styles.playedCardText, { color: '#000000' }]}>{displayText}</Text>
-                      {played.card.isCustom && (
-                        <Text style={[styles.customBadge, { color: colors.accent }]}>✏️ Custom</Text>
-                      )}
+                })}
+              </View>
+            </View>
+          ) : (
+            <>
+              <View style={[styles.scoresContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+                <Text style={[styles.scoresTitle, { color: colors.text }]}>Scores</Text>
+                <View style={styles.scoresGrid}>
+                  {gameState.players.map((player, index) => (
+                    <View key={index} style={styles.scoreItem}>
+                      <Text style={[styles.scorePlayerName, { color: colors.textSecondary }]}>{player.name}</Text>
+                      <Text style={[styles.scoreValue, { color: colors.primary }]}>{player.score}</Text>
+                      <Text style={[styles.cardsLeftText, { color: colors.textSecondary }]}>
+                        {player.hand.length} {player.hand.length === 1 ? 'card' : 'cards'} left
+                      </Text>
                     </View>
-                    <Button
-                      title="Award Point"
-                      onPress={() => handleAwardPoint(played.playerId)}
-                      variant="accent"
-                      style={styles.awardButton}
-                    />
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        ) : (
-          <>
-            <View style={[styles.scoresContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-              <Text style={[styles.scoresTitle, { color: colors.text }]}>Scores</Text>
-              <View style={styles.scoresGrid}>
-                {gameState.players.map((player, index) => (
-                  <View key={index} style={styles.scoreItem}>
-                    <Text style={[styles.scorePlayerName, { color: colors.textSecondary }]}>{player.name}</Text>
-                    <Text style={[styles.scoreValue, { color: colors.primary }]}>{player.score}</Text>
-                    <Text style={[styles.cardsLeftText, { color: colors.textSecondary }]}>
-                      {player.hand.length} {player.hand.length === 1 ? 'card' : 'cards'} left
-                    </Text>
-                  </View>
-                ))}
+                  ))}
+                </View>
               </View>
-            </View>
 
-            {showExchangeOptions ? (
-              <View style={styles.exchangeContainer}>
-                <Text style={[styles.exchangeTitle, { color: colors.text }]}>Exchange card with:</Text>
-                <Text style={[styles.exchangeSubtitle, { color: colors.textSecondary }]}>
-                  Choose to exchange with the previous or next player
-                </Text>
-                
-                <Button
-                  title={`← Previous Player (${getPreviousPlayer().name})`}
-                  onPress={() => handleExchangeWithDirection('previous')}
-                  variant="secondary"
-                  style={styles.exchangeButton}
-                />
-                
-                <Button
-                  title={`Next Player (${getNextPlayer().name}) →`}
-                  onPress={() => handleExchangeWithDirection('next')}
-                  variant="secondary"
-                  style={styles.exchangeButton}
-                />
-                
-                <Button
-                  title="Cancel"
-                  onPress={() => setShowExchangeOptions(false)}
-                  variant="accent"
-                  style={styles.exchangeButton}
-                />
-              </View>
-            ) : (
-              <>
-                <PlayerHand
-                  cards={currentPlayer.hand}
-                  onCardPress={handleCardSelect}
-                  selectedCardId={selectedCardId}
-                  onCustomTextChange={handleCustomTextChange}
-                />
-
-                <View style={styles.actionsContainer}>
+              {showExchangeOptions ? (
+                <View style={styles.exchangeContainer}>
+                  <Text style={[styles.exchangeTitle, { color: colors.text }]}>Exchange card with:</Text>
+                  <Text style={[styles.exchangeSubtitle, { color: colors.textSecondary }]}>
+                    Choose to exchange with the previous or next player
+                  </Text>
+                  
                   <Button
-                    title="Play Card"
-                    onPress={handlePlayCard}
-                    variant="primary"
-                    disabled={!selectedCardId}
-                    style={styles.actionButton}
-                  />
-                  <Button
-                    title={currentPlayer.hasExchanged ? "Already Exchanged" : "Exchange Card"}
-                    onPress={handleExchange}
+                    title={`← Previous Player (${getPreviousPlayer().name})`}
+                    onPress={() => handleExchangeWithDirection('previous')}
                     variant="secondary"
-                    disabled={currentPlayer.hasExchanged || !selectedCardId}
-                    style={styles.actionButton}
+                    style={styles.exchangeButton}
                   />
+                  
                   <Button
-                    title="Pass"
-                    onPress={handlePass}
+                    title={`Next Player (${getNextPlayer().name}) →`}
+                    onPress={() => handleExchangeWithDirection('next')}
+                    variant="secondary"
+                    style={styles.exchangeButton}
+                  />
+                  
+                  <Button
+                    title="Cancel"
+                    onPress={() => setShowExchangeOptions(false)}
                     variant="accent"
-                    style={styles.actionButton}
+                    style={styles.exchangeButton}
                   />
                 </View>
-              </>
-            )}
-          </>
-        )}
-      </ScrollView>
+              ) : (
+                <>
+                  <PlayerHand
+                    cards={currentPlayer.hand}
+                    onCardPress={handleCardSelect}
+                    selectedCardId={selectedCardId}
+                    onCustomTextChange={handleCustomTextChange}
+                  />
 
-      {/* Pass Phone Modal */}
+                  <View style={styles.actionsContainer}>
+                    <Button
+                      title="Play Card"
+                      onPress={handlePlayCard}
+                      variant="primary"
+                      disabled={!selectedCardId}
+                      style={styles.actionButton}
+                    />
+                    <Button
+                      title={currentPlayer.hasExchanged ? "Already Exchanged" : "Exchange Card"}
+                      onPress={handleExchange}
+                      variant="secondary"
+                      disabled={currentPlayer.hasExchanged || !selectedCardId}
+                      style={styles.actionButton}
+                    />
+                    <Button
+                      title="Pass"
+                      onPress={handlePass}
+                      variant="accent"
+                      style={styles.actionButton}
+                    />
+                  </View>
+                </>
+              )}
+            </>
+          )}
+        </ScrollView>
+      )}
+
       <Modal
         visible={showPassPhoneModal}
         transparent={true}
@@ -595,7 +604,7 @@ export default function GameScreen() {
             
             <Button
               title="Ready"
-              onPress={() => setShowPassPhoneModal(false)}
+              onPress={handleReadyPress}
               variant="primary"
               style={styles.modalButton}
             />
@@ -603,7 +612,6 @@ export default function GameScreen() {
         </View>
       </Modal>
 
-      {/* Game Over Modal */}
       <Modal
         visible={showGameOverModal}
         transparent={true}
@@ -720,6 +728,40 @@ const styles = StyleSheet.create({
   playerTurnText: {
     fontSize: 20,
     fontWeight: '700',
+  },
+  readyScreenContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  readyScreenContent: {
+    alignItems: 'center',
+    maxWidth: 400,
+  },
+  readyIconContainer: {
+    marginBottom: 32,
+  },
+  readyTitle: {
+    fontSize: 32,
+    fontWeight: '900',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  readyMessage: {
+    fontSize: 18,
+    marginBottom: 16,
+    textAlign: 'center',
+    lineHeight: 26,
+  },
+  readySubMessage: {
+    fontSize: 16,
+    marginBottom: 40,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  readyButton: {
+    minWidth: 280,
   },
   scrollView: {
     flex: 1,
