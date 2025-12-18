@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
@@ -10,6 +10,15 @@ export default function ThankYouScreen() {
   const router = useRouter();
   const { effectiveColorScheme } = useTheme();
   const colors = getColors(effectiveColorScheme);
+
+  const handleEmailPress = () => {
+    const email = 'sa.pennant@gmail.com';
+    const mailtoUrl = `mailto:${email}`;
+    
+    Linking.openURL(mailtoUrl).catch((err) => {
+      console.error('Error opening email app:', err);
+    });
+  };
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
@@ -63,7 +72,9 @@ export default function ThankYouScreen() {
           style={styles.contactIcon}
         />
         <Text style={[styles.contactLabel, { color: colors.text }]}>Contact:</Text>
-        <Text style={[styles.contactEmail, { color: colors.primary }]}>sa.pennant@gmail.com</Text>
+        <TouchableOpacity onPress={handleEmailPress} activeOpacity={0.7}>
+          <Text style={[styles.contactEmail, { color: colors.primary }]}>sa.pennant@gmail.com</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -144,5 +155,6 @@ const styles = StyleSheet.create({
   contactEmail: {
     fontSize: 18,
     fontWeight: '700',
+    textDecorationLine: 'underline',
   },
 });

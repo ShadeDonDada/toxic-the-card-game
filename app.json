@@ -3,7 +3,7 @@
   "expo": {
     "name": "Toxic - The Card Game",
     "slug": "Toxic - The Card Game",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/images/37a4463c-0dea-4f5f-9b33-cea6e0e6fe48.png",
     "userInterfaceStyle": "automatic",
