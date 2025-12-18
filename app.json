@@ -3,14 +3,14 @@
   "expo": {
     "name": "Toxic - The Card Game",
     "slug": "Toxic - The Card Game",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/images/37a4463c-0dea-4f5f-9b33-cea6e0e6fe48.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/461262ab-c67c-4edb-83cc-0d620afaa105.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#000000"
     },
     "ios": {
@@ -43,7 +43,15 @@
     "plugins": [
       "expo-font",
       "expo-router",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000",
+          "image": "./assets/images/461262ab-c67c-4edb-83cc-0d620afaa105.png",
+          "imageWidth": 300
+        }
+      ]
     ],
     "scheme": "natively",
     "experiments": {

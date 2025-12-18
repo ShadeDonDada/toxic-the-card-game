@@ -1,6 +1,6 @@
 {
   "name": "toxic-the-card-game",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "main": "index.ts",
   "scripts": {
     "dev": "EXPO_NO_TELEMETRY=1 expo start --tunnel",
