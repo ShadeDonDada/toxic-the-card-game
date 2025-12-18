@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "Toxic - The Card Game",
@@ -16,6 +17,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.Natively",
       "requireFullScreen": true,
+      "icon": "./assets/images/69c73f5f-fc7b-4e3f-8595-49a637e13736.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIViewControllerBasedStatusBarAppearance": false,
