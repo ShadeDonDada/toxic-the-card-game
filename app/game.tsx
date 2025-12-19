@@ -740,8 +740,8 @@ const styles = StyleSheet.create({
   },
   readyLogoContainer: {
     marginBottom: 32,
-    width: 300,
-    height: 150,
+    width: 600,
+    height: 300,
     justifyContent: 'center',
     alignItems: 'center',
   },
