@@ -404,12 +404,11 @@ export default function GameScreen() {
       {!isPlayerReady ? (
         <View style={styles.readyScreenContainer}>
           <View style={styles.readyScreenContent}>
-            <View style={styles.readyIconContainer}>
-              <IconSymbol
-                ios_icon_name="eye.slash.fill"
-                android_material_icon_name="visibility_off"
-                size={80}
-                color={colors.primary}
+            <View style={styles.readyLogoContainer}>
+              <Image
+                source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
+                style={styles.readyLogoImage}
+                resizeMode="contain"
               />
             </View>
             
@@ -739,8 +738,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     maxWidth: 400,
   },
-  readyIconContainer: {
+  readyLogoContainer: {
     marginBottom: 32,
+    width: 300,
+    height: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  readyLogoImage: {
+    width: '100%',
+    height: '100%',
   },
   readyTitle: {
     fontSize: 32,

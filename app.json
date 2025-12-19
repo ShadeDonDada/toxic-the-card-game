@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Toxic - The Card Game",
-    "slug": "toxic-the-card-game",
+    "slug": "Toxic - The Card Game",
     "version": "1.0.9",
     "orientation": "portrait",
     "icon": "./assets/images/37a4463c-0dea-4f5f-9b33-cea6e0e6fe48.png",
@@ -48,7 +48,7 @@
         {
           "backgroundColor": "#000000",
           "image": "./assets/images/461262ab-c67c-4edb-83cc-0d620afaa105.png",
-          "imageWidth": 600
+          "imageWidth": 1000
         }
       ]
     ],
