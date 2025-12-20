@@ -59,7 +59,7 @@ export default function RulesScreen() {
         </View>
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>6.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Over 100 scenarios & responses</Text>
+          <Text style={[styles.ruleText, { color: colors.text }]}>Over 150 scenarios & responses</Text>
         </View>
       </View>
 
@@ -82,13 +82,13 @@ export default function RulesScreen() {
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>10.</Text>
           <Text style={[styles.ruleText, { color: colors.text }]}>
-            During play, a player can request to exchange a random card with any player once per round
+            During play, a player can request to exchange a random card with a player before or after you once per round
           </Text>
         </View>
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>11.</Text>
           <Text style={[styles.ruleText, { color: colors.text }]}>
-            Each round is completed when every player&apos;s hand is empty
+            Each round is completed when a player is first to finish their hand
           </Text>
         </View>
         <View style={styles.ruleItem}>
