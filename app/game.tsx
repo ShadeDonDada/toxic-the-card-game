@@ -332,11 +332,22 @@ export default function GameScreen() {
     console.log('Play Again pressed - restarting with same players');
     setShowGameOverModal(false);
     
+    // Reset the ready state so the ready screen shows up again
+    setIsPlayerReady(false);
+    
     restartGameWithSamePlayers();
     
     setTimeout(() => {
       scrollToTop();
     }, 100);
+    
+    // Show the ready screen for the first player
+    setTimeout(() => {
+      const firstPlayer = gameState.players[0];
+      if (firstPlayer) {
+        showPassPhonePrompt(firstPlayer.name);
+      }
+    }, 200);
   };
 
   const getPreviousPlayer = () => {
