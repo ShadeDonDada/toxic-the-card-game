@@ -82,7 +82,7 @@ export default function RulesScreen() {
         <View style={styles.ruleItem}>
           <Text style={[styles.ruleNumber, { color: colors.accent }]}>10.</Text>
           <Text style={[styles.ruleText, { color: colors.text }]}>
-            During play, a player can request to exchange a random card with a player before or after you once per round
+            During play, a player can request to exchange a random card with a player before or after you. Once per round
           </Text>
         </View>
         <View style={styles.ruleItem}>

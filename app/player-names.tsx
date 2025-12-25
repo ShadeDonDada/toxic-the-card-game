@@ -24,6 +24,15 @@ export default function PlayerNamesScreen() {
     setPlayerNames(updatedNames);
   };
 
+  const handleNameFocus = (index: number) => {
+    // Clear the default text when user focuses on the input
+    if (playerNames[index] === `Player ${index + 1}`) {
+      const updatedNames = [...playerNames];
+      updatedNames[index] = '';
+      setPlayerNames(updatedNames);
+    }
+  };
+
   const handleNameBlur = (index: number) => {
     // Only set default name if the field is empty when user finishes editing
     if (!playerNames[index] || playerNames[index].trim() === '') {
@@ -85,6 +94,7 @@ export default function PlayerNamesScreen() {
                 style={[styles.nameInput, { color: colors.text }]}
                 value={name}
                 onChangeText={(text) => handleNameChange(index, text)}
+                onFocus={() => handleNameFocus(index)}
                 onBlur={() => handleNameBlur(index)}
                 placeholder={`Player ${index + 1}`}
                 placeholderTextColor={colors.textSecondary}
