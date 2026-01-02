@@ -1,11 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Dimensions, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
-import { Button } from '@/components/Button';
+import { useTheme } from '@/contexts/ThemeContext';
 import { IconSymbol } from '@/components/IconSymbol';
+import { View, Text, StyleSheet, ScrollView, Image, Dimensions, ActivityIndicator } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,170 +11,104 @@ import Animated, {
   withRepeat,
   Easing,
 } from 'react-native-reanimated';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'expo-router';
+import { Button } from '@/components/Button';
+import { usePurchase } from '@/contexts/PurchaseContext';
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { effectiveColorScheme } = useTheme();
-  const colors = getColors(effectiveColorScheme);
+  const { theme } = useTheme();
+  const colors = getColors(theme);
+  const { isFullVersion } = usePurchase();
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Animation values
-  const scale = useSharedValue(0.5);
-  const opacity = useSharedValue(0);
-  const glowOpacity = useSharedValue(0);
+  const rotation = useSharedValue(0);
 
   useEffect(() => {
-    if (imageLoaded) {
-      // Scale and fade in animation
-      scale.value = withSequence(
-        withTiming(1.1, { duration: 600, easing: Easing.out(Easing.cubic) }),
-        withTiming(1, { duration: 300, easing: Easing.inOut(Easing.cubic) })
-      );
-      
-      opacity.value = withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) });
-      
-      // Pulsating glow effect (repeats 3 times then stops)
-      glowOpacity.value = withSequence(
-        withTiming(0, { duration: 0 }),
-        withRepeat(
-          withSequence(
-            withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease) }),
-            withTiming(0.3, { duration: 500, easing: Easing.inOut(Easing.ease) })
-          ),
-          3,
-          false
-        ),
-        withTiming(0, { duration: 500 })
-      );
-    }
-  }, [imageLoaded]);
+    rotation.value = withRepeat(
+      withSequence(
+        withTiming(-5, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(5, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+  }, []);
 
-  const animatedLogoStyle = useAnimatedStyle(() => {
+  const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ scale: scale.value }],
-      opacity: opacity.value,
-    };
-  });
-
-  const animatedGlowStyle = useAnimatedStyle(() => {
-    return {
-      opacity: glowOpacity.value,
+      transform: [{ rotate: `${rotation.value}deg` }],
     };
   });
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header}>
-        {!imageLoaded && (
-          <View style={[styles.logoPlaceholder, { backgroundColor: colors.card }]}>
-            <ActivityIndicator size="large" color={colors.primary} />
-          </View>
-        )}
-        <View style={styles.logoContainer}>
-          {/* Glow effect layers */}
-          <Animated.View
-            style={[
-              styles.glowLayer,
-              animatedGlowStyle,
-              {
-                backgroundColor: colors.primary,
-                boxShadow: `0px 0px 60px 30px ${colors.primary}`,
-              },
-            ]}
-          />
-          <Animated.View
-            style={[
-              styles.glowLayer,
-              animatedGlowStyle,
-              {
-                backgroundColor: colors.accent,
-                boxShadow: `0px 0px 40px 20px ${colors.accent}`,
-              },
-            ]}
-          />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
           {/* Logo */}
-          <Animated.Image
-            source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
-            style={[styles.logo, animatedLogoStyle]}
-            resizeMode="contain"
-            onLoad={() => setImageLoaded(true)}
-            fadeDuration={0}
-          />
-        </View>
-        <Text style={[styles.tagline, { color: colors.textSecondary }]}>&quot;Extracting the poison out of you&quot;</Text>
-      </View>
+          <View style={styles.logoContainer}>
+            {!imageLoaded && (
+              <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+            )}
+            <Animated.View style={[animatedStyle, { opacity: imageLoaded ? 1 : 0 }]}>
+              <Image
+                source={require('@/assets/images/ade019df-679f-48c9-b84b-d610ac5b8fe0.png')}
+                style={styles.logo}
+                resizeMode="contain"
+                onLoad={() => setImageLoaded(true)}
+              />
+            </Animated.View>
+          </View>
 
-      <View style={[styles.descriptionCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-        <Text style={[styles.descriptionText, { color: colors.text }]}>
-          Create the most toxic reaction for each scenario card. Compete with friends to see who can be the most hilariously petty!
-        </Text>
-      </View>
+          {/* Title */}
+          <Text style={[styles.title, { color: colors.text }]}>Toxic</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+            The Card Game
+          </Text>
+          <Text style={[styles.tagline, { color: colors.textSecondary }]}>
+            "Extracting the poison out of you"
+          </Text>
 
-      <View style={styles.featuresContainer}>
-        <View style={[styles.featureRow, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-          <IconSymbol
-            ios_icon_name="person.2.fill"
-            android_material_icon_name="people"
-            size={32}
-            color={colors.primary}
-          />
-          <Text style={[styles.featureText, { color: colors.text }]}>2-10 Players</Text>
-        </View>
-        <View style={[styles.featureRow, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-          <IconSymbol
-            ios_icon_name="18.circle.fill"
-            android_material_icon_name="warning"
-            size={32}
-            color={colors.accent}
-          />
-          <Text style={[styles.featureText, { color: colors.text }]}>18+ Only</Text>
-        </View>
-        <View style={[styles.featureRow, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-          <IconSymbol
-            ios_icon_name="arrow.counterclockwise"
-            android_material_icon_name="refresh"
-            size={32}
-            color={colors.primary}
-          />
-          <Text style={[styles.featureText, { color: colors.text }]}>Counterclockwise Play</Text>
-        </View>
-      </View>
+          {/* Demo Mode Badge */}
+          {!isFullVersion && (
+            <View style={styles.demoBadgeContainer}>
+              <View style={styles.demoBadge}>
+                <IconSymbol ios_icon_name="exclamationmark.triangle.fill" android_material_icon_name="warning" size={16} color="#fff" />
+                <Text style={styles.demoBadgeText}>DEMO MODE - 3 Rounds Only</Text>
+              </View>
+              <Text style={[styles.demoSubtext, { color: colors.textSecondary }]}>
+                Upgrade in Settings to unlock unlimited gameplay
+              </Text>
+            </View>
+          )}
 
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Start New Game"
-          onPress={() => router.push('/game-setup')}
-          variant="primary"
-          style={styles.button}
-        />
-        <Button
-          title="How to Play"
-          onPress={() => router.push('/rules')}
-          variant="secondary"
-          style={styles.button}
-        />
-        <Button
-          title="Thank You"
-          onPress={() => router.push('/thank-you')}
-          variant="secondary"
-          style={styles.button}
-        />
-        <Button
-          title="Settings"
-          onPress={() => router.push('/settings')}
-          variant="secondary"
-          style={styles.button}
-        />
-      </View>
+          {/* Buttons */}
+          <View style={styles.buttonContainer}>
+            <Button
+              title="Start Game"
+              onPress={() => router.push('/game-setup')}
+            />
+            <Button
+              title="Rules"
+              onPress={() => router.push('/rules')}
+            />
+            <Button
+              title="Settings"
+              onPress={() => router.push('/settings')}
+            />
+          </View>
 
-      <View style={[styles.copyrightContainer, { borderTopColor: colors.cardBorder }]}>
-        <Text style={[styles.copyrightText, { color: colors.textSecondary }]}>
-          © 2025 Steven A. Pennant. All rights reserved.
-        </Text>
-      </View>
-    </ScrollView>
+          {/* Copyright */}
+          <Text style={[styles.copyright, { color: colors.textSecondary }]}>
+            © 2024 Toxic - The Card Game
+          </Text>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -185,95 +116,79 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  contentContainer: {
-    paddingTop: 20,
-    paddingHorizontal: 20,
-    paddingBottom: 120,
-    alignItems: 'center',
+  scrollContent: {
+    flexGrow: 1,
   },
-  header: {
+  content: {
+    flex: 1,
     alignItems: 'center',
-    marginBottom: 30,
-    width: '100%',
-  },
-  logoPlaceholder: {
-    width: screenWidth * 0.6,
-    height: screenWidth * 0.6,
     justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 12,
-    position: 'absolute',
-    top: 0,
+    padding: 20,
   },
   logoContainer: {
-    width: screenWidth * 0.6,
-    height: screenWidth * 0.6,
+    width: width * 0.6,
+    height: width * 0.6,
+    maxWidth: 300,
+    maxHeight: 300,
     marginBottom: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  glowLayer: {
+  loader: {
     position: 'absolute',
-    width: screenWidth * 0.6,
-    height: screenWidth * 0.6,
-    borderRadius: (screenWidth * 0.6) / 2,
-    opacity: 0,
   },
   logo: {
-    width: screenWidth * 0.6,
-    height: screenWidth * 0.6,
+    width: '100%',
+    height: '100%',
+  },
+  title: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 24,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   tagline: {
     fontSize: 16,
     fontStyle: 'italic',
-    marginTop: 10,
-  },
-  descriptionCard: {
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 30,
-    borderWidth: 2,
-    boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
-    elevation: 4,
-  },
-  descriptionText: {
-    fontSize: 16,
+    marginBottom: 32,
     textAlign: 'center',
-    lineHeight: 24,
   },
-  featuresContainer: {
-    width: '100%',
-    marginBottom: 40,
+  demoBadgeContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
   },
-  featureRow: {
+  demoBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 2,
+    gap: 8,
+    backgroundColor: '#FF9800',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginBottom: 8,
   },
-  featureText: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginLeft: 16,
+  demoBadgeText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  demoSubtext: {
+    fontSize: 12,
+    textAlign: 'center',
   },
   buttonContainer: {
     width: '100%',
+    maxWidth: 300,
     gap: 16,
   },
-  button: {
-    width: '100%',
-  },
-  copyrightContainer: {
-    marginTop: 40,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    width: '100%',
-    alignItems: 'center',
-  },
-  copyrightText: {
+  copyright: {
     fontSize: 12,
+    marginTop: 32,
     textAlign: 'center',
   },
 });

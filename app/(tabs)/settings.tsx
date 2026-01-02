@@ -1,48 +1,29 @@
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/IconSymbol';
 import { usePurchase } from '@/contexts/PurchaseContext';
 import { useTheme } from '@react-navigation/native';
-import { usePlacement } from 'expo-superwall';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const theme = useTheme();
-  const { isFullVersion, subscriptionStatus } = usePurchase();
+  const { isFullVersion, purchaseFullVersion, restorePurchases } = usePurchase();
   const [purchasing, setPurchasing] = useState(false);
-
-  const { registerPlacement } = usePlacement({
-    onPresent: (info) => {
-      console.log('Paywall presented:', info);
-      setPurchasing(false);
-    },
-    onDismiss: (info, result) => {
-      console.log('Paywall dismissed:', info, 'Result:', result);
-      setPurchasing(false);
-    },
-    onError: (error) => {
-      console.error('Paywall error:', error);
-      setPurchasing(false);
-    },
-  });
 
   const handlePurchase = async () => {
     setPurchasing(true);
     try {
-      // TODO: Backend Integration - Replace 'buy_me_a_coffee' with your actual placement ID from Superwall dashboard
-      await registerPlacement({
-        placement: 'buy_me_a_coffee',
-        feature() {
-          console.log('Purchase successful! Full version unlocked.');
-        },
-      });
-    } catch (error) {
-      console.error('Purchase failed:', error);
+      await purchaseFullVersion();
+    } finally {
       setPurchasing(false);
     }
+  };
+
+  const handleRestore = async () => {
+    await restorePurchases();
   };
 
   return (
@@ -97,27 +78,19 @@ export default function SettingsScreen() {
                 </>
               )}
             </TouchableOpacity>
-
-            <View style={styles.featuresList}>
-              <View style={styles.featureItem}>
-                <IconSymbol ios_icon_name="checkmark" android_material_icon_name="check" size={16} color="#4CAF50" />
-                <Text style={[styles.featureText, { color: theme.dark ? '#98989D' : '#666' }]}>Unlimited rounds</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <IconSymbol ios_icon_name="checkmark" android_material_icon_name="check" size={16} color="#4CAF50" />
-                <Text style={[styles.featureText, { color: theme.dark ? '#98989D' : '#666' }]}>All {160} scenario cards</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <IconSymbol ios_icon_name="checkmark" android_material_icon_name="check" size={16} color="#4CAF50" />
-                <Text style={[styles.featureText, { color: theme.dark ? '#98989D' : '#666' }]}>All {163} response cards</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <IconSymbol ios_icon_name="checkmark" android_material_icon_name="check" size={16} color="#4CAF50" />
-                <Text style={[styles.featureText, { color: theme.dark ? '#98989D' : '#666' }]}>No ads</Text>
-              </View>
-            </View>
           </View>
         )}
+
+        {/* Restore Purchases */}
+        <TouchableOpacity 
+          style={[styles.section, { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}
+          onPress={handleRestore}
+        >
+          <View style={styles.settingRow}>
+            <IconSymbol ios_icon_name="arrow.clockwise" android_material_icon_name="refresh" size={20} color={theme.colors.text} />
+            <Text style={[styles.settingText, { color: theme.colors.text }]}>Restore Purchases</Text>
+          </View>
+        </TouchableOpacity>
 
         {/* About */}
         <View style={[styles.section, { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
@@ -128,16 +101,6 @@ export default function SettingsScreen() {
             "Extracting the poison out of you"
           </Text>
         </View>
-
-        {/* Debug Info (only in demo mode) */}
-        {!isFullVersion && (
-          <View style={[styles.section, { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Debug Info</Text>
-            <Text style={[styles.aboutText, { color: theme.dark ? '#98989D' : '#666' }]}>
-              Subscription Status: {subscriptionStatus}
-            </Text>
-          </View>
-        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -205,7 +168,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginBottom: 16,
   },
   purchaseButtonDisabled: {
     opacity: 0.6,
@@ -215,16 +177,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  featuresList: {
-    gap: 8,
-  },
-  featureItem: {
+  settingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
-  featureText: {
-    fontSize: 14,
+  settingText: {
+    fontSize: 16,
   },
   aboutText: {
     fontSize: 14,

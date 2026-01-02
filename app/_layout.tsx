@@ -17,11 +17,20 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { WidgetProvider } from "@/contexts/WidgetContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { SuperwallProvider, SuperwallLoading, SuperwallLoaded } from "expo-superwall";
+import { PurchaseProvider } from "@/contexts/PurchaseContext";
+import { ActivityIndicator, View } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
   initialRouteName: "splash",
+};
+
+// TODO: Replace with your actual Superwall API keys from the Superwall dashboard
+const SUPERWALL_API_KEYS = {
+  ios: "pk_d1efcfe8a9a3ddb6e9e3daf4c2b8c3e4d5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
+  android: "pk_d1efcfe8a9a3ddb6e9e3daf4c2b8c3e4d5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
 };
 
 export default function RootLayout() {
@@ -32,7 +41,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      // Don't hide splash screen immediately, let the splash component handle it
       console.log('Fonts loaded');
     }
   }, [loaded]);
@@ -81,85 +89,96 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar hidden />
-      <ThemeProvider>
-        <NavigationThemeProvider value={CustomDarkTheme}>
-          <WidgetProvider>
-            <GestureHandlerRootView>
-            <Stack>
-              <Stack.Screen name="splash" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="game-setup"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="rules"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="thank-you"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="settings"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="game"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="player-names"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="modal"
-                options={{
-                  presentation: "modal",
-                  title: "Standard Modal",
-                }}
-              />
-              <Stack.Screen
-                name="formsheet"
-                options={{
-                  presentation: "formSheet",
-                  title: "Form Sheet Modal",
-                  sheetGrabberVisible: true,
-                  sheetAllowedDetents: [0.5, 0.8, 1.0],
-                  sheetCornerRadius: 20,
-                }}
-              />
-              <Stack.Screen
-                name="transparent-modal"
-                options={{
-                  presentation: "transparentModal",
-                  headerShown: false,
-                }}
-              />
-            </Stack>
-            <SystemBars style={"light"} hidden />
-            </GestureHandlerRootView>
-          </WidgetProvider>
-        </NavigationThemeProvider>
-      </ThemeProvider>
+      <SuperwallProvider apiKeys={SUPERWALL_API_KEYS}>
+        <SuperwallLoading>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1e1e1e' }}>
+            <ActivityIndicator size="large" color="#9400d3" />
+          </View>
+        </SuperwallLoading>
+        <SuperwallLoaded>
+          <PurchaseProvider>
+            <ThemeProvider>
+              <NavigationThemeProvider value={CustomDarkTheme}>
+                <WidgetProvider>
+                  <GestureHandlerRootView>
+                  <Stack>
+                    <Stack.Screen name="splash" options={{ headerShown: false }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen
+                      name="game-setup"
+                      options={{
+                        headerShown: false,
+                        presentation: "card",
+                      }}
+                    />
+                    <Stack.Screen
+                      name="rules"
+                      options={{
+                        headerShown: false,
+                        presentation: "card",
+                      }}
+                    />
+                    <Stack.Screen
+                      name="thank-you"
+                      options={{
+                        headerShown: false,
+                        presentation: "card",
+                      }}
+                    />
+                    <Stack.Screen
+                      name="settings"
+                      options={{
+                        headerShown: false,
+                        presentation: "card",
+                      }}
+                    />
+                    <Stack.Screen
+                      name="game"
+                      options={{
+                        headerShown: false,
+                        presentation: "card",
+                      }}
+                    />
+                    <Stack.Screen
+                      name="player-names"
+                      options={{
+                        headerShown: false,
+                        presentation: "card",
+                      }}
+                    />
+                    <Stack.Screen
+                      name="modal"
+                      options={{
+                        presentation: "modal",
+                        title: "Standard Modal",
+                      }}
+                    />
+                    <Stack.Screen
+                      name="formsheet"
+                      options={{
+                        presentation: "formSheet",
+                        title: "Form Sheet Modal",
+                        sheetGrabberVisible: true,
+                        sheetAllowedDetents: [0.5, 0.8, 1.0],
+                        sheetCornerRadius: 20,
+                      }}
+                    />
+                    <Stack.Screen
+                      name="transparent-modal"
+                      options={{
+                        presentation: "transparentModal",
+                        headerShown: false,
+                      }}
+                    />
+                  </Stack>
+                  <SystemBars style={"light"} hidden />
+                  </GestureHandlerRootView>
+                </WidgetProvider>
+              </NavigationThemeProvider>
+            </ThemeProvider>
+          </PurchaseProvider>
+        </SuperwallLoaded>
+      </SuperwallProvider>
     </>
   );
 }
