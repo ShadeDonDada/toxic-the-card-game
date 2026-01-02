@@ -1,11 +1,9 @@
 
 import { useState, useCallback } from 'react';
 import { GameState, Player, ResponseCard, ScenarioCard } from '@/types/game';
-import { useDemoMode } from './useDemoMode';
+import { scenarioCards, responseCards } from '@/data/cards';
 
 export function useGameState() {
-  const { limitedScenarioCards, limitedResponseCards } = useDemoMode();
-  
   const [gameState, setGameState] = useState<GameState>({
     players: [],
     currentPlayerIndex: 0,
@@ -31,9 +29,8 @@ export function useGameState() {
   const dealCardsToPlayers = (playerCount: number, playerNames: string[] = []) => {
     console.log('Dealing cards to', playerCount, 'players');
     
-    // Use limited cards in demo mode
-    const availableResponses = limitedResponseCards;
-    const shuffledResponses = shuffleArray([...availableResponses]);
+    // Create a fresh shuffled deck
+    const shuffledResponses = shuffleArray([...responseCards]);
     
     console.log('Total cards in deck:', shuffledResponses.length);
     console.log('Cards needed:', playerCount * 6);
@@ -97,9 +94,7 @@ export function useGameState() {
   const initializeGame = useCallback((playerCount: number, playerNames: string[] = []) => {
     console.log('Initializing game with', playerCount, 'players');
     
-    // Use limited scenario cards in demo mode
-    const availableScenarios = limitedScenarioCards;
-    const shuffledScenarios = shuffleArray([...availableScenarios]);
+    const shuffledScenarios = shuffleArray([...scenarioCards]);
     const { players, remainingDeck } = dealCardsToPlayers(playerCount, playerNames);
     
     setGameState({
@@ -114,7 +109,7 @@ export function useGameState() {
       roundComplete: false,
       gameComplete: false,
     });
-  }, [limitedScenarioCards]);
+  }, []);
 
   const updateCustomText = useCallback((playerId: string, cardId: string, customText: string) => {
     console.log('Updating custom text for player', playerId, 'card', cardId);
@@ -408,9 +403,8 @@ export function useGameState() {
       const playerNames = prev.players.map(p => p.name);
       const playerCount = prev.players.length;
       
-      // Use limited scenario cards in demo mode
-      const availableScenarios = limitedScenarioCards;
-      const shuffledScenarios = shuffleArray([...availableScenarios]);
+      // Shuffle and deal new cards
+      const shuffledScenarios = shuffleArray([...scenarioCards]);
       const { players, remainingDeck } = dealCardsToPlayers(playerCount, playerNames);
       
       return {
@@ -426,7 +420,7 @@ export function useGameState() {
         gameComplete: false,
       };
     });
-  }, [limitedScenarioCards]);
+  }, []);
 
   return {
     gameState,

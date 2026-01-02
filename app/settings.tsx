@@ -1,145 +1,116 @@
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
+import { getColors } from '@/styles/commonStyles';
+import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
-import { usePurchase } from '@/contexts/PurchaseContext';
-import { useTheme } from '@react-navigation/native';
-import { usePlacement } from 'expo-superwall';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const theme = useTheme();
-  const { isFullVersion, subscriptionStatus } = usePurchase();
-  const [purchasing, setPurchasing] = useState(false);
+  const { themeMode, setThemeMode, effectiveColorScheme } = useTheme();
+  const colors = getColors(effectiveColorScheme);
 
-  const { registerPlacement } = usePlacement({
-    onPresent: (info) => {
-      console.log('Paywall presented:', info);
-      setPurchasing(false);
-    },
-    onDismiss: (info, result) => {
-      console.log('Paywall dismissed:', info, 'Result:', result);
-      setPurchasing(false);
-    },
-    onError: (error) => {
-      console.error('Paywall error:', error);
-      setPurchasing(false);
-    },
-  });
-
-  const handlePurchase = async () => {
-    setPurchasing(true);
-    try {
-      // TODO: Backend Integration - Replace 'buy_me_a_coffee' with your actual placement ID from Superwall dashboard
-      await registerPlacement({
-        placement: 'buy_me_a_coffee',
-        feature() {
-          console.log('Purchase successful! Full version unlocked.');
-        },
-      });
-    } catch (error) {
-      console.error('Purchase failed:', error);
-      setPurchasing(false);
-    }
-  };
+  const themeOptions: Array<{ value: 'light' | 'dark' | 'system'; label: string; icon: string; androidIcon: string }> = [
+    { value: 'light', label: 'Light Mode', icon: 'lightbulb.fill', androidIcon: 'lightbulb' },
+    { value: 'dark', label: 'Dark Mode', icon: 'moon.fill', androidIcon: 'nightlight' },
+    { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
+  ];
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <IconSymbol ios_icon_name="chevron.left" android_material_icon_name="arrow-back" size={24} color={theme.colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.title, { color: theme.colors.text }]}>Settings</Text>
-      </View>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <View style={styles.header}>
+          <IconSymbol
+            ios_icon_name="gear"
+            android_material_icon_name="settings"
+            size={60}
+            color={colors.primary}
+          />
+          <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
+        </View>
 
-      <ScrollView style={styles.content}>
-        {/* Version Status */}
-        <View style={[styles.section, { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
-          <View style={styles.statusRow}>
-            <IconSymbol 
-              ios_icon_name={isFullVersion ? "checkmark.circle.fill" : "exclamationmark.circle.fill"} 
-              android_material_icon_name={isFullVersion ? "check-circle" : "info"} 
-              size={24} 
-              color={isFullVersion ? '#4CAF50' : '#FF9800'} 
-            />
-            <View style={styles.statusText}>
-              <Text style={[styles.statusTitle, { color: theme.colors.text }]}>
-                {isFullVersion ? 'Full Version' : 'Demo Mode'}
-              </Text>
-              <Text style={[styles.statusSubtitle, { color: theme.dark ? '#98989D' : '#666' }]}>
-                {isFullVersion ? 'All features unlocked' : 'Limited to 3 rounds'}
-              </Text>
-            </View>
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Appearance</Text>
+          <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
+            Choose how the app looks
+          </Text>
+
+          <View style={styles.optionsContainer}>
+            {themeOptions.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.optionCard,
+                  { 
+                    backgroundColor: colors.card,
+                    borderColor: themeMode === option.value ? colors.primary : colors.cardBorder,
+                    borderWidth: themeMode === option.value ? 3 : 2,
+                  }
+                ]}
+                onPress={() => setThemeMode(option.value)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.optionContent}>
+                  <IconSymbol
+                    ios_icon_name={option.icon}
+                    android_material_icon_name={option.androidIcon}
+                    size={32}
+                    color={themeMode === option.value ? colors.primary : colors.text}
+                  />
+                  <View style={styles.optionTextContainer}>
+                    <Text style={[
+                      styles.optionLabel,
+                      { color: themeMode === option.value ? colors.primary : colors.text }
+                    ]}>
+                      {option.label}
+                    </Text>
+                    {option.value === 'system' && (
+                      <Text style={[styles.optionSubtext, { color: colors.textSecondary }]}>
+                        Currently: {effectiveColorScheme === 'dark' ? 'Dark' : 'Light'}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                {themeMode === option.value && (
+                  <IconSymbol
+                    ios_icon_name="lightbulb.fill"
+                    android_material_icon_name="lightbulb"
+                    size={24}
+                    color={colors.primary}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
-        {/* Purchase Section */}
-        {!isFullVersion && (
-          <View style={[styles.section, { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Upgrade to Full Version</Text>
-            <Text style={[styles.sectionDescription, { color: theme.dark ? '#98989D' : '#666' }]}>
-              Unlock unlimited rounds, all cards, and remove ads
-            </Text>
-            
-            <TouchableOpacity 
-              style={[styles.purchaseButton, purchasing && styles.purchaseButtonDisabled]} 
-              onPress={handlePurchase}
-              disabled={purchasing}
-            >
-              {purchasing ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <>
-                  <IconSymbol ios_icon_name="cup.and.saucer.fill" android_material_icon_name="local-cafe" size={20} color="#fff" />
-                  <Text style={styles.purchaseButtonText}>Buy Me a Coffee - $2.99</Text>
-                </>
-              )}
-            </TouchableOpacity>
-
-            <View style={styles.featuresList}>
-              <View style={styles.featureItem}>
-                <IconSymbol ios_icon_name="checkmark" android_material_icon_name="check" size={16} color="#4CAF50" />
-                <Text style={[styles.featureText, { color: theme.dark ? '#98989D' : '#666' }]}>Unlimited rounds</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <IconSymbol ios_icon_name="checkmark" android_material_icon_name="check" size={16} color="#4CAF50" />
-                <Text style={[styles.featureText, { color: theme.dark ? '#98989D' : '#666' }]}>All {160} scenario cards</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <IconSymbol ios_icon_name="checkmark" android_material_icon_name="check" size={16} color="#4CAF50" />
-                <Text style={[styles.featureText, { color: theme.dark ? '#98989D' : '#666' }]}>All {163} response cards</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <IconSymbol ios_icon_name="checkmark" android_material_icon_name="check" size={16} color="#4CAF50" />
-                <Text style={[styles.featureText, { color: theme.dark ? '#98989D' : '#666' }]}>No ads</Text>
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* About */}
-        <View style={[styles.section, { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>About</Text>
-          <Text style={[styles.aboutText, { color: theme.dark ? '#98989D' : '#666' }]}>
-            Toxic - The Card Game{'\n'}
-            Version 1.0.0{'\n\n'}
-            "Extracting the poison out of you"
+        <View style={styles.infoCard}>
+          <IconSymbol
+            ios_icon_name="info.circle.fill"
+            android_material_icon_name="info"
+            size={24}
+            color={colors.accent}
+          />
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+            Your theme preference will be saved and applied across the app
           </Text>
         </View>
-
-        {/* Debug Info (only in demo mode) */}
-        {!isFullVersion && (
-          <View style={[styles.section, { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Debug Info</Text>
-            <Text style={[styles.aboutText, { color: theme.dark ? '#98989D' : '#666' }]}>
-              Subscription Status: {subscriptionStatus}
-            </Text>
-          </View>
-        )}
       </ScrollView>
-    </SafeAreaView>
+
+      <View style={[styles.buttonContainer, { backgroundColor: colors.background }]}>
+        <Button
+          title="Back to Home"
+          onPress={() => router.back()}
+          variant="secondary"
+          style={styles.backButton}
+        />
+      </View>
+    </View>
   );
 }
 
@@ -147,87 +118,88 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
+  scrollView: {
+    flex: 1,
   },
-  backButton: {
-    padding: 8,
-    marginRight: 8,
+  contentContainer: {
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 120,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 40,
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-  },
-  content: {
-    flex: 1,
-    padding: 16,
+    marginTop: 16,
   },
   section: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  statusText: {
-    flex: 1,
-  },
-  statusTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  statusSubtitle: {
-    fontSize: 14,
+    marginBottom: 30,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '700',
     marginBottom: 8,
   },
   sectionDescription: {
     fontSize: 14,
-    marginBottom: 16,
-    lineHeight: 20,
+    marginBottom: 20,
   },
-  purchaseButton: {
-    backgroundColor: '#4CAF50',
-    borderRadius: 8,
+  optionsContainer: {
+    gap: 12,
+  },
+  optionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 16,
+    borderRadius: 12,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    elevation: 2,
+  },
+  optionContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    marginBottom: 16,
+    flex: 1,
   },
-  purchaseButtonDisabled: {
-    opacity: 0.6,
+  optionTextContainer: {
+    marginLeft: 16,
+    flex: 1,
   },
-  purchaseButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+  optionLabel: {
+    fontSize: 18,
+    fontWeight: '600',
   },
-  featuresList: {
-    gap: 8,
+  optionSubtext: {
+    fontSize: 12,
+    marginTop: 4,
   },
-  featureItem: {
+  infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    padding: 16,
+    borderRadius: 12,
+    gap: 12,
+    marginTop: 20,
   },
-  featureText: {
+  infoText: {
     fontSize: 14,
-  },
-  aboutText: {
-    fontSize: 14,
+    flex: 1,
     lineHeight: 20,
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+    paddingBottom: 40,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  backButton: {
+    width: '100%',
   },
 });
