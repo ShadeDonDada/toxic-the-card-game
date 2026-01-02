@@ -295,24 +295,29 @@ export default function GameScreen() {
       >
         <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
           <View style={styles.modalContent}>
-            <IconSymbol 
-              ios_icon_name="hand.raised.fill" 
-              android_material_icon_name="front-hand" 
-              size={80} 
-              color={colors.primary} 
+            {/* Toxic Logo */}
+            <Image 
+              source={require('@/assets/images/37a4463c-0dea-4f5f-9b33-cea6e0e6fe48.png')}
+              style={styles.toxicLogo}
+              resizeMode="contain"
             />
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
+            
+            <Text style={[styles.modalTitle, { color: colors.primary }]}>
               Pass Device
             </Text>
+            
             <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
               Hand the device to:
             </Text>
+            
             <Text style={[styles.playerNameText, { color: colors.primary }]}>
               {nextPlayerName}
             </Text>
+            
             <Text style={[styles.warningText, { color: colors.textSecondary }]}>
               ⚠️ Make sure they can&apos;t see the screen!
             </Text>
+            
             <Button
               title="I'm Ready"
               onPress={handleReadyPress}
@@ -331,7 +336,7 @@ export default function GameScreen() {
       >
         <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
           <ScrollView contentContainerStyle={styles.modalScrollContent}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
+            <Text style={[styles.modalTitle, { color: colors.primary }]}>
               Round Complete!
             </Text>
             
@@ -397,7 +402,7 @@ export default function GameScreen() {
               size={80} 
               color={colors.primary} 
             />
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
+            <Text style={[styles.modalTitle, { color: colors.primary }]}>
               Game Over!
             </Text>
             
@@ -668,6 +673,11 @@ const styles = StyleSheet.create({
   modalScrollContent: {
     alignItems: 'center',
     padding: 20,
+  },
+  toxicLogo: {
+    width: 160,
+    height: 160,
+    marginBottom: 20,
   },
   modalTitle: {
     fontSize: 32,
