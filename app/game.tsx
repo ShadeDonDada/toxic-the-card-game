@@ -1,34 +1,36 @@
 
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Image } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
-import { useGameState } from '@/hooks/useGameState';
-import { GameCard } from '@/components/GameCard';
 import { PlayerHand } from '@/components/PlayerHand';
-import { Button } from '@/components/Button';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { IconSymbol } from '@/components/IconSymbol';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Image } from 'react-native';
+import { useGameState } from '@/hooks/useGameState';
+import React, { useEffect, useState, useRef } from 'react';
+import { GameCard } from '@/components/GameCard';
+import { Button } from '@/components/Button';
+import Animated, { FadeIn, FadeOut, useAnimatedStyle, withTiming, useSharedValue } from 'react-native-reanimated';
 
 export default function GameScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const { effectiveColorScheme } = useTheme();
-  const colors = getColors(effectiveColorScheme);
-  const playerCount = parseInt(params.playerCount as string) || 4;
-  const playerNamesParam = params.playerNames as string;
+  const { playerCount, playerNames } = useLocalSearchParams();
+  const { theme } = useTheme();
+  const colors = getColors(theme);
   const scrollViewRef = useRef<ScrollView>(null);
   
-  let playerNames: string[] = [];
-  try {
-    playerNames = playerNamesParam ? JSON.parse(playerNamesParam) : [];
-  } catch (e) {
-    console.log('Error parsing player names:', e);
-  }
+  // Privacy control states
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [showPassPhonePrompt, setShowPassPhonePrompt] = useState(false);
+  const [nextPlayerName, setNextPlayerName] = useState('');
+  const [showGameOverModal, setShowGameOverModal] = useState(false);
+  const [showRoundCompleteModal, setShowRoundCompleteModal] = useState(false);
   
-  if (playerNames.length === 0) {
-    playerNames = Array.from({ length: playerCount }, (_, i) => `Player ${i + 1}`);
-  }
+  // Game interaction states
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [showExchangeOptions, setShowExchangeOptions] = useState(false);
+  
+  // Opacity control for smooth transitions - prevents frame leaks
+  const contentOpacity = useSharedValue(0);
   
   const {
     gameState,
@@ -36,671 +38,542 @@ export default function GameScreen() {
     playCard,
     passCard,
     exchangeCard,
-    nextRound,
     awardPoint,
-    resetGame,
+    nextRound,
     restartGameWithSamePlayers,
     updateCustomText,
     changeScenarioAndContinue,
   } = useGameState();
 
-  const [selectedCardId, setSelectedCardId] = useState<string | undefined>();
-  const [showExchangeOptions, setShowExchangeOptions] = useState(false);
-  const [showPassPhoneModal, setShowPassPhoneModal] = useState(false);
-  const [nextPlayerName, setNextPlayerName] = useState('');
-  const [showPointSelection, setShowPointSelection] = useState(false);
-  const [showGameOverModal, setShowGameOverModal] = useState(false);
-  const [isPlayerReady, setIsPlayerReady] = useState(false);
-
+  // Initialize game on mount
   useEffect(() => {
-    initializeGame(playerCount, playerNames);
-  }, [playerCount, initializeGame]);
+    if (playerCount) {
+      const names = playerNames ? JSON.parse(playerNames as string) : [];
+      initializeGame(parseInt(playerCount as string), names);
+      
+      // Set first player name and show pass phone prompt
+      const firstPlayerName = names[0] || 'Player 1';
+      setNextPlayerName(firstPlayerName);
+      setShowPassPhonePrompt(true);
+    }
+  }, [playerCount, playerNames]);
 
+  // Animate content opacity when player is ready - smooth fade prevents leaks
+  useEffect(() => {
+    contentOpacity.value = withTiming(isPlayerReady ? 1 : 0, { duration: 300 });
+  }, [isPlayerReady]);
+
+  const animatedContentStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+  }));
+
+  // Get current player
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+  const currentPlayerId = currentPlayer?.id;
 
-  const handleCardSelect = (cardId: string) => {
-    setSelectedCardId(cardId);
+  // Handle ready button press - show content after modal closes
+  const handleReadyPress = () => {
+    setShowPassPhonePrompt(false);
+    // Small delay to ensure modal is fully closed before showing content
+    setTimeout(() => {
+      setIsPlayerReady(true);
+    }, 100);
   };
 
-  const handleCustomTextChange = (cardId: string, text: string) => {
-    if (currentPlayer) {
-      updateCustomText(currentPlayer.id, cardId, text);
+  // Handle card selection
+  const handleCardSelect = (cardId: string) => {
+    if (selectedCardId === cardId) {
+      setSelectedCardId(null);
+    } else {
+      setSelectedCardId(cardId);
     }
   };
 
+  // Handle custom text change
+  const handleCustomTextChange = (cardId: string, text: string) => {
+    if (currentPlayerId) {
+      updateCustomText(currentPlayerId, cardId, text);
+    }
+  };
+
+  // Scroll to top when new content loads
   const scrollToTop = () => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ y: 0, animated: true });
     }
   };
 
-  const showPassPhonePrompt = (nextPlayer: string) => {
-    setNextPlayerName(nextPlayer);
-    setShowPassPhoneModal(true);
-    setIsPlayerReady(false);
-  };
-
-  const handleReadyPress = () => {
-    setShowPassPhoneModal(false);
-    setIsPlayerReady(true);
-  };
-
-  const checkIfAllPlayersPassed = () => {
-    return gameState.playedCards.length === gameState.players.length &&
-           gameState.playedCards.every(played => played.card.text === 'PASSED');
-  };
-
-  const getWinner = () => {
-    if (gameState.players.length === 0) return null;
-    
-    const sortedPlayers = [...gameState.players].sort((a, b) => b.score - a.score);
-    const highestScore = sortedPlayers[0].score;
-    const winners = sortedPlayers.filter(p => p.score === highestScore);
-    
-    return {
-      winners,
-      isTie: winners.length > 1,
-      highestScore,
-    };
-  };
-
+  // Handle play card action
   const handlePlayCard = () => {
-    if (!selectedCardId || !currentPlayer) {
-      console.log('No card selected or no current player');
+    if (!selectedCardId || !currentPlayerId) {
+      Alert.alert('No Card Selected', 'Please select a card to play.');
       return;
     }
 
-    const selectedCard = currentPlayer.hand.find(c => c.id === selectedCardId);
-    if (selectedCard?.isCustom && (!selectedCard.customText || selectedCard.customText.trim() === '')) {
-      Alert.alert(
-        'Custom Response Required',
-        'Please type your custom response before playing this card.',
-        [{ text: 'OK' }]
-      );
-      return;
-    }
+    // CRITICAL: Immediately hide content before state change
+    setIsPlayerReady(false);
+    contentOpacity.value = 0;
     
-    playCard(currentPlayer.id, selectedCardId);
-    setSelectedCardId(undefined);
-    
+    // Small delay to ensure UI is hidden before state updates
     setTimeout(() => {
+      playCard(currentPlayerId, selectedCardId);
+      setSelectedCardId(null);
       scrollToTop();
-    }, 100);
-
-    const willBeRoundComplete = gameState.playedCards.length + 1 === gameState.players.length;
-    
-    if (willBeRoundComplete) {
-      setTimeout(() => {
-        setShowPointSelection(true);
-      }, 200);
-    } else {
-      const nextPlayerIndex = gameState.currentPlayerIndex - 1 < 0 
-        ? gameState.players.length - 1 
-        : gameState.currentPlayerIndex - 1;
-      const nextPlayer = gameState.players[nextPlayerIndex];
-      
-      setTimeout(() => {
-        showPassPhonePrompt(nextPlayer.name);
-      }, 200);
-    }
+      checkIfAllPlayersPassed();
+    }, 150);
   };
 
+  // Handle pass action
   const handlePass = () => {
-    if (!currentPlayer) {
-      console.log('No current player');
-      return;
-    }
-    
-    let nextPlayerIndex = gameState.currentPlayerIndex - 1;
-    if (nextPlayerIndex < 0) {
-      nextPlayerIndex = gameState.players.length - 1;
-    }
-    const nextPlayer = gameState.players[nextPlayerIndex];
-    
-    Alert.alert(
-      'Pass Turn',
-      'Are you sure you want to pass? The game will continue to the next player.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Pass',
-          onPress: () => {
-            passCard(currentPlayer.id);
-            setSelectedCardId(undefined);
-            
-            setTimeout(() => {
-              scrollToTop();
-            }, 100);
+    if (!currentPlayerId) return;
 
-            const willBeRoundComplete = gameState.playedCards.length + 1 === gameState.players.length;
-            
-            if (willBeRoundComplete) {
-              const willAllPass = gameState.playedCards.every(played => played.card.text === 'PASSED');
-              
-              if (willAllPass) {
-                setTimeout(() => {
-                  if (gameState.scenarioDeck.length === 0) {
-                    Alert.alert(
-                      'Game Over!',
-                      'All players passed and there are no more scenarios. Check the scores to see who won!',
-                      [
-                        {
-                          text: 'View Final Scores',
-                          onPress: () => {
-                            setShowGameOverModal(true);
-                          },
-                        },
-                      ]
-                    );
-                  } else {
-                    Alert.alert(
-                      'All Players Passed!',
-                      'Everyone passed on this scenario. A new scenario will be presented.',
-                      [
-                        {
-                          text: 'Continue',
-                          onPress: () => {
-                            changeScenarioAndContinue();
-                            
-                            setTimeout(() => {
-                              scrollToTop();
-                            }, 100);
-
-                            setTimeout(() => {
-                              showPassPhonePrompt(nextPlayer.name);
-                            }, 200);
-                          },
-                        },
-                      ]
-                    );
-                  }
-                }, 200);
-              } else {
-                setTimeout(() => {
-                  setShowPointSelection(true);
-                }, 200);
-              }
-            } else {
-              setTimeout(() => {
-                showPassPhonePrompt(nextPlayer.name);
-              }, 200);
-            }
-          },
-        },
-      ]
-    );
+    // CRITICAL: Immediately hide content before state change
+    setIsPlayerReady(false);
+    contentOpacity.value = 0;
+    
+    // Small delay to ensure UI is hidden before state updates
+    setTimeout(() => {
+      passCard(currentPlayerId);
+      scrollToTop();
+      checkIfAllPlayersPassed();
+    }, 150);
   };
 
+  // Handle exchange card action
   const handleExchange = () => {
-    if (!currentPlayer || currentPlayer.hasExchanged) {
-      Alert.alert('Exchange Not Available', 'You have already exchanged a card this round.');
-      return;
-    }
-
     if (!selectedCardId) {
-      Alert.alert('Select a Card', 'Please select a card from your hand to exchange.');
+      Alert.alert('No Card Selected', 'Please select a card to exchange.');
       return;
     }
-    
     setShowExchangeOptions(true);
   };
 
+  // Handle exchange with direction
   const handleExchangeWithDirection = (direction: 'previous' | 'next') => {
-    if (!selectedCardId || !currentPlayer) {
-      Alert.alert('Select a Card', 'Please select a card from your hand to exchange.');
-      setShowExchangeOptions(false);
-      return;
-    }
+    if (!selectedCardId || !currentPlayerId) return;
 
-    const currentIndex = gameState.currentPlayerIndex;
-    let targetIndex: number;
-    
-    if (direction === 'previous') {
-      targetIndex = (currentIndex + 1) % gameState.players.length;
-    } else {
-      targetIndex = currentIndex - 1;
-      if (targetIndex < 0) {
-        targetIndex = gameState.players.length - 1;
-      }
-    }
-    
-    const targetPlayer = gameState.players[targetIndex];
-    
-    Alert.alert(
-      'Exchange Card',
-      `Exchange your selected card with a random card from ${targetPlayer.name}?`,
-      [
-        { text: 'Cancel', style: 'cancel', onPress: () => setShowExchangeOptions(false) },
-        {
-          text: 'Exchange',
-          onPress: () => {
-            exchangeCard(currentPlayer.id, selectedCardId, direction);
-            setSelectedCardId(undefined);
-            setShowExchangeOptions(false);
-          },
-        },
-      ]
-    );
-  };
-
-  const handleAwardPoint = (playerId: string) => {
-    const player = gameState.players.find(p => p.id === playerId);
-    if (!player) {
-      console.log('Player not found');
-      return;
-    }
-
-    awardPoint(playerId);
-    setShowPointSelection(false);
-    
-    setTimeout(() => {
-      const anyPlayerOutOfCards = gameState.players.some(p => p.id === playerId ? player.hand.length === 0 : p.hand.length === 0);
-      
-      if (anyPlayerOutOfCards) {
-        console.log('Game complete after awarding point - a player has no cards left');
-        setTimeout(() => {
-          setShowGameOverModal(true);
-        }, 500);
-      } else if (gameState.scenarioDeck.length === 0) {
-        Alert.alert(
-          'Game Over!',
-          `${player.name} wins the final round! Check the scores to see who won the game.`,
-          [
-            {
-              text: 'View Final Scores',
-              onPress: () => {
-                setShowGameOverModal(true);
-              },
-            },
-          ]
-        );
-      } else {
-        nextRound(playerId);
-        
-        setTimeout(() => {
-          scrollToTop();
-        }, 100);
-
-        setTimeout(() => {
-          showPassPhonePrompt(player.name);
-        }, 200);
-      }
-    }, 100);
-  };
-
-  const handlePlayAgain = () => {
-    console.log('Play Again pressed - restarting with same players');
-    setShowGameOverModal(false);
-    
-    // Reset the ready state so the ready screen shows up again
+    // CRITICAL: Immediately hide content before state change
     setIsPlayerReady(false);
+    contentOpacity.value = 0;
     
-    restartGameWithSamePlayers();
+    setShowExchangeOptions(false);
     
+    // Small delay to ensure UI is hidden before state updates
     setTimeout(() => {
-      scrollToTop();
-    }, 100);
-    
-    // Show the ready screen for the first player
+      exchangeCard(currentPlayerId, selectedCardId, direction);
+      setSelectedCardId(null);
+      
+      // Show content again after exchange
+      setTimeout(() => {
+        setIsPlayerReady(true);
+      }, 300);
+    }, 150);
+  };
+
+  // Check if all players have played or passed
+  const checkIfAllPlayersPassed = () => {
+    // Wait for state to update
     setTimeout(() => {
-      const firstPlayer = gameState.players[0];
-      if (firstPlayer) {
-        showPassPhonePrompt(firstPlayer.name);
+      if (gameState.roundComplete) {
+        setShowRoundCompleteModal(true);
+      } else if (gameState.gameComplete) {
+        setShowGameOverModal(true);
+      } else {
+        // Move to next player
+        const nextPlayer = getNextPlayer();
+        setNextPlayerName(nextPlayer.name);
+        
+        // Show pass phone prompt after a delay
+        setTimeout(() => {
+          setShowPassPhonePrompt(true);
+        }, 300);
       }
     }, 200);
   };
 
-  const getPreviousPlayer = () => {
-    const prevIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
-    return gameState.players[prevIndex];
-  };
-
+  // Get next player
   const getNextPlayer = () => {
-    let nextIndex = gameState.currentPlayerIndex - 1;
-    if (nextIndex < 0) {
-      nextIndex = gameState.players.length - 1;
-    }
+    const nextIndex = gameState.currentPlayerIndex;
     return gameState.players[nextIndex];
   };
 
-  if (!gameState.gameStarted || !currentPlayer) {
-    return (
-      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
-        <Text style={[styles.loadingText, { color: colors.text }]}>Loading game...</Text>
-      </View>
-    );
-  }
+  // Get previous player
+  const getPreviousPlayer = () => {
+    const currentIndex = gameState.currentPlayerIndex;
+    const prevIndex = (currentIndex + 1) % gameState.players.length;
+    return gameState.players[prevIndex];
+  };
 
-  const winnerInfo = getWinner();
+  // Get winner of the round
+  const getWinner = () => {
+    if (gameState.playedCards.length === 0) return null;
+    
+    // Filter out passes
+    const actualPlays = gameState.playedCards.filter(pc => pc.card.text !== 'PASSED');
+    
+    if (actualPlays.length === 0) return null;
+    
+    // For now, just return the first player who played (you can implement voting logic here)
+    return gameState.players.find(p => p.id === actualPlays[0].playerId);
+  };
+
+  // Handle awarding point
+  const handleAwardPoint = (playerId: string) => {
+    // CRITICAL: Hide content before state change
+    setIsPlayerReady(false);
+    contentOpacity.value = 0;
+    
+    setTimeout(() => {
+      awardPoint(playerId);
+      setShowRoundCompleteModal(false);
+      
+      // Check if game is complete
+      if (gameState.gameComplete) {
+        setShowGameOverModal(true);
+      } else {
+        // Start next round with winner as first player
+        nextRound(playerId);
+        
+        // Show pass phone prompt for winner
+        const winner = gameState.players.find(p => p.id === playerId);
+        if (winner) {
+          setNextPlayerName(winner.name);
+          setTimeout(() => {
+            setShowPassPhonePrompt(true);
+          }, 500);
+        }
+      }
+    }, 150);
+  };
+
+  // Handle play again
+  const handlePlayAgain = () => {
+    // CRITICAL: Reset all states and hide content
+    setShowGameOverModal(false);
+    setIsPlayerReady(false);
+    contentOpacity.value = 0;
+    setSelectedCardId(null);
+    
+    setTimeout(() => {
+      restartGameWithSamePlayers();
+      
+      // Show pass phone prompt for first player
+      setTimeout(() => {
+        const firstPlayer = gameState.players[0];
+        setNextPlayerName(firstPlayer.name);
+        setShowPassPhonePrompt(true);
+      }, 500);
+    }, 150);
+  };
+
+  // Handle continue after all passed
+  const handleContinueAfterPass = () => {
+    setShowRoundCompleteModal(false);
+    setIsPlayerReady(false);
+    contentOpacity.value = 0;
+    
+    setTimeout(() => {
+      changeScenarioAndContinue();
+      
+      // Show pass phone prompt for current player
+      const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+      setNextPlayerName(currentPlayer.name);
+      setTimeout(() => {
+        setShowPassPhonePrompt(true);
+      }, 500);
+    }, 150);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.primary }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => {
-            Alert.alert(
-              'Quit Game',
-              'Are you sure you want to quit? Game progress will be lost.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Quit',
-                  style: 'destructive',
-                  onPress: () => {
-                    resetGame();
-                    router.replace('/(tabs)/(home)/');
-                  },
-                },
-              ]
-            );
-          }}
-        >
-          <IconSymbol
-            ios_icon_name="xmark.circle.fill"
-            android_material_icon_name="close"
-            size={28}
-            color={colors.primary}
-          />
-        </TouchableOpacity>
-        
-        <View style={styles.headerInfo}>
-          <Text style={[styles.roundText, { color: colors.textSecondary }]}>Round {gameState.round}</Text>
-          <Text style={[styles.playerTurnText, { color: colors.primary }]}>
-            {currentPlayer.name}&apos;s Turn
-          </Text>
-        </View>
-      </View>
-
-      {!isPlayerReady ? (
-        <View style={styles.readyScreenContainer}>
-          <View style={styles.readyScreenContent}>
-            <View style={styles.readyLogoContainer}>
-              <Image
-                source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
-                style={styles.readyLogoImage}
-                resizeMode="contain"
-              />
-            </View>
-            
-            <Text style={[styles.readyTitle, { color: colors.primary }]}>
-              {currentPlayer.name}&apos;s Turn
+      {/* Full-screen Ready/Pass Device Modal - Blocks all content */}
+      <Modal
+        visible={showPassPhonePrompt}
+        animationType="fade"
+        transparent={false}
+        onRequestClose={() => {}}
+      >
+        <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+          <View style={styles.modalContent}>
+            <IconSymbol 
+              ios_icon_name="hand.raised.fill" 
+              android_material_icon_name="front-hand" 
+              size={80} 
+              color={colors.primary} 
+            />
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Pass Device
             </Text>
-            
-            <Text style={[styles.readyMessage, { color: colors.textSecondary }]}>
-              Make sure other players aren&apos;t looking at the screen.
+            <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
+              Hand the device to:
             </Text>
-            
-            <Text style={[styles.readySubMessage, { color: colors.text }]}>
-              Press the button below when you&apos;re ready to view your cards.
+            <Text style={[styles.playerNameText, { color: colors.primary }]}>
+              {nextPlayerName}
             </Text>
-            
+            <Text style={[styles.warningText, { color: colors.textSecondary }]}>
+              ⚠️ Make sure they can&apos;t see the screen!
+            </Text>
             <Button
-              title="I'm Ready - Show My Cards"
-              onPress={() => setIsPlayerReady(true)}
-              variant="primary"
+              title="I'm Ready"
+              onPress={handleReadyPress}
               style={styles.readyButton}
             />
           </View>
         </View>
-      ) : (
-        <ScrollView 
-          ref={scrollViewRef}
-          style={styles.scrollView} 
-          contentContainerStyle={styles.scrollContent}
-        >
-          {gameState.currentScenario && (
-            <View style={styles.scenarioContainer}>
-              <Text style={[styles.scenarioLabel, { color: colors.textSecondary }]}>Current Scenario</Text>
-              <GameCard
-                text={gameState.currentScenario.text}
-                type="scenario"
-              />
-            </View>
-          )}
+      </Modal>
 
-          {showPointSelection ? (
-            <View style={styles.pointSelectionContainer}>
-              <Text style={[styles.pointSelectionTitle, { color: colors.primary }]}>Who Gets the Point? 🏆</Text>
-              <Text style={[styles.pointSelectionSubtitle, { color: colors.textSecondary }]}>
-                All players have responded! Review the cards and award a point.
-              </Text>
-              
-              <View style={styles.playedCardsContainer}>
-                {gameState.playedCards.map((played, index) => {
-                  const player = gameState.players.find(p => p.id === played.playerId);
-                  const isPassed = played.card.text === 'PASSED';
-                  
-                  if (isPassed) {
+      {/* Round Complete Modal */}
+      <Modal
+        visible={showRoundCompleteModal}
+        animationType="fade"
+        transparent={false}
+        onRequestClose={() => {}}
+      >
+        <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+          <ScrollView contentContainerStyle={styles.modalScrollContent}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Round Complete!
+            </Text>
+            
+            {gameState.playedCards.filter(pc => pc.card.text !== 'PASSED').length > 0 ? (
+              <>
+                <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
+                  Who had the most toxic response?
+                </Text>
+                
+                <View style={styles.playedCardsContainer}>
+                  {gameState.playedCards.map((playedCard, index) => {
+                    if (playedCard.card.text === 'PASSED') return null;
+                    
+                    const player = gameState.players.find(p => p.id === playedCard.playerId);
                     return (
-                      <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                        <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
-                        <View style={[styles.playedCardWrapper, styles.passedCardWrapper, { backgroundColor: colors.textSecondary }]}>
-                          <Text style={[styles.passedCardText, { color: colors.background }]}>⏭️ PASSED</Text>
-                        </View>
+                      <View key={index} style={styles.playedCardItem}>
+                        <Text style={[styles.playerLabel, { color: colors.primary }]}>
+                          {player?.name}
+                        </Text>
+                        <GameCard
+                          text={playedCard.card.customText || playedCard.card.text}
+                          type="response"
+                        />
+                        <Button
+                          title="Award Point"
+                          onPress={() => handleAwardPoint(playedCard.playerId)}
+                          variant="accent"
+                          style={styles.awardButton}
+                        />
                       </View>
                     );
-                  }
-                  
-                  const displayText = played.card.isCustom && played.card.customText 
-                    ? played.card.customText 
-                    : played.card.text;
-                  
-                  return (
-                    <View key={index} style={[styles.playedCardItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                      <Text style={[styles.playedCardPlayer, { color: colors.primary }]}>{player?.name}</Text>
-                      <View style={[styles.playedCardWrapper, { backgroundColor: effectiveColorScheme === 'dark' ? '#006622' : '#ffffff', borderColor: colors.cardBorder }]}>
-                        <Text style={[styles.playedCardText, { color: '#000000' }]}>{displayText}</Text>
-                        {played.card.isCustom && (
-                          <Text style={[styles.customBadge, { color: colors.accent }]}>✏️ Custom</Text>
-                        )}
-                      </View>
-                      <Button
-                        title="Award Point"
-                        onPress={() => handleAwardPoint(played.playerId)}
-                        variant="accent"
-                        style={styles.awardButton}
-                      />
-                    </View>
-                  );
-                })}
-              </View>
-            </View>
-          ) : (
-            <>
-              <View style={[styles.scoresContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                <Text style={[styles.scoresTitle, { color: colors.text }]}>Scores</Text>
-                <View style={styles.scoresGrid}>
-                  {gameState.players.map((player, index) => (
-                    <View key={index} style={styles.scoreItem}>
-                      <Text style={[styles.scorePlayerName, { color: colors.textSecondary }]}>{player.name}</Text>
-                      <Text style={[styles.scoreValue, { color: colors.primary }]}>{player.score}</Text>
-                      <Text style={[styles.cardsLeftText, { color: colors.textSecondary }]}>
-                        {player.hand.length} {player.hand.length === 1 ? 'card' : 'cards'} left
-                      </Text>
-                    </View>
-                  ))}
+                  })}
                 </View>
-              </View>
-
-              {showExchangeOptions ? (
-                <View style={styles.exchangeContainer}>
-                  <Text style={[styles.exchangeTitle, { color: colors.text }]}>Exchange card with:</Text>
-                  <Text style={[styles.exchangeSubtitle, { color: colors.textSecondary }]}>
-                    Choose to exchange with the previous or next player
-                  </Text>
-                  
-                  <Button
-                    title={`← Previous Player (${getPreviousPlayer().name})`}
-                    onPress={() => handleExchangeWithDirection('previous')}
-                    variant="secondary"
-                    style={styles.exchangeButton}
-                  />
-                  
-                  <Button
-                    title={`Next Player (${getNextPlayer().name}) →`}
-                    onPress={() => handleExchangeWithDirection('next')}
-                    variant="secondary"
-                    style={styles.exchangeButton}
-                  />
-                  
-                  <Button
-                    title="Cancel"
-                    onPress={() => setShowExchangeOptions(false)}
-                    variant="accent"
-                    style={styles.exchangeButton}
-                  />
-                </View>
-              ) : (
-                <>
-                  <PlayerHand
-                    cards={currentPlayer.hand}
-                    onCardPress={handleCardSelect}
-                    selectedCardId={selectedCardId}
-                    onCustomTextChange={handleCustomTextChange}
-                  />
-
-                  <View style={styles.actionsContainer}>
-                    <Button
-                      title="Play Card"
-                      onPress={handlePlayCard}
-                      variant="primary"
-                      disabled={!selectedCardId}
-                      style={styles.actionButton}
-                    />
-                    <Button
-                      title={currentPlayer.hasExchanged ? "Already Exchanged" : "Exchange Card"}
-                      onPress={handleExchange}
-                      variant="secondary"
-                      disabled={currentPlayer.hasExchanged || !selectedCardId}
-                      style={styles.actionButton}
-                    />
-                    <Button
-                      title="Pass"
-                      onPress={handlePass}
-                      variant="accent"
-                      style={styles.actionButton}
-                    />
-                  </View>
-                </>
-              )}
-            </>
-          )}
-        </ScrollView>
-      )}
-
-      <Modal
-        visible={showPassPhoneModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowPassPhoneModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.primary }]}>
-            <View style={styles.modalIconContainer}>
-              <IconSymbol
-                ios_icon_name="arrow.triangle.2.circlepath"
-                android_material_icon_name="sync"
-                size={64}
-                color={colors.primary}
-              />
-            </View>
-            
-            <Text style={[styles.modalTitle, { color: colors.primary }]}>Pass the Phone!</Text>
-            <Text style={[styles.modalMessage, { color: colors.textSecondary }]}>
-              Please pass the phone to
-            </Text>
-            <Text style={[styles.modalPlayerName, { color: colors.text }]}>{nextPlayerName}</Text>
-            
-            <Button
-              title="Ready"
-              onPress={handleReadyPress}
-              variant="primary"
-              style={styles.modalButton}
-            />
-          </View>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
+                  All players passed! Moving to next scenario...
+                </Text>
+                <Button
+                  title="Continue"
+                  onPress={handleContinueAfterPass}
+                  style={styles.continueButton}
+                />
+              </>
+            )}
+          </ScrollView>
         </View>
       </Modal>
 
+      {/* Game Over Modal */}
       <Modal
         visible={showGameOverModal}
-        transparent={true}
         animationType="fade"
-        onRequestClose={() => setShowGameOverModal(false)}
+        transparent={false}
+        onRequestClose={() => {}}
       >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.gameOverModalContent, { backgroundColor: colors.card, borderColor: colors.accent }]}>
-            <View style={styles.logoContainer}>
-              <Image
-                source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
-            </View>
+        <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+          <View style={styles.modalContent}>
+            <IconSymbol 
+              ios_icon_name="trophy.fill" 
+              android_material_icon_name="emoji-events" 
+              size={80} 
+              color={colors.primary} 
+            />
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Game Over!
+            </Text>
             
-            <Text style={[styles.gameOverTitle, { color: colors.accent }]}>Game Over!</Text>
-            
-            {winnerInfo && (
-              <>
-                {winnerInfo.isTie ? (
-                  <>
-                    <Text style={[styles.gameOverSubtitle, { color: colors.primary }]}>It&apos;s a Tie!</Text>
-                    <View style={styles.winnersContainer}>
-                      {winnerInfo.winners.map((winner, index) => (
-                        <Text key={index} style={[styles.winnerName, { color: colors.text }]}>
-                          {winner.name}
-                        </Text>
-                      ))}
-                    </View>
-                    <Text style={[styles.winnerScore, { color: colors.primary }]}>
-                      {winnerInfo.highestScore} {winnerInfo.highestScore === 1 ? 'point' : 'points'}
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <Text style={[styles.gameOverSubtitle, { color: colors.primary }]}>Toxic Winner!</Text>
-                    <Text style={[styles.winnerName, { color: colors.text }]}>{winnerInfo.winners[0].name}</Text>
-                    <Text style={[styles.winnerScore, { color: colors.primary }]}>
-                      {winnerInfo.highestScore} {winnerInfo.highestScore === 1 ? 'point' : 'points'}
-                    </Text>
-                  </>
-                )}
-              </>
-            )}
-            
-            <View style={[styles.finalScoresContainer, { backgroundColor: colors.background, borderColor: colors.cardBorder }]}>
-              <Text style={[styles.finalScoresTitle, { color: colors.text }]}>Final Scores</Text>
+            <View style={styles.scoresContainer}>
+              <Text style={[styles.scoresTitle, { color: colors.textSecondary }]}>
+                Final Scores:
+              </Text>
               {gameState.players
                 .sort((a, b) => b.score - a.score)
                 .map((player, index) => (
-                  <View key={index} style={[styles.finalScoreItem, { borderBottomColor: colors.cardBorder }]}>
-                    <Text style={[styles.finalScoreRank, { color: colors.textSecondary }]}>#{index + 1}</Text>
-                    <Text style={[styles.finalScorePlayerName, { color: colors.text }]}>{player.name}</Text>
-                    <Text style={[styles.finalScoreValue, { color: colors.primary }]}>{player.score}</Text>
+                  <View key={player.id} style={styles.scoreRow}>
+                    <Text style={[styles.scoreRank, { color: colors.primary }]}>
+                      {index + 1}.
+                    </Text>
+                    <Text style={[styles.scoreName, { color: colors.text }]}>
+                      {player.name}
+                    </Text>
+                    <Text style={[styles.scorePoints, { color: colors.accent }]}>
+                      {player.score} pts
+                    </Text>
                   </View>
                 ))}
             </View>
             
-            <Button
-              title="Play Again"
+            <Button 
+              title="Play Again" 
               onPress={handlePlayAgain}
-              variant="primary"
               style={styles.playAgainButton}
             />
-            
-            <Button
-              title="Back to Home"
-              onPress={() => {
-                setShowGameOverModal(false);
-                resetGame();
-                router.replace('/(tabs)/(home)/');
-              }}
+            <Button 
+              title="Exit" 
+              onPress={() => router.back()}
               variant="secondary"
-              style={styles.playAgainButton}
+              style={styles.exitButton}
             />
           </View>
         </View>
       </Modal>
+
+      {/* Exchange Options Modal */}
+      <Modal
+        visible={showExchangeOptions}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowExchangeOptions(false)}
+      >
+        <View style={styles.exchangeModalOverlay}>
+          <View style={[styles.exchangeModalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.exchangeTitle, { color: colors.text }]}>
+              Exchange with which player?
+            </Text>
+            <Button
+              title={`Previous Player (${getPreviousPlayer()?.name})`}
+              onPress={() => handleExchangeWithDirection('previous')}
+              style={styles.exchangeButton}
+            />
+            <Button
+              title={`Next Player (${getNextPlayer()?.name})`}
+              onPress={() => handleExchangeWithDirection('next')}
+              style={styles.exchangeButton}
+            />
+            <Button
+              title="Cancel"
+              onPress={() => setShowExchangeOptions(false)}
+              variant="secondary"
+              style={styles.exchangeButton}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Game Content - Only visible when isPlayerReady is true */}
+      {!showPassPhonePrompt && !showGameOverModal && !showRoundCompleteModal && (
+        <Animated.View 
+          style={[styles.gameContent, animatedContentStyle]}
+          pointerEvents={isPlayerReady ? 'auto' : 'none'}
+        >
+          <ScrollView ref={scrollViewRef} style={styles.scrollView}>
+            {/* Header */}
+            <View style={styles.header}>
+              <TouchableOpacity 
+                onPress={() => router.back()}
+                style={styles.backButton}
+              >
+                <IconSymbol 
+                  ios_icon_name="chevron.left" 
+                  android_material_icon_name="arrow-back" 
+                  size={24} 
+                  color={colors.text} 
+                />
+              </TouchableOpacity>
+              <Text style={[styles.headerTitle, { color: colors.text }]}>
+                Round {gameState.round}
+              </Text>
+              <View style={styles.headerSpacer} />
+            </View>
+
+            {/* Current Player Info */}
+            <View style={styles.playerInfo}>
+              <Text style={[styles.currentPlayerLabel, { color: colors.textSecondary }]}>
+                Current Player:
+              </Text>
+              <Text style={[styles.currentPlayerName, { color: colors.primary }]}>
+                {currentPlayer?.name}
+              </Text>
+            </View>
+
+            {/* Scenario Card */}
+            {gameState.currentScenario && (
+              <View style={styles.scenarioContainer}>
+                <GameCard
+                  text={gameState.currentScenario.text}
+                  type="scenario"
+                />
+              </View>
+            )}
+
+            {/* Player Hand */}
+            {currentPlayer && (
+              <PlayerHand
+                cards={currentPlayer.hand}
+                onCardPress={handleCardSelect}
+                selectedCardId={selectedCardId || undefined}
+                onCustomTextChange={handleCustomTextChange}
+              />
+            )}
+
+            {/* Action Buttons */}
+            <View style={styles.actionsContainer}>
+              <Button
+                title="Play Card"
+                onPress={handlePlayCard}
+                disabled={!selectedCardId}
+                style={styles.actionButton}
+              />
+              
+              {currentPlayer && !currentPlayer.hasExchanged && (
+                <Button
+                  title="Exchange Card"
+                  onPress={handleExchange}
+                  disabled={!selectedCardId}
+                  variant="secondary"
+                  style={styles.actionButton}
+                />
+              )}
+              
+              <Button
+                title="Pass"
+                onPress={handlePass}
+                variant="secondary"
+                style={styles.actionButton}
+              />
+            </View>
+
+            {/* Scores */}
+            <View style={styles.scoresSection}>
+              <Text style={[styles.scoresSectionTitle, { color: colors.text }]}>
+                Scores
+              </Text>
+              {gameState.players.map((player) => (
+                <View key={player.id} style={styles.scoreItem}>
+                  <Text style={[styles.scorePlayerName, { color: colors.text }]}>
+                    {player.name}
+                  </Text>
+                  <Text style={[styles.scorePlayerPoints, { color: colors.primary }]}>
+                    {player.score} pts
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Bottom Padding */}
+            <View style={styles.bottomPadding} />
+          </ScrollView>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -709,336 +582,188 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  loadingContainer: {
+  gameContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 18,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 2,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  headerInfo: {
-    flex: 1,
-  },
-  roundText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  playerTurnText: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  readyScreenContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  readyScreenContent: {
-    alignItems: 'center',
-    maxWidth: 400,
-  },
-  readyLogoContainer: {
-    marginBottom: 32,
-    width: 600,
-    height: 300,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  readyLogoImage: {
-    width: '100%',
-    height: '100%',
-  },
-  readyTitle: {
-    fontSize: 32,
-    fontWeight: '900',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  readyMessage: {
-    fontSize: 18,
-    marginBottom: 16,
-    textAlign: 'center',
-    lineHeight: 26,
-  },
-  readySubMessage: {
-    fontSize: 16,
-    marginBottom: 40,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  readyButton: {
-    minWidth: 280,
   },
   scrollView: {
     flex: 1,
   },
-  scrollContent: {
-    paddingBottom: 140,
-  },
-  scenarioContainer: {
-    padding: 20,
-  },
-  scenarioLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  scoresContainer: {
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 12,
-    borderWidth: 2,
-  },
-  scoresTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  scoresGrid: {
+  header: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-  },
-  scoreItem: {
     alignItems: 'center',
-    minWidth: 80,
-    marginVertical: 8,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 48,
+    paddingBottom: 16,
   },
-  scorePlayerName: {
+  backButton: {
+    padding: 8,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  playerInfo: {
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  currentPlayerLabel: {
     fontSize: 14,
     marginBottom: 4,
   },
-  scoreValue: {
+  currentPlayerName: {
     fontSize: 24,
-    fontWeight: '900',
+    fontWeight: 'bold',
   },
-  cardsLeftText: {
-    fontSize: 11,
-    marginTop: 2,
-    fontStyle: 'italic',
+  scenarioContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 20,
   },
   actionsContainer: {
-    padding: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
     gap: 12,
   },
   actionButton: {
     width: '100%',
   },
-  exchangeContainer: {
-    padding: 20,
-    gap: 12,
+  scoresSection: {
+    paddingHorizontal: 16,
+    paddingVertical: 20,
   },
-  exchangeTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  exchangeSubtitle: {
-    fontSize: 14,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  exchangeButton: {
-    width: '100%',
-  },
-  pointSelectionContainer: {
-    padding: 20,
-  },
-  pointSelectionTitle: {
-    fontSize: 28,
-    fontWeight: '900',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  pointSelectionSubtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  playedCardsContainer: {
-    gap: 20,
-    marginBottom: 24,
-  },
-  playedCardItem: {
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 2,
-  },
-  playedCardPlayer: {
+  scoresSectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: 'bold',
     marginBottom: 12,
-    textAlign: 'center',
   },
-  playedCardWrapper: {
-    padding: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    minHeight: 80,
-    justifyContent: 'center',
+  scoreItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
   },
-  passedCardWrapper: {
-    opacity: 0.6,
-  },
-  playedCardText: {
+  scorePlayerName: {
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-    lineHeight: 22,
   },
-  passedCardText: {
-    fontSize: 18,
-    fontWeight: '700',
-    textAlign: 'center',
+  scorePlayerPoints: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-  customBadge: {
-    fontSize: 12,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginTop: 8,
+  bottomPadding: {
+    height: 40,
   },
-  awardButton: {
-    marginTop: 12,
-  },
-  modalOverlay: {
+  modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   modalContent: {
-    borderRadius: 20,
-    padding: 32,
-    width: '100%',
-    maxWidth: 400,
     alignItems: 'center',
-    borderWidth: 3,
+    gap: 20,
+    maxWidth: 400,
   },
-  modalIconContainer: {
-    marginBottom: 24,
+  modalScrollContent: {
+    alignItems: 'center',
+    padding: 20,
   },
   modalTitle: {
-    fontSize: 28,
-    fontWeight: '900',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  modalMessage: {
-    fontSize: 18,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  modalPlayerName: {
     fontSize: 32,
-    fontWeight: '900',
-    marginBottom: 32,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
-  modalButton: {
-    width: '100%',
-    minWidth: 200,
+  modalSubtitle: {
+    fontSize: 18,
+    textAlign: 'center',
   },
-  gameOverModalContent: {
-    borderRadius: 20,
-    padding: 32,
-    width: '100%',
-    maxWidth: 450,
-    alignItems: 'center',
-    borderWidth: 3,
-  },
-  logoContainer: {
-    marginBottom: 24,
-    width: 420,
-    height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoImage: {
-    width: '100%',
-    height: '100%',
-  },
-  gameOverTitle: {
+  playerNameText: {
     fontSize: 36,
-    fontWeight: '900',
-    marginBottom: 8,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
-  gameOverSubtitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 16,
+  warningText: {
+    fontSize: 14,
     textAlign: 'center',
+    fontStyle: 'italic',
   },
-  winnersContainer: {
-    alignItems: 'center',
-    marginBottom: 12,
+  readyButton: {
+    marginTop: 20,
   },
-  winnerName: {
-    fontSize: 32,
-    fontWeight: '900',
-    textAlign: 'center',
-    marginVertical: 4,
-  },
-  winnerScore: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  finalScoresContainer: {
+  playedCardsContainer: {
+    gap: 24,
+    marginTop: 20,
     width: '100%',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-    borderWidth: 2,
   },
-  finalScoresTitle: {
+  playedCardItem: {
+    alignItems: 'center',
+    gap: 12,
+  },
+  playerLabel: {
     fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
+    fontWeight: 'bold',
   },
-  finalScoreItem: {
+  awardButton: {
+    minWidth: 150,
+  },
+  continueButton: {
+    marginTop: 20,
+  },
+  scoresContainer: {
+    width: '100%',
+    gap: 12,
+    marginTop: 20,
+  },
+  scoresTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  scoreRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
+    gap: 12,
   },
-  finalScoreRank: {
-    fontSize: 16,
-    fontWeight: '700',
-    width: 40,
-  },
-  finalScorePlayerName: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  finalScoreValue: {
+  scoreRank: {
     fontSize: 20,
-    fontWeight: '900',
-    minWidth: 40,
-    textAlign: 'right',
+    fontWeight: 'bold',
+    width: 30,
+  },
+  scoreName: {
+    fontSize: 18,
+    flex: 1,
+  },
+  scorePoints: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   playAgainButton: {
+    marginTop: 20,
+  },
+  exitButton: {
+    marginTop: 12,
+  },
+  exchangeModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  exchangeModalContent: {
+    borderRadius: 12,
+    padding: 24,
+    gap: 16,
+    minWidth: 300,
+  },
+  exchangeTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  exchangeButton: {
     width: '100%',
-    marginTop: 8,
   },
 });
