@@ -174,7 +174,7 @@ export default function HomeScreen() {
 
       <View style={[styles.copyrightContainer, { borderTopColor: colors.cardBorder }]}>
         <Text style={[styles.copyrightText, { color: colors.textSecondary }]}>
-          © 2026 Steven A. Pennant. All rights reserved.
+          © 2025 Steven A. Pennant. All rights reserved.
         </Text>
       </View>
     </ScrollView>

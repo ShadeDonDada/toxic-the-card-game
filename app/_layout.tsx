@@ -17,7 +17,6 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { WidgetProvider } from "@/contexts/WidgetContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { PurchaseProvider } from "@/contexts/PurchaseContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -84,83 +83,81 @@ export default function RootLayout() {
       <StatusBar hidden />
       <ThemeProvider>
         <NavigationThemeProvider value={CustomDarkTheme}>
-          <PurchaseProvider>
-            <WidgetProvider>
-              <GestureHandlerRootView>
-              <Stack>
-                <Stack.Screen name="splash" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="game-setup"
-                  options={{
-                    headerShown: false,
-                    presentation: "card",
-                  }}
-                />
-                <Stack.Screen
-                  name="rules"
-                  options={{
-                    headerShown: false,
-                    presentation: "card",
-                  }}
-                />
-                <Stack.Screen
-                  name="thank-you"
-                  options={{
-                    headerShown: false,
-                    presentation: "card",
-                  }}
-                />
-                <Stack.Screen
-                  name="settings"
-                  options={{
-                    headerShown: false,
-                    presentation: "card",
-                  }}
-                />
-                <Stack.Screen
-                  name="game"
-                  options={{
-                    headerShown: false,
-                    presentation: "card",
-                  }}
-                />
-                <Stack.Screen
-                  name="player-names"
-                  options={{
-                    headerShown: false,
-                    presentation: "card",
-                  }}
-                />
-                <Stack.Screen
-                  name="modal"
-                  options={{
-                    presentation: "modal",
-                    title: "Standard Modal",
-                  }}
-                />
-                <Stack.Screen
-                  name="formsheet"
-                  options={{
-                    presentation: "formSheet",
-                    title: "Form Sheet Modal",
-                    sheetGrabberVisible: true,
-                    sheetAllowedDetents: [0.5, 0.8, 1.0],
-                    sheetCornerRadius: 20,
-                  }}
-                />
-                <Stack.Screen
-                  name="transparent-modal"
-                  options={{
-                    presentation: "transparentModal",
-                    headerShown: false,
-                  }}
-                />
-              </Stack>
-              <SystemBars style={"light"} hidden />
-              </GestureHandlerRootView>
-            </WidgetProvider>
-          </PurchaseProvider>
+          <WidgetProvider>
+            <GestureHandlerRootView>
+            <Stack>
+              <Stack.Screen name="splash" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="game-setup"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="rules"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="thank-you"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="settings"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="game"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="player-names"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="modal"
+                options={{
+                  presentation: "modal",
+                  title: "Standard Modal",
+                }}
+              />
+              <Stack.Screen
+                name="formsheet"
+                options={{
+                  presentation: "formSheet",
+                  title: "Form Sheet Modal",
+                  sheetGrabberVisible: true,
+                  sheetAllowedDetents: [0.5, 0.8, 1.0],
+                  sheetCornerRadius: 20,
+                }}
+              />
+              <Stack.Screen
+                name="transparent-modal"
+                options={{
+                  presentation: "transparentModal",
+                  headerShown: false,
+                }}
+              />
+            </Stack>
+            <SystemBars style={"light"} hidden />
+            </GestureHandlerRootView>
+          </WidgetProvider>
         </NavigationThemeProvider>
       </ThemeProvider>
     </>
