@@ -3,7 +3,6 @@ import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { IconSymbol } from './IconSymbol';
-import { useRouter } from 'expo-router';
 
 interface DemoLimitModalProps {
   visible: boolean;
@@ -12,12 +11,6 @@ interface DemoLimitModalProps {
 
 export function DemoLimitModal({ visible, onClose }: DemoLimitModalProps) {
   const theme = useTheme();
-  const router = useRouter();
-
-  const handleUpgrade = () => {
-    onClose();
-    router.push('/settings');
-  };
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
@@ -30,7 +23,7 @@ export function DemoLimitModal({ visible, onClose }: DemoLimitModalProps) {
           <Text style={[styles.title, { color: theme.colors.text }]}>Demo Limit Reached</Text>
           <Text style={[styles.message, { color: theme.dark ? '#98989D' : '#666' }]}>
             You've completed the 3 demo rounds!{'\n\n'}
-            Upgrade to unlock:
+            The full version includes:
           </Text>
           
           <View style={styles.featuresList}>
@@ -46,19 +39,10 @@ export function DemoLimitModal({ visible, onClose }: DemoLimitModalProps) {
               <IconSymbol ios_icon_name="checkmark.circle.fill" android_material_icon_name="check-circle" size={20} color="#4CAF50" />
               <Text style={[styles.featureText, { color: theme.colors.text }]}>All response cards</Text>
             </View>
-            <View style={styles.featureItem}>
-              <IconSymbol ios_icon_name="checkmark.circle.fill" android_material_icon_name="check-circle" size={20} color="#4CAF50" />
-              <Text style={[styles.featureText, { color: theme.colors.text }]}>No ads</Text>
-            </View>
           </View>
 
-          <TouchableOpacity style={[styles.upgradeButton, { backgroundColor: theme.colors.primary }]} onPress={handleUpgrade}>
-            <IconSymbol ios_icon_name="cup.and.saucer.fill" android_material_icon_name="local-cafe" size={20} color="#fff" />
-            <Text style={styles.upgradeButtonText}>Upgrade for $2.99</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={[styles.closeButtonText, { color: theme.dark ? '#98989D' : '#666' }]}>Maybe Later</Text>
+            <Text style={[styles.closeButtonText, { color: theme.colors.primary }]}>Continue Playing</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -114,26 +98,11 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 16,
   },
-  upgradeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    width: '100%',
-    marginBottom: 12,
-  },
-  upgradeButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   closeButton: {
     paddingVertical: 12,
   },
   closeButtonText: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
