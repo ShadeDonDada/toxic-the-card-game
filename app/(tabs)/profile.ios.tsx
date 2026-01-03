@@ -68,7 +68,7 @@ export default function SettingsScreen() {
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>About</Text>
           <View style={styles.infoRow}>
             <Text style={[styles.infoLabel, { color: theme.dark ? '#98989D' : '#666' }]}>Version</Text>
-            <Text style={[styles.infoValue, { color: theme.colors.text }]}>1.0.0</Text>
+            <Text style={[styles.infoValue, { color: theme.colors.text }]}>1.1.0</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={[styles.infoLabel, { color: theme.dark ? '#98989D' : '#666' }]}>App Name</Text>
