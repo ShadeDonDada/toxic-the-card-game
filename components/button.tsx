@@ -1,75 +1,128 @@
+import React from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextStyle,
+  useColorScheme,
+  ViewStyle,
+} from "react-native";
+import { appleBlue, zincColors } from "@/constants/Colors";
 
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
-import { useTheme } from '@/contexts/ThemeContext';
-import { getColors } from '@/styles/commonStyles';
+type ButtonVariant = "filled" | "outline" | "ghost";
+type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps {
-  title: string;
-  onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'accent';
+  onPress?: () => void;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   disabled?: boolean;
+  loading?: boolean;
+  children: React.ReactNode;
   style?: ViewStyle;
+  textStyle?: TextStyle;
 }
 
-export function Button({ title, onPress, variant = 'primary', disabled, style }: ButtonProps) {
-  const { theme } = useTheme();
-  const colors = getColors(theme);
+export const Button: React.FC<ButtonProps> = ({
+  onPress,
+  variant = "filled",
+  size = "md",
+  disabled = false,
+  loading = false,
+  children,
+  style,
+  textStyle,
+}) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
-  const getBackgroundColor = () => {
+  const sizeStyles: Record<
+    ButtonSize,
+    { height: number; fontSize: number; padding: number }
+  > = {
+    sm: { height: 36, fontSize: 14, padding: 12 },
+    md: { height: 44, fontSize: 16, padding: 16 },
+    lg: { height: 55, fontSize: 18, padding: 20 },
+  };
+
+  const getVariantStyle = () => {
+    const baseStyle: ViewStyle = {
+      borderRadius: 12,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+    };
+
     switch (variant) {
-      case 'secondary':
-        return colors.secondary;
-      case 'accent':
-        return colors.accent;
-      default:
-        return colors.primary;
+      case "filled":
+        return {
+          ...baseStyle,
+          backgroundColor: isDark ? zincColors[50] : zincColors[900],
+        };
+      case "outline":
+        return {
+          ...baseStyle,
+          backgroundColor: "transparent",
+          borderWidth: 1,
+          borderColor: isDark ? zincColors[700] : zincColors[300],
+        };
+      case "ghost":
+        return {
+          ...baseStyle,
+          backgroundColor: "transparent",
+        };
     }
   };
 
   const getTextColor = () => {
+    if (disabled) {
+      return isDark ? zincColors[500] : zincColors[400];
+    }
+
     switch (variant) {
-      case 'secondary':
-        return colors.primary;
-      default:
-        return colors.black;
+      case "filled":
+        return isDark ? zincColors[900] : zincColors[50];
+      case "outline":
+      case "ghost":
+        return appleBlue;
     }
   };
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
       style={[
-        styles.button,
-        { backgroundColor: getBackgroundColor(), borderColor: variant === 'secondary' ? colors.cardBorder : colors.primary },
-        disabled && styles.disabled,
+        getVariantStyle(),
+        {
+          height: sizeStyles[size].height,
+          paddingHorizontal: sizeStyles[size].padding,
+          opacity: disabled ? 0.5 : 1,
+        },
         style,
       ]}
-      activeOpacity={0.8}
     >
-      <Text style={[styles.buttonText, { color: getTextColor() }]}>{title}</Text>
-    </TouchableOpacity>
+      {loading ? (
+        <ActivityIndicator color={getTextColor()} />
+      ) : (
+        <Text
+          style={StyleSheet.flatten([
+            {
+              fontSize: sizeStyles[size].fontSize,
+              color: getTextColor(),
+              textAlign: "center",
+              marginBottom: 0,
+              fontWeight: "700",
+            },
+            textStyle,
+          ])}
+        >
+          {children}
+        </Text>
+      )}
+    </Pressable>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  button: {
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 200,
-    boxShadow: '0px 4px 6px rgba(0, 255, 65, 0.3)',
-    elevation: 3,
-    borderWidth: 2,
-  },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-});
+export default Button;

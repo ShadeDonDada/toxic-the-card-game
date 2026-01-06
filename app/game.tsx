@@ -2,31 +2,33 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Image } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
-import { Button } from '@/components/button';
+import { Button } from '@/components/Button';
 import { PlayerHand } from '@/components/PlayerHand';
 import { useGameState } from '@/hooks/useGameState';
 import { IconSymbol } from '@/components/IconSymbol';
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { GameCard } from '@/components/GameCard';
-import { Player } from '@/types/game';
 
 export default function GameScreen() {
   const { theme } = useTheme();
   const colors = getColors(theme);
   const router = useRouter();
-  const { playerCount, playerNames } = useLocalSearchParams();
+  const { playerCount } = useLocalSearchParams();
   const scrollViewRef = useRef<ScrollView>(null);
   
   const {
-    gameState,
+    players,
+    currentPlayerIndex,
+    currentScenario,
+    playedCards,
+    roundWinner,
     initializeGame,
     playCard,
-    passCard,
+    passRound,
     exchangeCard,
-    nextRound,
     awardPoint,
-    updateCustomText,
+    nextRound,
   } = useGameState();
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -34,35 +36,29 @@ export default function GameScreen() {
   const [nextPlayerName, setNextPlayerName] = useState('');
   const [showWinnerModal, setShowWinnerModal] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
-  const [roundWinner, setRoundWinner] = useState<Player | null>(null);
 
   useEffect(() => {
     if (playerCount) {
-      const names = playerNames ? JSON.parse(playerNames as string) : [];
-      initializeGame(parseInt(playerCount as string, 10), names);
+      initializeGame(parseInt(playerCount as string, 10));
       setIsPlayerReady(false);
       setShowPassPhonePrompt(true);
-      const firstPlayerName = names[0] || 'Player 1';
-      setNextPlayerName(firstPlayerName);
+      setNextPlayerName(players[0]?.name || 'Player 1');
     }
-  }, [playerCount, playerNames]);
+  }, [playerCount, initializeGame]);
 
   const handleCardSelect = (cardId: string) => {
     setSelectedCard(cardId);
   };
 
   const handleCustomTextChange = (cardId: string, text: string) => {
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    if (currentPlayer) {
-      updateCustomText(currentPlayer.id, cardId, text);
-    }
+    console.log('Custom text changed for card:', cardId, text);
   };
 
   const scrollToTop = () => {
     scrollViewRef.current?.scrollTo({ y: 0, animated: true });
   };
 
-  const preparePassPhone = (nextPlayer: string) => {
+  const showPassPhonePrompt = (nextPlayer: string) => {
     setIsPlayerReady(false);
     setNextPlayerName(nextPlayer);
     setShowPassPhonePrompt(true);
@@ -75,14 +71,15 @@ export default function GameScreen() {
   };
 
   const checkIfAllPlayersPassed = () => {
-    return gameState.players.every((player) => 
-      gameState.playedCards.some((pc) => pc.playerId === player.id)
+    return players.every((player) => 
+      playedCards.some((pc) => pc.playerId === player.id) || 
+      player.hasPassed
     );
   };
 
   const getWinner = () => {
-    const playersWithCards = gameState.players.filter((player) => 
-      gameState.playedCards.some((pc) => pc.playerId === player.id && pc.card.text !== 'PASSED')
+    const playersWithCards = players.filter((player) => 
+      playedCards.some((pc) => pc.playerId === player.id)
     );
     
     if (playersWithCards.length === 0) {
@@ -98,24 +95,11 @@ export default function GameScreen() {
       return;
     }
 
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    if (!currentPlayer) {
-      console.error('No current player found');
-      return;
-    }
-
-    // Check if it's a custom card and needs text
-    const card = currentPlayer.hand.find(c => c.id === selectedCard);
-    if (card?.isCustom && (!card.customText || card.customText.trim() === '')) {
-      Alert.alert('Custom Card', 'Please enter text for your custom card before playing it.');
-      return;
-    }
-
     // CRITICAL FIX: Immediately hide cards before any other action
+    // This prevents the next player's cards from being visible
     setIsPlayerReady(false);
 
-    // Call playCard with BOTH playerId and cardId
-    playCard(currentPlayer.id, selectedCard);
+    playCard(selectedCard);
     setSelectedCard(null);
     
     const allPassed = checkIfAllPlayersPassed();
@@ -125,8 +109,8 @@ export default function GameScreen() {
       setRoundWinner(winner);
       setShowWinnerModal(true);
     } else {
-      const nextPlayer = gameState.players[gameState.currentPlayerIndex]?.name || 'Next Player';
-      preparePassPhone(nextPlayer);
+      const nextPlayer = players[currentPlayerIndex]?.name || 'Next Player';
+      showPassPhonePrompt(nextPlayer);
     }
   };
 
@@ -140,16 +124,10 @@ export default function GameScreen() {
           text: 'Pass',
           style: 'destructive',
           onPress: () => {
-            const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-            if (!currentPlayer) {
-              console.error('No current player found');
-              return;
-            }
-
             // CRITICAL FIX: Immediately hide cards before passing
             setIsPlayerReady(false);
             
-            passCard(currentPlayer.id);
+            passRound();
             setSelectedCard(null);
             
             const allPassed = checkIfAllPlayersPassed();
@@ -159,8 +137,8 @@ export default function GameScreen() {
               setRoundWinner(winner);
               setShowWinnerModal(true);
             } else {
-              const nextPlayer = gameState.players[gameState.currentPlayerIndex]?.name || 'Next Player';
-              preparePassPhone(nextPlayer);
+              const nextPlayer = players[currentPlayerIndex]?.name || 'Next Player';
+              showPassPhonePrompt(nextPlayer);
             }
           },
         },
@@ -192,16 +170,10 @@ export default function GameScreen() {
       return;
     }
 
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    if (!currentPlayer) {
-      console.error('No current player found');
-      return;
-    }
-
     const targetPlayer = direction === 'previous' ? getPreviousPlayer() : getNextPlayer();
     
     if (targetPlayer) {
-      exchangeCard(currentPlayer.id, selectedCard, direction);
+      exchangeCard(selectedCard, targetPlayer.id);
       setSelectedCard(null);
       Alert.alert('Card Exchanged', `You exchanged a card with ${targetPlayer.name}`);
     }
@@ -210,31 +182,31 @@ export default function GameScreen() {
   const handleAwardPoint = (playerId: string) => {
     awardPoint(playerId);
     setShowWinnerModal(false);
-    nextRound(playerId);
+    nextRound();
     
-    const nextPlayer = gameState.players[gameState.currentPlayerIndex]?.name || 'Next Player';
-    preparePassPhone(nextPlayer);
+    const nextPlayer = players[currentPlayerIndex]?.name || 'Next Player';
+    showPassPhonePrompt(nextPlayer);
   };
 
   const handlePlayAgain = () => {
     setShowWinnerModal(false);
     nextRound();
     
-    const nextPlayer = gameState.players[gameState.currentPlayerIndex]?.name || 'Next Player';
-    preparePassPhone(nextPlayer);
+    const nextPlayer = players[currentPlayerIndex]?.name || 'Next Player';
+    showPassPhonePrompt(nextPlayer);
   };
 
   const getPreviousPlayer = () => {
-    const prevIndex = gameState.currentPlayerIndex === 0 ? gameState.players.length - 1 : gameState.currentPlayerIndex - 1;
-    return gameState.players[prevIndex];
+    const prevIndex = currentPlayerIndex === 0 ? players.length - 1 : currentPlayerIndex - 1;
+    return players[prevIndex];
   };
 
   const getNextPlayer = () => {
-    const nextIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
-    return gameState.players[nextIndex];
+    const nextIndex = (currentPlayerIndex + 1) % players.length;
+    return players[nextIndex];
   };
 
-  const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+  const currentPlayer = players[currentPlayerIndex];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -263,36 +235,36 @@ export default function GameScreen() {
             {currentPlayer?.name || 'Player'}
           </Text>
           <Text style={[styles.playerPoints, { color: colors.text }]}>
-            Points: {currentPlayer?.score || 0}
+            Points: {currentPlayer?.points || 0}
           </Text>
         </View>
 
         {/* Scenario Card */}
-        {gameState.currentScenario && (
+        {currentScenario && (
           <View style={styles.scenarioContainer}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Current Scenario</Text>
             <GameCard
-              text={gameState.currentScenario.text}
+              text={currentScenario.text}
               type="scenario"
             />
           </View>
         )}
 
         {/* Played Cards */}
-        {gameState.playedCards.length > 0 && (
+        {playedCards.length > 0 && (
           <View style={styles.playedCardsContainer}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Played Cards ({gameState.playedCards.filter(pc => pc.card.text !== 'PASSED').length})
+              Played Cards ({playedCards.length})
             </Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.playedCardsScroll}
             >
-              {gameState.playedCards.filter(pc => pc.card.text !== 'PASSED').map((pc) => {
-                const player = gameState.players.find((p) => p.id === pc.playerId);
+              {playedCards.map((pc) => {
+                const player = players.find((p) => p.id === pc.playerId);
                 return (
-                  <View key={`${pc.playerId}-${pc.card.id}`} style={styles.playedCardWrapper}>
+                  <View key={pc.card.id} style={styles.playedCardWrapper}>
                     <Text style={[styles.playedCardPlayer, { color: colors.textSecondary }]}>
                       {player?.name || 'Unknown'}
                     </Text>
@@ -397,11 +369,11 @@ export default function GameScreen() {
             </Text>
             
             <View style={styles.winnerVoteContainer}>
-              {gameState.playedCards.filter(pc => pc.card.text !== 'PASSED').map((pc) => {
-                const player = gameState.players.find((p) => p.id === pc.playerId);
+              {playedCards.map((pc) => {
+                const player = players.find((p) => p.id === pc.playerId);
                 return (
                   <TouchableOpacity
-                    key={`${pc.playerId}-${pc.card.id}`}
+                    key={pc.card.id}
                     style={[styles.winnerVoteButton, { backgroundColor: colors.background, borderColor: colors.cardBorder }]}
                     onPress={() => handleAwardPoint(pc.playerId)}
                   >
