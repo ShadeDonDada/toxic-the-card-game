@@ -58,7 +58,7 @@ export default function GameScreen() {
     scrollViewRef.current?.scrollTo({ y: 0, animated: true });
   };
 
-  const showPassPhonePrompt = (nextPlayer: string) => {
+  const preparePassPhone = (nextPlayer: string) => {
     setIsPlayerReady(false);
     setNextPlayerName(nextPlayer);
     setShowPassPhonePrompt(true);
@@ -110,7 +110,7 @@ export default function GameScreen() {
       setShowWinnerModal(true);
     } else {
       const nextPlayer = players[currentPlayerIndex]?.name || 'Next Player';
-      showPassPhonePrompt(nextPlayer);
+      preparePassPhone(nextPlayer);
     }
   };
 
@@ -138,7 +138,7 @@ export default function GameScreen() {
               setShowWinnerModal(true);
             } else {
               const nextPlayer = players[currentPlayerIndex]?.name || 'Next Player';
-              showPassPhonePrompt(nextPlayer);
+              preparePassPhone(nextPlayer);
             }
           },
         },
@@ -185,7 +185,7 @@ export default function GameScreen() {
     nextRound();
     
     const nextPlayer = players[currentPlayerIndex]?.name || 'Next Player';
-    showPassPhonePrompt(nextPlayer);
+    preparePassPhone(nextPlayer);
   };
 
   const handlePlayAgain = () => {
@@ -193,7 +193,7 @@ export default function GameScreen() {
     nextRound();
     
     const nextPlayer = players[currentPlayerIndex]?.name || 'Next Player';
-    showPassPhonePrompt(nextPlayer);
+    preparePassPhone(nextPlayer);
   };
 
   const getPreviousPlayer = () => {

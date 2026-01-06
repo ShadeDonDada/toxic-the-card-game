@@ -1,58 +1,42 @@
+
 {
   "expo": {
-    "name": "Toxic - The Card Game",
-    "slug": "Toxic - The Card Game",
-    "version": "1.1.0",
+    "name": "Natively",
+    "slug": "Natively",
+    "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/37a4463c-0dea-4f5f-9b33-cea6e0e6fe48.png",
+    "icon": "./assets/images/natively-dark.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/461262ab-c67c-4edb-83cc-0d620afaa105.png",
-      "resizeMode": "cover",
+      "image": "./assets/images/natively-dark.png",
+      "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.Natively",
-      "requireFullScreen": true,
-      "icon": "./assets/images/69c73f5f-fc7b-4e3f-8595-49a637e13736.png",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "UIViewControllerBasedStatusBarAppearance": false,
-        "UIStatusBarHidden": true
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/5458815b-3a9c-4d98-a205-ba7b8b0259ba.png",
+        "foregroundImage": "./assets/images/natively-dark.png",
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.StevenAndrePennant.ToxicTheCardGame",
-      "statusBar": {
-        "hidden": true,
-        "translucent": true
-      }
+      "package": "com.anonymous.Natively"
     },
     "web": {
-      "favicon": "./assets/images/2887ca82-5f60-49fd-a5cd-8492bf7f98e9.png",
+      "favicon": "./assets/images/final_quest_240x240.png",
       "bundler": "metro"
     },
     "plugins": [
       "expo-font",
       "expo-router",
-      "expo-web-browser",
-      [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#000000",
-          "image": "./assets/images/461262ab-c67c-4edb-83cc-0d620afaa105.png",
-          "resizeMode": "cover"
-        }
-      ]
+      "expo-web-browser"
     ],
-    "scheme": "natively",
     "experiments": {
       "typedRoutes": true
     },
@@ -60,5 +44,5 @@
       "router": {}
     }
   },
-  "scheme": "Toxic - The Card Game"
+  "scheme": "natively"
 }
