@@ -11,6 +11,7 @@ interface PlayerHandProps {
   selectedCardId?: string;
   disabled?: boolean;
   onCustomTextChange?: (cardId: string, text: string) => void;
+  showBlankCards?: boolean;
 }
 
 export function PlayerHand({ 
@@ -18,7 +19,8 @@ export function PlayerHand({
   onCardPress, 
   selectedCardId, 
   disabled,
-  onCustomTextChange 
+  onCustomTextChange,
+  showBlankCards = false
 }: PlayerHandProps) {
   const colorScheme = useColorScheme();
   const colors = getColors(colorScheme);
@@ -46,6 +48,7 @@ export function PlayerHand({
                   onCustomTextChange(card.id, text);
                 }
               }}
+              showBlank={showBlankCards}
             />
           </View>
         ))}

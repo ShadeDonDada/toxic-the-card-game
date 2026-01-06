@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, useColorScheme, Image } from 'react-native';
 import { getColors } from '@/styles/commonStyles';
 
 interface GameCardProps {
@@ -12,6 +12,7 @@ interface GameCardProps {
   isCustom?: boolean;
   customText?: string;
   onCustomTextChange?: (text: string) => void;
+  showBlank?: boolean;
 }
 
 export function GameCard({ 
@@ -22,7 +23,8 @@ export function GameCard({
   disabled, 
   isCustom,
   customText,
-  onCustomTextChange 
+  onCustomTextChange,
+  showBlank = false
 }: GameCardProps) {
   const colorScheme = useColorScheme();
   const colors = getColors(colorScheme);
@@ -37,10 +39,31 @@ export function GameCard({
   };
 
   const handleCardPress = () => {
-    if (onPress && !disabled) {
+    if (onPress && !disabled && !showBlank) {
       onPress();
     }
   };
+  
+  if (showBlank && !isScenario) {
+    return (
+      <View
+        style={[
+          styles.card,
+          styles.blankCard,
+          { 
+            backgroundColor: colors.card,
+            borderColor: colors.cardBorder
+          },
+        ]}
+      >
+        <Image
+          source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
+          style={styles.blankCardLogo}
+          resizeMode="contain"
+        />
+      </View>
+    );
+  }
   
   return (
     <TouchableOpacity
@@ -98,6 +121,16 @@ const styles = StyleSheet.create({
     boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
     elevation: 5,
     borderWidth: 3,
+  },
+  blankCard: {
+    backgroundColor: '#1a1a1a',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  blankCardLogo: {
+    width: 120,
+    height: 60,
+    opacity: 0.3,
   },
   scenarioCard: {
     paddingTop: 40,

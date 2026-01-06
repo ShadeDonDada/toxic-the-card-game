@@ -547,6 +547,7 @@ export default function GameScreen() {
                     onCardPress={handleCardSelect}
                     selectedCardId={selectedCardId}
                     onCustomTextChange={handleCustomTextChange}
+                    showBlankCards={!isPlayerReady}
                   />
 
                   <View style={styles.actionsContainer}>
