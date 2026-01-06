@@ -80,8 +80,6 @@ export default function GameScreen() {
   const showPassPhonePrompt = (nextPlayer: string) => {
     setNextPlayerName(nextPlayer);
     setShowPassPhoneModal(true);
-    // Reset ready state when passing phone
-    setIsPlayerReady(false);
   };
 
   const handleReadyPress = () => {
@@ -142,6 +140,10 @@ export default function GameScreen() {
         ? gameState.players.length - 1 
         : gameState.currentPlayerIndex - 1;
       const nextPlayer = gameState.players[nextPlayerIndex];
+      
+      // CRITICAL FIX: Reset isPlayerReady BEFORE showing the pass phone prompt
+      // This ensures cards are immediately hidden when transitioning to next player
+      setIsPlayerReady(false);
       
       setTimeout(() => {
         showPassPhonePrompt(nextPlayer.name);
@@ -210,6 +212,9 @@ export default function GameScreen() {
                               scrollToTop();
                             }, 100);
 
+                            // CRITICAL FIX: Reset isPlayerReady BEFORE showing the pass phone prompt
+                            setIsPlayerReady(false);
+
                             setTimeout(() => {
                               showPassPhonePrompt(nextPlayer.name);
                             }, 200);
@@ -225,6 +230,9 @@ export default function GameScreen() {
                 }, 200);
               }
             } else {
+              // CRITICAL FIX: Reset isPlayerReady BEFORE showing the pass phone prompt
+              setIsPlayerReady(false);
+              
               setTimeout(() => {
                 showPassPhonePrompt(nextPlayer.name);
               }, 200);
@@ -325,6 +333,9 @@ export default function GameScreen() {
           scrollToTop();
         }, 100);
 
+        // CRITICAL FIX: Reset isPlayerReady BEFORE showing the pass phone prompt
+        setIsPlayerReady(false);
+
         setTimeout(() => {
           showPassPhonePrompt(player.name);
         }, 200);
@@ -337,6 +348,9 @@ export default function GameScreen() {
     setShowGameOverModal(false);
     
     restartGameWithSamePlayers();
+    
+    // Reset isPlayerReady when starting a new game
+    setIsPlayerReady(false);
     
     setTimeout(() => {
       scrollToTop();
