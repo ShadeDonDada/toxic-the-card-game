@@ -50,10 +50,13 @@ export default function GameScreen() {
   const [nextPlayerName, setNextPlayerName] = useState('');
   const [showPointSelection, setShowPointSelection] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
+  // Initialize to false - cards will be blank until player presses ready
   const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   useEffect(() => {
     initializeGame(playerCount, playerNames);
+    // Ensure isPlayerReady is false when game initializes
+    setIsPlayerReady(false);
   }, [playerCount, initializeGame]);
 
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
@@ -77,6 +80,7 @@ export default function GameScreen() {
   const showPassPhonePrompt = (nextPlayer: string) => {
     setNextPlayerName(nextPlayer);
     setShowPassPhoneModal(true);
+    // Reset ready state when passing phone
     setIsPlayerReady(false);
   };
 

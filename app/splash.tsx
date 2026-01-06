@@ -34,7 +34,7 @@ export default function SplashScreenComponent() {
         />
       </View>
       <View style={styles.footer}>
-        <Text style={[styles.copyright, { color: textColor }]}>© 2025 Steven A. Pennant. All rights reserved.</Text>
+        <Text style={[styles.copyright, { color: textColor }]}>© 2026 Steven A. Pennant. All rights reserved.</Text>
       </View>
     </View>
   );
