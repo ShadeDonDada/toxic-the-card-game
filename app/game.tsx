@@ -132,6 +132,8 @@ export default function GameScreen() {
     const willBeRoundComplete = gameState.playedCards.length + 1 === gameState.players.length;
     
     if (willBeRoundComplete) {
+      // CRITICAL: Reset isPlayerReady when entering award points phase
+      setIsPlayerReady(false);
       setTimeout(() => {
         setShowPointSelection(true);
       }, 200);
@@ -225,6 +227,8 @@ export default function GameScreen() {
                   }
                 }, 200);
               } else {
+                // CRITICAL: Reset isPlayerReady when entering award points phase
+                setIsPlayerReady(false);
                 setTimeout(() => {
                   setShowPointSelection(true);
                 }, 200);
@@ -413,9 +417,11 @@ export default function GameScreen() {
         
         <View style={styles.headerInfo}>
           <Text style={[styles.roundText, { color: colors.textSecondary }]}>Round {gameState.round}</Text>
-          <Text style={[styles.playerTurnText, { color: colors.primary }]}>
-            {currentPlayer.name}&apos;s Turn
-          </Text>
+          {!showPointSelection && (
+            <Text style={[styles.playerTurnText, { color: colors.primary }]}>
+              {currentPlayer.name}&apos;s Turn
+            </Text>
+          )}
         </View>
       </View>
 
@@ -431,19 +437,25 @@ export default function GameScreen() {
             </View>
             
             <Text style={[styles.readyTitle, { color: colors.primary }]}>
-              {currentPlayer.name}&apos;s Turn
+              {showPointSelection ? 'Award Points' : `${currentPlayer.name}'s Turn`}
             </Text>
             
             <Text style={[styles.readyMessage, { color: colors.textSecondary }]}>
-              Make sure other players aren&apos;t looking at the screen.
+              {showPointSelection 
+                ? 'All players have responded! Get ready to review the cards and award a point.'
+                : 'Make sure other players aren\'t looking at the screen.'
+              }
             </Text>
             
             <Text style={[styles.readySubMessage, { color: colors.text }]}>
-              Press the button below when you&apos;re ready to view your cards.
+              {showPointSelection
+                ? 'Press the button below when you\'re ready to see all played cards.'
+                : 'Press the button below when you\'re ready to view your cards.'
+              }
             </Text>
             
             <Button
-              title="I'm Ready - Show My Cards"
+              title={showPointSelection ? "I'm Ready - Show All Cards" : "I'm Ready - Show My Cards"}
               onPress={() => setIsPlayerReady(true)}
               variant="primary"
               style={styles.readyButton}
