@@ -52,7 +52,7 @@ export default function HomeScreen() {
         withTiming(0, { duration: 500 })
       );
     }
-  }, [imageLoaded, scale, opacity, glowOpacity]);
+  }, [imageLoaded]);
 
   const animatedLogoStyle = useAnimatedStyle(() => {
     return {

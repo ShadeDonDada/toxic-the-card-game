@@ -9,7 +9,6 @@ import { GameCard } from '@/components/GameCard';
 import { PlayerHand } from '@/components/PlayerHand';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
-import { AdManager } from '@/components/AdManager';
 
 export default function GameScreen() {
   const router = useRouter();
@@ -387,9 +386,6 @@ export default function GameScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* AdManager component - shows ads at round endings for free users only */}
-      <AdManager roundNumber={gameState.round} onRoundEnd={() => console.log('Round ended')} />
-      
       <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.primary }]}>
         <TouchableOpacity
           style={styles.backButton}
