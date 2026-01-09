@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+import { usePurchase } from '@/contexts/PurchaseContext';
 import { getColors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -10,6 +11,7 @@ import { IconSymbol } from '@/components/IconSymbol';
 export default function SettingsScreen() {
   const router = useRouter();
   const { themeMode, setThemeMode, effectiveColorScheme } = useTheme();
+  const { isPremium, isLoading, purchaseFullVersion, restorePurchase } = usePurchase();
   const colors = getColors(effectiveColorScheme);
 
   const themeOptions: Array<{ value: 'light' | 'dark' | 'system'; label: string; icon: string; androidIcon: string }> = [
@@ -34,6 +36,62 @@ export default function SettingsScreen() {
           <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
         </View>
 
+        {/* Premium Status Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Premium Status</Text>
+          
+          {isPremium ? (
+            <View style={[styles.premiumCard, { backgroundColor: colors.card, borderColor: colors.accent }]}>
+              <IconSymbol
+                ios_icon_name="checkmark.seal.fill"
+                android_material_icon_name="check-circle"
+                size={48}
+                color={colors.accent}
+              />
+              <Text style={[styles.premiumTitle, { color: colors.accent }]}>Premium Unlocked! 🎉</Text>
+              <Text style={[styles.premiumDescription, { color: colors.textSecondary }]}>
+                You have full access to all scenarios and response cards. Thank you for your support!
+              </Text>
+            </View>
+          ) : (
+            <View style={[styles.premiumCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+              <IconSymbol
+                ios_icon_name="lock.fill"
+                android_material_icon_name="lock"
+                size={48}
+                color={colors.primary}
+              />
+              <Text style={[styles.premiumTitle, { color: colors.primary }]}>Free Demo Mode</Text>
+              <Text style={[styles.premiumDescription, { color: colors.textSecondary }]}>
+                You&apos;re currently playing with limited scenarios (3) and response cards (3). Unlock the full game to access all content!
+              </Text>
+              
+              <View style={styles.purchaseButtonsContainer}>
+                <Button
+                  title={isLoading ? "Processing..." : "Buy Full Version – $4.99"}
+                  onPress={purchaseFullVersion}
+                  variant="primary"
+                  disabled={isLoading}
+                  style={styles.purchaseButton}
+                />
+                
+                <Button
+                  title={isLoading ? "Restoring..." : "Restore Purchase"}
+                  onPress={restorePurchase}
+                  variant="secondary"
+                  disabled={isLoading}
+                  style={styles.purchaseButton}
+                />
+              </View>
+              
+              {isLoading && (
+                <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+              )}
+            </View>
+          )}
+        </View>
+
+        {/* Appearance Section */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Appearance</Text>
           <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
@@ -78,8 +136,8 @@ export default function SettingsScreen() {
                 </View>
                 {themeMode === option.value && (
                   <IconSymbol
-                    ios_icon_name="lightbulb.fill"
-                    android_material_icon_name="lightbulb"
+                    ios_icon_name="checkmark.circle.fill"
+                    android_material_icon_name="check-circle"
                     size={24}
                     color={colors.primary}
                   />
@@ -146,6 +204,38 @@ const styles = StyleSheet.create({
   sectionDescription: {
     fontSize: 14,
     marginBottom: 20,
+  },
+  premiumCard: {
+    padding: 24,
+    borderRadius: 16,
+    borderWidth: 3,
+    alignItems: 'center',
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.15)',
+    elevation: 4,
+  },
+  premiumTitle: {
+    fontSize: 24,
+    fontWeight: '900',
+    marginTop: 16,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  premiumDescription: {
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  purchaseButtonsContainer: {
+    width: '100%',
+    gap: 12,
+    marginTop: 8,
+  },
+  purchaseButton: {
+    width: '100%',
+  },
+  loader: {
+    marginTop: 16,
   },
   optionsContainer: {
     gap: 12,

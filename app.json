@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "Toxic - The Card Game",
@@ -20,7 +21,12 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIViewControllerBasedStatusBarAppearance": false,
-        "UIStatusBarHidden": true
+        "UIStatusBarHidden": true,
+        "SKAdNetworkItems": [
+          {
+            "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork"
+          }
+        ]
       }
     },
     "android": {
@@ -33,7 +39,10 @@
       "statusBar": {
         "hidden": true,
         "translucent": true
-      }
+      },
+      "permissions": [
+        "com.android.vending.BILLING"
+      ]
     },
     "web": {
       "favicon": "./assets/images/2887ca82-5f60-49fd-a5cd-8492bf7f98e9.png",
@@ -49,6 +58,13 @@
           "backgroundColor": "#000000",
           "image": "./assets/images/461262ab-c67c-4edb-83cc-0d620afaa105.png",
           "resizeMode": "cover"
+        }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511"
         }
       ]
     ],
