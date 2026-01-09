@@ -29,7 +29,7 @@ export function useGameState() {
     return shuffled;
   };
 
-  const dealCardsToPlayers = (playerCount: number, playerNames: string[] = []) => {
+  const dealCardsToPlayers = useCallback((playerCount: number, playerNames: string[] = []) => {
     console.log('Dealing cards to', playerCount, 'players');
     
     // Apply demo mode limits to response cards
@@ -96,7 +96,7 @@ export function useGameState() {
     console.log('Remaining cards in deck:', remainingDeck.length);
     
     return { players, remainingDeck };
-  };
+  }, [limitResponseCards]);
 
   const initializeGame = useCallback((playerCount: number, playerNames: string[] = []) => {
     console.log('Initializing game with', playerCount, 'players');
@@ -120,7 +120,7 @@ export function useGameState() {
       roundComplete: false,
       gameComplete: false,
     });
-  }, [limitScenarios, limitResponseCards]);
+  }, [limitScenarios, dealCardsToPlayers]);
 
   const updateCustomText = useCallback((playerId: string, cardId: string, customText: string) => {
     console.log('Updating custom text for player', playerId, 'card', cardId);
@@ -434,7 +434,7 @@ export function useGameState() {
         gameComplete: false,
       };
     });
-  }, [limitScenarios]);
+  }, [limitScenarios, dealCardsToPlayers]);
 
   return {
     gameState,

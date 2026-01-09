@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { usePurchase } from '@/contexts/PurchaseContext';
+// eslint-disable-next-line import/no-unresolved
 import {
   InterstitialAd,
   AdEventType,

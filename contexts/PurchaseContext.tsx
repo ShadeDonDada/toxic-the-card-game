@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { Platform, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as StoreReview from 'expo-store-review';
@@ -26,17 +26,35 @@ export const PurchaseProvider = ({ children }: { children: ReactNode }) => {
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    initializeIAP();
-    loadPremiumStatus();
-
-    return () => {
-      // Clean up IAP connection
-      IAP.endConnection();
-    };
+  const savePremiumStatus = useCallback(async (status: boolean) => {
+    try {
+      await AsyncStorage.setItem(PREMIUM_KEY, status.toString());
+      setIsPremium(status);
+    } catch (error) {
+      console.error('Error saving premium status:', error);
+    }
   }, []);
 
-  const initializeIAP = async () => {
+  const checkExistingPurchases = useCallback(async () => {
+    try {
+      console.log('Checking for existing purchases...');
+      const purchases = await IAP.getAvailablePurchases();
+      console.log('Available purchases:', purchases);
+      
+      const hasPurchased = purchases.some(
+        (purchase) => purchase.productId === PRODUCT_ID
+      );
+      
+      if (hasPurchased) {
+        console.log('Found existing purchase, restoring premium status');
+        await savePremiumStatus(true);
+      }
+    } catch (error) {
+      console.error('Error checking existing purchases:', error);
+    }
+  }, [savePremiumStatus]);
+
+  const initializeIAP = useCallback(async () => {
     try {
       console.log('Initializing IAP connection...');
       await IAP.initConnection();
@@ -95,9 +113,9 @@ export const PurchaseProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Error initializing IAP:', error);
     }
-  };
+  }, [savePremiumStatus]);
 
-  const loadPremiumStatus = async () => {
+  const loadPremiumStatus = useCallback(async () => {
     try {
       const status = await AsyncStorage.getItem(PREMIUM_KEY);
       setIsPremium(status === 'true');
@@ -111,35 +129,17 @@ export const PurchaseProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [checkExistingPurchases]);
 
-  const checkExistingPurchases = async () => {
-    try {
-      console.log('Checking for existing purchases...');
-      const purchases = await IAP.getAvailablePurchases();
-      console.log('Available purchases:', purchases);
-      
-      const hasPurchased = purchases.some(
-        (purchase) => purchase.productId === PRODUCT_ID
-      );
-      
-      if (hasPurchased) {
-        console.log('Found existing purchase, restoring premium status');
-        await savePremiumStatus(true);
-      }
-    } catch (error) {
-      console.error('Error checking existing purchases:', error);
-    }
-  };
+  useEffect(() => {
+    initializeIAP();
+    loadPremiumStatus();
 
-  const savePremiumStatus = async (status: boolean) => {
-    try {
-      await AsyncStorage.setItem(PREMIUM_KEY, status.toString());
-      setIsPremium(status);
-    } catch (error) {
-      console.error('Error saving premium status:', error);
-    }
-  };
+    return () => {
+      // Clean up IAP connection
+      IAP.endConnection();
+    };
+  }, [initializeIAP, loadPremiumStatus]);
 
   const purchaseFullVersion = async () => {
     try {
