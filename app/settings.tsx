@@ -1,9 +1,8 @@
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
-import { usePurchase } from '@/contexts/PurchaseContext';
 import { getColors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -11,63 +10,13 @@ import { IconSymbol } from '@/components/IconSymbol';
 export default function SettingsScreen() {
   const router = useRouter();
   const { themeMode, setThemeMode, effectiveColorScheme } = useTheme();
-  const { isPremium, purchaseFullVersion, restorePurchases } = usePurchase();
   const colors = getColors(effectiveColorScheme);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   const themeOptions: Array<{ value: 'light' | 'dark' | 'system'; label: string; icon: string; androidIcon: string }> = [
     { value: 'light', label: 'Light Mode', icon: 'lightbulb.fill', androidIcon: 'lightbulb' },
     { value: 'dark', label: 'Dark Mode', icon: 'moon.fill', androidIcon: 'nightlight' },
     { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
   ];
-
-  const handlePurchase = async () => {
-    if (isProcessing) return;
-    
-    setIsProcessing(true);
-    try {
-      await purchaseFullVersion();
-      Alert.alert(
-        'Success!',
-        'Thank you for upgrading to the full version! All features are now unlocked.',
-        [{ text: 'OK' }]
-      );
-    } catch (error: any) {
-      if (error.message !== 'User cancelled') {
-        Alert.alert(
-          'Purchase Failed',
-          'Unable to complete purchase. Please try again.',
-          [{ text: 'OK' }]
-        );
-      }
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleRestore = async () => {
-    if (isProcessing) return;
-    
-    setIsProcessing(true);
-    try {
-      await restorePurchases();
-      Alert.alert(
-        'Restore Complete',
-        isPremium 
-          ? 'Your purchase has been restored successfully!' 
-          : 'No previous purchases found.',
-        [{ text: 'OK' }]
-      );
-    } catch (error) {
-      Alert.alert(
-        'Restore Failed',
-        'Unable to restore purchases. Please try again.',
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -85,92 +34,6 @@ export default function SettingsScreen() {
           <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
         </View>
 
-        {/* Premium Status Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Premium Status</Text>
-          <View style={[
-            styles.premiumCard,
-            { 
-              backgroundColor: isPremium ? colors.primary : colors.card,
-              borderColor: isPremium ? colors.primary : colors.cardBorder,
-            }
-          ]}>
-            <IconSymbol
-              ios_icon_name={isPremium ? 'checkmark.seal.fill' : 'lock.fill'}
-              android_material_icon_name={isPremium ? 'verified' : 'lock'}
-              size={40}
-              color={isPremium ? '#ffffff' : colors.text}
-            />
-            <Text style={[
-              styles.premiumText,
-              { color: isPremium ? '#ffffff' : colors.text }
-            ]}>
-              {isPremium ? 'Full Version Unlocked' : 'Demo Mode'}
-            </Text>
-            {!isPremium && (
-              <Text style={[styles.premiumSubtext, { color: colors.textSecondary }]}>
-                Limited to 3 scenarios and 3 response cards
-              </Text>
-            )}
-          </View>
-
-          {!isPremium && (
-            <>
-              <Button
-                title="Buy Full Version – $5"
-                onPress={handlePurchase}
-                variant="primary"
-                disabled={isProcessing}
-                style={styles.purchaseButton}
-              />
-              <View style={styles.featuresContainer}>
-                <View style={styles.featureItem}>
-                  <IconSymbol
-                    ios_icon_name="checkmark.circle.fill"
-                    android_material_icon_name="check-circle"
-                    size={20}
-                    color={colors.primary}
-                  />
-                  <Text style={[styles.featureText, { color: colors.text }]}>
-                    Unlimited scenarios
-                  </Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <IconSymbol
-                    ios_icon_name="checkmark.circle.fill"
-                    android_material_icon_name="check-circle"
-                    size={20}
-                    color={colors.primary}
-                  />
-                  <Text style={[styles.featureText, { color: colors.text }]}>
-                    Unlimited response cards
-                  </Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <IconSymbol
-                    ios_icon_name="checkmark.circle.fill"
-                    android_material_icon_name="check-circle"
-                    size={20}
-                    color={colors.primary}
-                  />
-                  <Text style={[styles.featureText, { color: colors.text }]}>
-                    No ads
-                  </Text>
-                </View>
-              </View>
-            </>
-          )}
-
-          <Button
-            title="Restore Purchase"
-            onPress={handleRestore}
-            variant="secondary"
-            disabled={isProcessing}
-            style={styles.restoreButton}
-          />
-        </View>
-
-        {/* Appearance Section */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Appearance</Text>
           <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
@@ -215,8 +78,8 @@ export default function SettingsScreen() {
                 </View>
                 {themeMode === option.value && (
                   <IconSymbol
-                    ios_icon_name="checkmark.circle.fill"
-                    android_material_icon_name="check-circle"
+                    ios_icon_name="lightbulb.fill"
+                    android_material_icon_name="lightbulb"
                     size={24}
                     color={colors.primary}
                   />
@@ -234,7 +97,7 @@ export default function SettingsScreen() {
             color={colors.accent}
           />
           <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            Your preferences will be saved and applied across the app
+            Your theme preference will be saved and applied across the app
           </Text>
         </View>
       </ScrollView>
@@ -283,43 +146,6 @@ const styles = StyleSheet.create({
   sectionDescription: {
     fontSize: 14,
     marginBottom: 20,
-  },
-  premiumCard: {
-    padding: 20,
-    borderRadius: 12,
-    borderWidth: 2,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  premiumText: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginTop: 12,
-  },
-  premiumSubtext: {
-    fontSize: 14,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  purchaseButton: {
-    width: '100%',
-    marginBottom: 16,
-  },
-  restoreButton: {
-    width: '100%',
-  },
-  featuresContainer: {
-    marginBottom: 16,
-    gap: 8,
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  featureText: {
-    fontSize: 14,
-    fontWeight: '600',
   },
   optionsContainer: {
     gap: 12,

@@ -1,83 +1,103 @@
 
-import React, { useEffect } from 'react';
-import { usePurchase } from '@/contexts/PurchaseContext';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Modal, ActivityIndicator } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 
 interface AdInterstitialProps {
-  onAdClosed?: () => void;
-  roundNumber: number;
+  visible: boolean;
+  onAdComplete: () => void;
 }
 
-/**
- * AdInterstitial Component
- * 
- * Shows interstitial ads at round endings for free users only.
- * Never shows ads:
- * - Before the first round (roundNumber === 0)
- * - After premium purchase (isPremium === true)
- * - During gameplay, card selection, menus, or onboarding
- * 
- * TODO: Backend Integration - Configure AdMob in your app.json:
- * {
- *   "expo": {
- *     "plugins": [
- *       [
- *         "expo-ads-admob",
- *         {
- *           "androidAppId": "ca-app-pub-xxxxx~xxxxx",
- *           "iosAppId": "ca-app-pub-xxxxx~xxxxx"
- *         }
- *       ]
- *     ]
- *   }
- * }
- * 
- * Then install: npx expo install expo-ads-admob
- * And implement AdMob interstitial ads here.
- */
-export function AdInterstitial({ onAdClosed, roundNumber }: AdInterstitialProps) {
-  const { isPremium } = usePurchase();
+export function AdInterstitial({ visible, onAdComplete }: AdInterstitialProps) {
+  const theme = useTheme();
+  const [countdown, setCountdown] = useState(30);
 
   useEffect(() => {
-    // Never show ads if premium or before first round
-    if (isPremium || roundNumber === 0) {
-      onAdClosed?.();
+    if (!visible) {
+      setCountdown(30);
       return;
     }
 
-    // TODO: Backend Integration - Implement AdMob interstitial ad loading and display
-    // Example implementation:
-    // 
-    // import { AdMobInterstitial } from 'expo-ads-admob';
-    // 
-    // const loadAndShowAd = async () => {
-    //   try {
-    //     await AdMobInterstitial.setAdUnitID('ca-app-pub-xxxxx/xxxxx');
-    //     
-    //     AdMobInterstitial.addEventListener('interstitialDidLoad', () => {
-    //       AdMobInterstitial.showAdAsync();
-    //     });
-    //
-    //     AdMobInterstitial.addEventListener('interstitialDidClose', () => {
-    //       onAdClosed?.();
-    //     });
-    //
-    //     AdMobInterstitial.addEventListener('interstitialDidFailToLoad', () => {
-    //       onAdClosed?.(); // Continue even if ad fails
-    //     });
-    //
-    //     await AdMobInterstitial.requestAdAsync();
-    //   } catch (error) {
-    //     console.error('Ad error:', error);
-    //     onAdClosed?.(); // Continue game if ad fails
-    //   }
-    // };
-    // 
-    // loadAndShowAd();
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setTimeout(() => {
+            onAdComplete();
+          }, 500);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-    // For now, just continue without showing ad
-    console.log('Ad would show here for round', roundNumber);
-    onAdClosed?.();
-  }, [isPremium, roundNumber, onAdClosed]);
+    return () => clearInterval(timer);
+  }, [visible, onAdComplete]);
 
-  return null; // No UI component - ads are shown natively
+  return (
+    <Modal visible={visible} animationType="fade" transparent={false}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.content}>
+          <ActivityIndicator size="large" color={theme.colors.primary} style={styles.spinner} />
+          <Text style={[styles.title, { color: theme.colors.text }]}>Advertisement</Text>
+          <Text style={[styles.subtitle, { color: theme.dark ? '#98989D' : '#666' }]}>
+            Please wait while we show you a message from our sponsors
+          </Text>
+          <View style={[styles.countdownContainer, { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
+            <Text style={[styles.countdownText, { color: theme.colors.text }]}>
+              {countdown}s
+            </Text>
+          </View>
+          <Text style={[styles.info, { color: theme.dark ? '#98989D' : '#666' }]}>
+            Upgrade to remove ads and unlock unlimited gameplay
+          </Text>
+        </View>
+      </View>
+    </Modal>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  content: {
+    alignItems: 'center',
+    maxWidth: 400,
+  },
+  spinner: {
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  countdownContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  countdownText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  info: {
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+});

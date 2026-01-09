@@ -1,29 +1,141 @@
 
-import { Stack } from 'expo-router';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { PurchaseProvider } from '@/contexts/PurchaseContext';
-import React from 'react';
+import "react-native-reanimated";
+import React, { useEffect, useState } from "react";
+import { useFonts } from "expo-font";
+import { Stack, router } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { SystemBars } from "react-native-edge-to-edge";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Alert } from "react-native";
+import { useNetworkState } from "expo-network";
+import {
+  DarkTheme,
+  DefaultTheme,
+  Theme,
+  ThemeProvider as NavigationThemeProvider,
+} from "@react-navigation/native";
+import { StatusBar } from "expo-status-bar";
+import { WidgetProvider } from "@/contexts/WidgetContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+
+SplashScreen.preventAutoHideAsync();
+
+export const unstable_settings = {
+  initialRouteName: "splash",
+};
 
 export default function RootLayout() {
+  const networkState = useNetworkState();
+  const [loaded] = useFonts({
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+  });
+
+  useEffect(() => {
+    if (loaded) {
+      // Don't hide splash screen immediately, let the splash component handle it
+      console.log('Fonts loaded');
+    }
+  }, [loaded]);
+
+  React.useEffect(() => {
+    if (
+      !networkState.isConnected &&
+      networkState.isInternetReachable === false
+    ) {
+      Alert.alert(
+        "🔌 You are offline",
+        "You can keep using the app! Your changes will be saved locally and synced when you are back online."
+      );
+    }
+  }, [networkState.isConnected, networkState.isInternetReachable]);
+
+  if (!loaded) {
+    return null;
+  }
+
+  const CustomDefaultTheme: Theme = {
+    ...DefaultTheme,
+    dark: false,
+    colors: {
+      primary: "rgb(148, 0, 211)",
+      background: "rgb(240, 240, 240)",
+      card: "rgb(255, 255, 255)",
+      text: "rgb(51, 51, 51)",
+      border: "rgb(216, 191, 216)",
+      notification: "rgb(255, 105, 180)",
+    },
+  };
+
+  const CustomDarkTheme: Theme = {
+    ...DarkTheme,
+    colors: {
+      primary: "rgb(148, 0, 211)",
+      background: "rgb(30, 30, 30)",
+      card: "rgb(45, 45, 45)",
+      text: "rgb(227, 227, 227)",
+      border: "rgb(216, 191, 216)",
+      notification: "rgb(255, 105, 180)",
+    },
+  };
+  
   return (
-    <ThemeProvider>
-      <PurchaseProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            animation: 'fade',
-          }}
-        >
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="splash" />
-          <Stack.Screen name="game-setup" />
-          <Stack.Screen name="player-names" />
-          <Stack.Screen name="game" />
-          <Stack.Screen name="rules" />
-          <Stack.Screen name="settings" />
-          <Stack.Screen name="thank-you" />
-        </Stack>
-      </PurchaseProvider>
-    </ThemeProvider>
+    <>
+      <StatusBar hidden />
+      <ThemeProvider>
+        <NavigationThemeProvider value={CustomDarkTheme}>
+          <WidgetProvider>
+            <GestureHandlerRootView>
+            <Stack>
+              <Stack.Screen name="splash" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="game-setup"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="rules"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="thank-you"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="settings"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="game"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+              <Stack.Screen
+                name="player-names"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
+            </Stack>
+            <SystemBars style={"light"} hidden />
+            </GestureHandlerRootView>
+          </WidgetProvider>
+        </NavigationThemeProvider>
+      </ThemeProvider>
+    </>
   );
 }
