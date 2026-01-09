@@ -2,19 +2,30 @@
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { usePurchase } from '@/contexts/PurchaseContext';
-// eslint-disable-next-line import/no-unresolved
-import {
-  InterstitialAd,
-  AdEventType,
-  TestIds,
-} from 'react-native-google-mobile-ads';
+
+// Conditionally import react-native-google-mobile-ads only on native platforms
+let InterstitialAd: any;
+let AdEventType: any;
+let TestIds: any;
+
+if (Platform.OS !== 'web') {
+  try {
+    const GoogleMobileAds = require('react-native-google-mobile-ads');
+    InterstitialAd = GoogleMobileAds.InterstitialAd;
+    AdEventType = GoogleMobileAds.AdEventType;
+    TestIds = GoogleMobileAds.TestIds;
+  } catch (error) {
+    console.log('Google Mobile Ads not available:', error);
+  }
+}
 
 // AdMob Ad Unit IDs
 // TODO: Replace with your actual AdMob ad unit IDs before publishing
 const INTERSTITIAL_AD_UNIT_ID = Platform.select({
-  ios: TestIds.INTERSTITIAL, // Test ID - Replace with real ID: 'ca-app-pub-xxxxx/xxxxx'
-  android: TestIds.INTERSTITIAL, // Test ID - Replace with real ID: 'ca-app-pub-xxxxx/xxxxx'
-}) || TestIds.INTERSTITIAL;
+  ios: TestIds?.INTERSTITIAL || 'ca-app-pub-3940256099942544/4411468910', // Test ID fallback
+  android: TestIds?.INTERSTITIAL || 'ca-app-pub-3940256099942544/1033173712', // Test ID fallback
+  web: '',
+}) || '';
 
 interface AdManagerProps {
   roundNumber: number;
@@ -24,13 +35,25 @@ interface AdManagerProps {
 export const AdManager = ({ roundNumber, onRoundEnd }: AdManagerProps) => {
   const { isPremium } = usePurchase();
   const lastAdRound = useRef(0);
-  const interstitialRef = useRef<InterstitialAd | null>(null);
+  const interstitialRef = useRef<any>(null);
   const isAdLoaded = useRef(false);
 
   useEffect(() => {
+    // Ads are not supported on web
+    if (Platform.OS === 'web') {
+      console.log('Ads not supported on web platform');
+      return;
+    }
+
     // Only set up ads for free users
     if (isPremium) {
       console.log('Premium user - ads disabled');
+      return;
+    }
+
+    // Check if ads are available
+    if (!InterstitialAd || !AdEventType) {
+      console.log('Google Mobile Ads not available');
       return;
     }
 
@@ -47,7 +70,7 @@ export const AdManager = ({ roundNumber, onRoundEnd }: AdManagerProps) => {
       isAdLoaded.current = true;
     });
 
-    const errorListener = interstitial.addAdEventListener(AdEventType.ERROR, (error) => {
+    const errorListener = interstitial.addAdEventListener(AdEventType.ERROR, (error: any) => {
       console.error('Interstitial ad error:', error);
       isAdLoaded.current = false;
     });
@@ -76,6 +99,11 @@ export const AdManager = ({ roundNumber, onRoundEnd }: AdManagerProps) => {
   }, [isPremium]);
 
   useEffect(() => {
+    // Ads are not supported on web
+    if (Platform.OS === 'web') {
+      return;
+    }
+
     // Only show ads for free users
     if (isPremium) return;
     
@@ -92,6 +120,10 @@ export const AdManager = ({ roundNumber, onRoundEnd }: AdManagerProps) => {
 
   const showInterstitialAd = async () => {
     try {
+      if (Platform.OS === 'web') {
+        return;
+      }
+
       if (!interstitialRef.current) {
         console.log('No interstitial ad instance');
         return;
