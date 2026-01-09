@@ -3,17 +3,20 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+import { usePurchase } from '@/contexts/PurchaseContext';
 import { getColors } from '@/styles/commonStyles';
 import { useGameState } from '@/hooks/useGameState';
 import { GameCard } from '@/components/GameCard';
 import { PlayerHand } from '@/components/PlayerHand';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
+import { AdInterstitial } from '@/components/AdInterstitial';
 
 export default function GameScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { effectiveColorScheme } = useTheme();
+  const { isPremium, purchaseFullVersion } = usePurchase();
   const colors = getColors(effectiveColorScheme);
   const playerCount = parseInt(params.playerCount as string) || 4;
   const playerNamesParam = params.playerNames as string;
@@ -50,12 +53,12 @@ export default function GameScreen() {
   const [nextPlayerName, setNextPlayerName] = useState('');
   const [showPointSelection, setShowPointSelection] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
-  // Initialize to false - cards will be blank until player presses ready
   const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [showAd, setShowAd] = useState(false);
+  const [adRoundNumber, setAdRoundNumber] = useState(0);
 
   useEffect(() => {
     initializeGame(playerCount, playerNames);
-    // Ensure isPlayerReady is false when game initializes
     setIsPlayerReady(false);
   }, [playerCount, initializeGame]);
 
@@ -132,7 +135,6 @@ export default function GameScreen() {
     const willBeRoundComplete = gameState.playedCards.length + 1 === gameState.players.length;
     
     if (willBeRoundComplete) {
-      // CRITICAL: Reset isPlayerReady when entering award points phase
       setIsPlayerReady(false);
       setTimeout(() => {
         setShowPointSelection(true);
@@ -143,8 +145,6 @@ export default function GameScreen() {
         : gameState.currentPlayerIndex - 1;
       const nextPlayer = gameState.players[nextPlayerIndex];
       
-      // CRITICAL FIX: Reset isPlayerReady BEFORE showing the pass phone prompt
-      // This ensures cards are immediately hidden when transitioning to next player
       setIsPlayerReady(false);
       
       setTimeout(() => {
@@ -214,7 +214,6 @@ export default function GameScreen() {
                               scrollToTop();
                             }, 100);
 
-                            // CRITICAL FIX: Reset isPlayerReady BEFORE showing the pass phone prompt
                             setIsPlayerReady(false);
 
                             setTimeout(() => {
@@ -227,14 +226,12 @@ export default function GameScreen() {
                   }
                 }, 200);
               } else {
-                // CRITICAL: Reset isPlayerReady when entering award points phase
                 setIsPlayerReady(false);
                 setTimeout(() => {
                   setShowPointSelection(true);
                 }, 200);
               }
             } else {
-              // CRITICAL FIX: Reset isPlayerReady BEFORE showing the pass phone prompt
               setIsPlayerReady(false);
               
               setTimeout(() => {
@@ -309,6 +306,26 @@ export default function GameScreen() {
     awardPoint(playerId);
     setShowPointSelection(false);
     
+    // TODO: Backend Integration - Show interstitial ad at round ending (only for free users)
+    // Ad will be shown after point is awarded and before next round starts
+    if (!isPremium && gameState.round > 0) {
+      setAdRoundNumber(gameState.round);
+      setShowAd(true);
+      return; // Ad component will call handleAdClosed when done
+    }
+    
+    proceedAfterPointAwarded(playerId, player);
+  };
+
+  const handleAdClosed = () => {
+    setShowAd(false);
+    const player = gameState.players.find(p => p.id === gameState.players[gameState.currentPlayerIndex].id);
+    if (player) {
+      proceedAfterPointAwarded(player.id, player);
+    }
+  };
+
+  const proceedAfterPointAwarded = (playerId: string, player: any) => {
     setTimeout(() => {
       const anyPlayerOutOfCards = gameState.players.some(p => p.id === playerId ? player.hand.length === 0 : p.hand.length === 0);
       
@@ -337,7 +354,6 @@ export default function GameScreen() {
           scrollToTop();
         }, 100);
 
-        // CRITICAL FIX: Reset isPlayerReady BEFORE showing the pass phone prompt
         setIsPlayerReady(false);
 
         setTimeout(() => {
@@ -353,12 +369,24 @@ export default function GameScreen() {
     
     restartGameWithSamePlayers();
     
-    // Reset isPlayerReady when starting a new game
     setIsPlayerReady(false);
     
     setTimeout(() => {
       scrollToTop();
     }, 100);
+  };
+
+  const handleUpgrade = async () => {
+    try {
+      await purchaseFullVersion();
+      Alert.alert(
+        'Success!',
+        'Thank you for upgrading! All features are now unlocked.',
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Purchase failed:', error);
+    }
   };
 
   const getPreviousPlayer = () => {
@@ -386,6 +414,14 @@ export default function GameScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* TODO: Backend Integration - Ad will be displayed here at round endings */}
+      {showAd && (
+        <AdInterstitial 
+          roundNumber={adRoundNumber}
+          onAdClosed={handleAdClosed}
+        />
+      )}
+
       <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.primary }]}>
         <TouchableOpacity
           style={styles.backButton}
@@ -423,6 +459,20 @@ export default function GameScreen() {
             </Text>
           )}
         </View>
+
+        {!isPremium && (
+          <TouchableOpacity
+            style={styles.upgradeButton}
+            onPress={handleUpgrade}
+          >
+            <IconSymbol
+              ios_icon_name="star.fill"
+              android_material_icon_name="star"
+              size={24}
+              color={colors.accent}
+            />
+          </TouchableOpacity>
+        )}
       </View>
 
       {!isPlayerReady ? (
@@ -747,6 +797,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: 16,
+  },
+  upgradeButton: {
+    marginLeft: 16,
   },
   headerInfo: {
     flex: 1,

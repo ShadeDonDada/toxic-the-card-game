@@ -1,44 +1,39 @@
 
-import { useMemo } from 'react';
 import { usePurchase } from '@/contexts/PurchaseContext';
-import { scenarioCards, responseCards } from '@/data/cards';
+import { ScenarioCard, ResponseCard } from '@/types/game';
 
-const MAX_DEMO_ROUNDS = 3;
-const MAX_DEMO_SCENARIOS = 3;
-const MAX_DEMO_RESPONSES = 3;
+const DEMO_SCENARIO_LIMIT = 3;
+const DEMO_RESPONSE_LIMIT = 3;
 
 export function useDemoMode() {
-  const { isFullVersion } = usePurchase();
+  const { isPremium } = usePurchase();
 
-  const isDemoMode = !isFullVersion;
-
-  const limitedScenarioCards = useMemo(() => {
-    if (isFullVersion) return scenarioCards;
-    return scenarioCards.slice(0, MAX_DEMO_SCENARIOS);
-  }, [isFullVersion]);
-
-  const limitedResponseCards = useMemo(() => {
-    if (isFullVersion) return responseCards;
-    return responseCards.slice(0, MAX_DEMO_RESPONSES);
-  }, [isFullVersion]);
-
-  const canPlayRound = (currentRound: number) => {
-    if (isFullVersion) return true;
-    return currentRound <= MAX_DEMO_ROUNDS;
+  const limitScenarios = (scenarios: ScenarioCard[]): ScenarioCard[] => {
+    if (isPremium) {
+      return scenarios;
+    }
+    // In demo mode, only allow first 3 scenarios
+    return scenarios.slice(0, DEMO_SCENARIO_LIMIT);
   };
 
-  const isDemoLimitReached = (currentRound: number) => {
-    if (isFullVersion) return false;
-    return currentRound > MAX_DEMO_ROUNDS;
+  const limitResponseCards = (cards: ResponseCard[]): ResponseCard[] => {
+    if (isPremium) {
+      return cards;
+    }
+    // In demo mode, only allow first 3 response cards per player
+    return cards.slice(0, DEMO_RESPONSE_LIMIT);
   };
+
+  const isDemoMode = !isPremium;
+  const remainingScenarios = isPremium ? Infinity : DEMO_SCENARIO_LIMIT;
+  const remainingResponses = isPremium ? Infinity : DEMO_RESPONSE_LIMIT;
 
   return {
+    isPremium,
     isDemoMode,
-    isFullVersion,
-    limitedScenarioCards,
-    limitedResponseCards,
-    canPlayRound,
-    isDemoLimitReached,
-    maxDemoRounds: MAX_DEMO_ROUNDS,
+    limitScenarios,
+    limitResponseCards,
+    remainingScenarios,
+    remainingResponses,
   };
 }

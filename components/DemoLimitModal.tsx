@@ -1,49 +1,100 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
-import { useTheme } from '@react-navigation/native';
-import { IconSymbol } from './IconSymbol';
+import { View, Text, StyleSheet, Modal } from 'react-native';
+import { Button } from '@/components/Button';
+import { IconSymbol } from '@/components/IconSymbol';
+import { getColors } from '@/styles/commonStyles';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface DemoLimitModalProps {
   visible: boolean;
   onClose: () => void;
+  onUpgrade: () => void;
+  limitType: 'scenarios' | 'cards';
 }
 
-export function DemoLimitModal({ visible, onClose }: DemoLimitModalProps) {
-  const theme = useTheme();
+export function DemoLimitModal({ visible, onClose, onUpgrade, limitType }: DemoLimitModalProps) {
+  const { effectiveColorScheme } = useTheme();
+  const colors = getColors(effectiveColorScheme);
+
+  const title = limitType === 'scenarios' 
+    ? 'Demo Scenario Limit Reached' 
+    : 'Demo Card Limit Reached';
+  
+  const message = limitType === 'scenarios'
+    ? 'You\'ve played all 3 demo scenarios! Upgrade to the full version to unlock unlimited scenarios and continue playing.'
+    : 'You\'ve used all 3 demo response cards! Upgrade to the full version to unlock unlimited cards and responses.';
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true}>
-      <View style={styles.overlay}>
-        <View style={[styles.container, { backgroundColor: theme.colors.card }]}>
-          <View style={[styles.iconContainer, { backgroundColor: theme.dark ? 'rgba(255,152,0,0.2)' : 'rgba(255,152,0,0.1)' }]}>
-            <IconSymbol ios_icon_name="lock.fill" android_material_icon_name="lock" size={48} color="#FF9800" />
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.accent }]}>
+          <View style={styles.iconContainer}>
+            <IconSymbol
+              ios_icon_name="lock.fill"
+              android_material_icon_name="lock"
+              size={64}
+              color={colors.accent}
+            />
           </View>
           
-          <Text style={[styles.title, { color: theme.colors.text }]}>Demo Limit Reached</Text>
-          <Text style={[styles.message, { color: theme.dark ? '#98989D' : '#666' }]}>
-            You've completed the 3 demo rounds!{'\n\n'}
-            The full version includes:
-          </Text>
+          <Text style={[styles.title, { color: colors.accent }]}>{title}</Text>
+          <Text style={[styles.message, { color: colors.text }]}>{message}</Text>
           
-          <View style={styles.featuresList}>
+          <View style={styles.featuresContainer}>
             <View style={styles.featureItem}>
-              <IconSymbol ios_icon_name="checkmark.circle.fill" android_material_icon_name="check-circle" size={20} color="#4CAF50" />
-              <Text style={[styles.featureText, { color: theme.colors.text }]}>Unlimited rounds</Text>
+              <IconSymbol
+                ios_icon_name="checkmark.circle.fill"
+                android_material_icon_name="check-circle"
+                size={24}
+                color={colors.primary}
+              />
+              <Text style={[styles.featureText, { color: colors.text }]}>
+                Unlimited scenarios
+              </Text>
             </View>
             <View style={styles.featureItem}>
-              <IconSymbol ios_icon_name="checkmark.circle.fill" android_material_icon_name="check-circle" size={20} color="#4CAF50" />
-              <Text style={[styles.featureText, { color: theme.colors.text }]}>All scenario cards</Text>
+              <IconSymbol
+                ios_icon_name="checkmark.circle.fill"
+                android_material_icon_name="check-circle"
+                size={24}
+                color={colors.primary}
+              />
+              <Text style={[styles.featureText, { color: colors.text }]}>
+                Unlimited response cards
+              </Text>
             </View>
             <View style={styles.featureItem}>
-              <IconSymbol ios_icon_name="checkmark.circle.fill" android_material_icon_name="check-circle" size={20} color="#4CAF50" />
-              <Text style={[styles.featureText, { color: theme.colors.text }]}>All response cards</Text>
+              <IconSymbol
+                ios_icon_name="checkmark.circle.fill"
+                android_material_icon_name="check-circle"
+                size={24}
+                color={colors.primary}
+              />
+              <Text style={[styles.featureText, { color: colors.text }]}>
+                No ads
+              </Text>
             </View>
           </View>
 
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={[styles.closeButtonText, { color: theme.colors.primary }]}>Continue Playing</Text>
-          </TouchableOpacity>
+          <Button
+            title="Unlock Full Version - $5"
+            onPress={onUpgrade}
+            variant="primary"
+            style={styles.upgradeButton}
+          />
+          
+          <Button
+            title="Continue Demo"
+            onPress={onClose}
+            variant="secondary"
+            style={styles.closeButton}
+          />
         </View>
       </View>
     </Modal>
@@ -51,58 +102,55 @@ export function DemoLimitModal({ visible, onClose }: DemoLimitModalProps) {
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-  container: {
+  modalContent: {
     borderRadius: 20,
-    padding: 24,
+    padding: 32,
     width: '100%',
     maxWidth: 400,
     alignItems: 'center',
+    borderWidth: 3,
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
+    fontWeight: '900',
+    marginBottom: 16,
     textAlign: 'center',
   },
   message: {
     fontSize: 16,
-    textAlign: 'center',
     marginBottom: 24,
+    textAlign: 'center',
     lineHeight: 24,
   },
-  featuresList: {
+  featuresContainer: {
     width: '100%',
     marginBottom: 24,
+    gap: 12,
   },
   featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
     gap: 12,
   },
   featureText: {
     fontSize: 16,
+    fontWeight: '600',
+  },
+  upgradeButton: {
+    width: '100%',
+    marginBottom: 12,
   },
   closeButton: {
-    paddingVertical: 12,
-  },
-  closeButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    width: '100%',
   },
 });

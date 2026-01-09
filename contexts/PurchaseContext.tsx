@@ -1,64 +1,119 @@
 
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, ReactNode } from 'react';
+import { 
+  SuperwallProvider as SuperwallSDKProvider,
+  useUser,
+  usePlacement,
+  SuperwallLoading,
+  SuperwallLoaded,
+  SuperwallError
+} from 'expo-superwall';
+import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
+
+// TODO: Replace with your actual Superwall API keys from dashboard
+const SUPERWALL_API_KEYS = {
+  ios: 'YOUR_IOS_API_KEY', // Get from Superwall dashboard
+  android: 'YOUR_ANDROID_API_KEY', // Get from Superwall dashboard
+};
 
 interface PurchaseContextType {
-  isFullVersion: boolean;
+  isPremium: boolean;
   loading: boolean;
-  subscriptionStatus: string;
   purchaseFullVersion: () => Promise<void>;
   restorePurchases: () => Promise<void>;
 }
 
 const PurchaseContext = createContext<PurchaseContextType | undefined>(undefined);
 
-export function PurchaseProvider({ children }: { children: ReactNode }) {
-  const [isFullVersion, setIsFullVersion] = useState(false);
-  const [loading, setLoading] = useState(true);
+// Inner component that uses Superwall hooks
+function PurchaseProviderInner({ children }: { children: ReactNode }) {
+  const { subscriptionStatus, identify } = useUser();
+  const { registerPlacement } = usePlacement({
+    onError: (err) => console.error('Paywall Error:', err),
+    onPresent: (info) => console.log('Paywall Presented:', info),
+    onDismiss: (info, result) => console.log('Paywall Dismissed:', result),
+  });
 
-  useEffect(() => {
-    loadPurchaseStatus();
-  }, []);
-
-  const loadPurchaseStatus = async () => {
-    try {
-      const status = await AsyncStorage.getItem('fullVersion');
-      setIsFullVersion(status === 'true');
-    } catch (error) {
-      console.error('Failed to load purchase status:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Check if user has premium access
+  const isPremium = subscriptionStatus?.status === 'ACTIVE';
+  const loading = false; // Superwall handles loading internally
 
   const purchaseFullVersion = async () => {
-    // For now, just unlock the full version locally
-    // In a real app, this would integrate with app store purchases
     try {
-      await AsyncStorage.setItem('fullVersion', 'true');
-      setIsFullVersion(true);
+      // Register the paywall placement for full version unlock
+      await registerPlacement({
+        placement: 'full_version_unlock', // Configure this in Superwall dashboard
+        feature() {
+          // This callback is called when user successfully purchases or already has access
+          console.log('Full version unlocked!');
+        },
+      });
     } catch (error) {
-      console.error('Failed to save purchase status:', error);
+      console.error('Purchase failed:', error);
+      throw error;
     }
   };
 
   const restorePurchases = async () => {
-    // In a real app, this would check with the app store
-    await loadPurchaseStatus();
+    try {
+      // Superwall automatically handles restore via subscription status
+      // Just need to refresh the user state
+      console.log('Restoring purchases...');
+      // The subscription status will automatically update if user has active subscription
+    } catch (error) {
+      console.error('Restore failed:', error);
+      throw error;
+    }
   };
 
   return (
-    <PurchaseContext.Provider 
-      value={{ 
-        isFullVersion, 
-        loading, 
-        subscriptionStatus: isFullVersion ? 'ACTIVE' : 'INACTIVE',
+    <PurchaseContext.Provider
+      value={{
+        isPremium,
+        loading,
         purchaseFullVersion,
-        restorePurchases
+        restorePurchases,
       }}
     >
       {children}
     </PurchaseContext.Provider>
+  );
+}
+
+// Main provider that wraps with Superwall
+export function PurchaseProvider({ children }: { children: ReactNode }) {
+  return (
+    <SuperwallSDKProvider 
+      apiKeys={SUPERWALL_API_KEYS}
+      onConfigurationError={(error) => {
+        console.error('Superwall configuration error:', error);
+      }}
+    >
+      <SuperwallLoading>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#00ff00" />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </SuperwallLoading>
+
+      <SuperwallError>
+        {(error) => (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorTitle}>Unable to Initialize</Text>
+            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.errorSubtext}>
+              The app will continue in demo mode. Please check your internet connection.
+            </Text>
+          </View>
+        )}
+      </SuperwallError>
+
+      <SuperwallLoaded>
+        <PurchaseProviderInner>
+          {children}
+        </PurchaseProviderInner>
+      </SuperwallLoaded>
+    </SuperwallSDKProvider>
   );
 }
 
@@ -69,3 +124,42 @@ export function usePurchase() {
   }
   return context;
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#ffffff',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+    padding: 32,
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ff0000',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#ffffff',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: '#cccccc',
+    textAlign: 'center',
+  },
+});
