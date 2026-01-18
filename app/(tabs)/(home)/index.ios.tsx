@@ -97,7 +97,7 @@ export default function HomeScreen() {
   const rotation = useSharedValue(0);
 
   useEffect(() => {
-    console.log('HomeScreen: Component mounted, premium status:', isPremium);
+    console.log('HomeScreen (iOS): Component mounted, premium status:', isPremium);
     
     // Pulse animation
     scale.value = withRepeat(
@@ -119,7 +119,7 @@ export default function HomeScreen() {
       -1,
       false
     );
-  }, [isPremium, scale, rotation]);
+  }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -136,7 +136,7 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={styles.settingsButton}
           onPress={() => {
-            console.log('HomeScreen: User tapped settings button');
+            console.log('HomeScreen (iOS): User tapped settings button');
             router.push('/settings');
           }}
         >
@@ -187,7 +187,7 @@ export default function HomeScreen() {
           <Button
             title="Start Game"
             onPress={() => {
-              console.log('HomeScreen: User tapped Start Game');
+              console.log('HomeScreen (iOS): User tapped Start Game');
               router.push('/game-setup');
             }}
             variant="primary"
@@ -195,7 +195,7 @@ export default function HomeScreen() {
           <Button
             title="Rules"
             onPress={() => {
-              console.log('HomeScreen: User tapped Rules');
+              console.log('HomeScreen (iOS): User tapped Rules');
               router.push('/rules');
             }}
             variant="secondary"
@@ -203,7 +203,7 @@ export default function HomeScreen() {
           <Button
             title="Settings"
             onPress={() => {
-              console.log('HomeScreen: User tapped Settings');
+              console.log('HomeScreen (iOS): User tapped Settings');
               router.push('/settings');
             }}
             variant="outline"

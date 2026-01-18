@@ -6,9 +6,6 @@ import { useEffect } from 'react';
 import { adManager } from '@/utils/adManager';
 import * as SplashScreen from 'expo-splash-screen';
 
-// Import error logger after React Native bridge is initialized
-import '@/utils/errorLogger';
-
 // Keep the splash screen visible while we initialize
 SplashScreen.preventAutoHideAsync();
 

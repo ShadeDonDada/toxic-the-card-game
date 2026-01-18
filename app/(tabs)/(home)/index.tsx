@@ -119,7 +119,7 @@ export default function HomeScreen() {
       -1,
       false
     );
-  }, [isPremium, scale, rotation]);
+  }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
