@@ -43,6 +43,7 @@ export default function RootLayout() {
           <Stack.Screen name="player-names" options={{ headerShown: false }} />
           <Stack.Screen name="settings" options={{ headerShown: false }} />
           <Stack.Screen name="rules" options={{ headerShown: false }} />
+          <Stack.Screen name="thank-you" options={{ headerShown: false }} />
         </Stack>
       </PurchaseProvider>
     </ThemeProvider>
