@@ -1,9 +1,5 @@
 
 import { Platform } from 'react-native';
-import {
-  AdMobInterstitial,
-  setTestDeviceIDAsync,
-} from 'expo-ads-admob';
 
 // AdMob Ad Unit IDs - Replace with your actual Ad Unit IDs
 const INTERSTITIAL_AD_UNIT_ID = Platform.select({
@@ -24,47 +20,14 @@ class AdManager {
     }
 
     try {
-      console.log('AdManager: Initializing with Ad Unit ID:', INTERSTITIAL_AD_UNIT_ID);
+      console.log('AdManager: Initializing (ads temporarily disabled)');
       
-      // Set test device for development (optional)
-      // await setTestDeviceIDAsync('EMULATOR');
+      // Note: expo-ads-admob is deprecated and causing issues
+      // For now, we'll disable ads until a proper solution is implemented
+      // TODO: Migrate to react-native-google-mobile-ads or expo-ads-google
       
-      // Set up ad event listeners
-      AdMobInterstitial.addEventListener('interstitialDidLoad', () => {
-        console.log('AdManager: Interstitial ad loaded successfully');
-        this.isAdLoaded = true;
-      });
-
-      AdMobInterstitial.addEventListener('interstitialDidFailToLoad', (error) => {
-        console.error('AdManager: Interstitial ad failed to load:', error);
-        this.isAdLoaded = false;
-      });
-
-      AdMobInterstitial.addEventListener('interstitialDidOpen', () => {
-        console.log('AdManager: Interstitial ad opened');
-      });
-
-      AdMobInterstitial.addEventListener('interstitialDidClose', () => {
-        console.log('AdManager: Interstitial ad closed, preloading next ad');
-        this.isAdLoaded = false;
-        // Preload next ad
-        if (!this.isPremium) {
-          this.loadAd();
-        }
-      });
-
-      AdMobInterstitial.addEventListener('interstitialWillLeaveApplication', () => {
-        console.log('AdManager: User clicked ad and left application');
-      });
-
       this.isInitialized = true;
-      console.log('AdManager: Initialization complete');
-      
-      // Preload first ad if not premium
-      if (!this.isPremium) {
-        console.log('AdManager: Preloading first ad');
-        this.loadAd();
-      }
+      console.log('AdManager: Initialization complete (ads disabled)');
     } catch (error) {
       console.error('AdManager: Error initializing:', error);
     }
@@ -82,10 +45,8 @@ class AdManager {
     }
 
     try {
-      console.log('AdManager: Loading interstitial ad');
-      await AdMobInterstitial.setAdUnitID(INTERSTITIAL_AD_UNIT_ID);
-      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
-      console.log('AdManager: Ad request sent');
+      console.log('AdManager: Loading interstitial ad (disabled)');
+      // TODO: Implement ad loading when migration is complete
     } catch (error) {
       console.error('AdManager: Error loading ad:', error);
     }
@@ -105,26 +66,11 @@ class AdManager {
     // Don't show ad on first round
     if (this.roundsCompleted === 1) {
       console.log('AdManager: First round completed, not showing ad yet');
-      // Preload ad for next round
-      this.loadAd();
       return;
     }
 
-    // Show ad if loaded
-    if (this.isAdLoaded) {
-      try {
-        console.log('AdManager: Showing interstitial ad');
-        await AdMobInterstitial.showAdAsync();
-      } catch (error) {
-        console.error('AdManager: Error showing ad:', error);
-        // Try to load a new ad
-        this.loadAd();
-      }
-    } else {
-      console.log('AdManager: Ad not loaded yet, loading now');
-      // Try to load ad for next time
-      this.loadAd();
-    }
+    console.log('AdManager: Would show ad here (ads temporarily disabled)');
+    // TODO: Show ad when migration is complete
   }
 
   setPremiumStatus(premium: boolean) {
@@ -133,9 +79,6 @@ class AdManager {
     if (premium) {
       // Clear any loaded ads
       this.isAdLoaded = false;
-    } else {
-      // Preload ad for free users
-      this.loadAd();
     }
   }
 

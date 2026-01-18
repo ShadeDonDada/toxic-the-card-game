@@ -17,6 +17,10 @@ export default function RootLayout() {
       console.log('RootLayout: Ad manager initialized');
       // Hide splash screen after initialization
       SplashScreen.hideAsync();
+    }).catch((error) => {
+      console.error('RootLayout: Error initializing ad manager:', error);
+      // Hide splash screen even if there's an error
+      SplashScreen.hideAsync();
     });
   }, []);
 

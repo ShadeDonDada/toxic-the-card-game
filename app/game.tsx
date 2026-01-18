@@ -134,6 +134,14 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 12,
   },
+  playerCardContainer: {
+    marginTop: 8,
+  },
+  playerCardText: {
+    fontSize: 14,
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
 });
 
 export default function GameScreen() {
@@ -157,12 +165,12 @@ export default function GameScreen() {
     console.log('GameScreen: Initializing game with player count:', playerCount);
     initializeGame(playerCount, playerNames);
     
-    // Set premium status in ad manager and preload ad
+    // Set premium status in ad manager
     adManager.setPremiumStatus(isPremium);
     
     // Reset round counter when starting a new game
     adManager.resetRoundCounter();
-  }, [playerCount, initializeGame, isPremium]);
+  }, [playerCount, initializeGame, isPremium, playerNames]);
 
   useEffect(() => {
     // Update ad manager when premium status changes
@@ -223,7 +231,6 @@ export default function GameScreen() {
     awardPoint(playerId);
     
     // Show ad at round end (only for free users, not on first round)
-    // This happens after all players have played their cards
     console.log('GameScreen: Round ended, triggering ad check');
     adManager.showAdAtRoundEnd();
   };
@@ -316,16 +323,16 @@ export default function GameScreen() {
                 style={[styles.playerItem, { backgroundColor: colors.cardBackground }]}
                 onPress={() => handleAwardPoint(player.id)}
               >
-                <View>
+                <View style={{ flex: 1 }}>
                   <Text style={[styles.playerName, { color: colors.text }]}>
                     {player.name}
                   </Text>
                   {player.selectedCard && (
-                    <Image
-                      source={require('@/assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png')}
-                      style={{ width: 100, height: 140, marginTop: 8, borderRadius: 8 }}
-                      resizeMode="cover"
-                    />
+                    <View style={styles.playerCardContainer}>
+                      <Text style={[styles.playerCardText, { color: colors.textSecondary }]}>
+                        &quot;{player.selectedCard.text}&quot;
+                      </Text>
+                    </View>
                   )}
                 </View>
                 <Text style={[styles.playerScore, { color: colors.text }]}>

@@ -8,6 +8,7 @@ export interface ResponseCard {
   id: string;
   text: string;
   isCustom?: boolean;
+  customText?: string;
 }
 
 export interface Player {
