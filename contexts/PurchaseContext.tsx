@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as IAP from 'react-native-iap';
 import { Platform, Alert } from 'react-native';
 
 const PRODUCT_ID = Platform.select({
@@ -34,6 +33,7 @@ interface PurchaseProviderProps {
 export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) => {
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [IAP, setIAP] = useState<any>(null);
 
   const setPremiumStatus = useCallback(async (status: boolean) => {
     console.log('PurchaseProvider: Setting premium status to:', status);
@@ -42,13 +42,21 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
   }, []);
 
   const restorePurchases = useCallback(async (silent: boolean = false) => {
+    if (!IAP) {
+      console.log('PurchaseProvider: IAP not initialized yet');
+      if (!silent) {
+        Alert.alert('Error', 'In-app purchases are not ready yet. Please try again.');
+      }
+      return;
+    }
+
     try {
       console.log('PurchaseProvider: Restoring purchases');
       const purchases = await IAP.getAvailablePurchases();
       console.log('PurchaseProvider: Available purchases:', purchases);
       
       const hasPremium = purchases.some(
-        (purchase) => purchase.productId === PRODUCT_ID
+        (purchase: any) => purchase.productId === PRODUCT_ID
       );
 
       if (hasPremium) {
@@ -77,23 +85,28 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
         Alert.alert('Restore Error', 'Unable to restore purchases. Please try again.');
       }
     }
-  }, [setPremiumStatus]);
+  }, [IAP, setPremiumStatus]);
 
   const initializeIAP = useCallback(async () => {
     try {
+      console.log('PurchaseProvider: Loading IAP module');
+      // Dynamically import react-native-iap to avoid early native module access
+      const IAPModule = await import('react-native-iap');
+      setIAP(IAPModule);
+      
       console.log('PurchaseProvider: Connecting to IAP store');
-      await IAP.initConnection();
+      await IAPModule.initConnection();
       console.log('PurchaseProvider: IAP connection established');
       
       // Set up purchase update listener
-      const purchaseUpdateSubscription = IAP.purchaseUpdatedListener(
-        async (purchase) => {
+      const purchaseUpdateSubscription = IAPModule.purchaseUpdatedListener(
+        async (purchase: any) => {
           console.log('PurchaseProvider: Purchase update received', purchase);
           const receipt = purchase.transactionReceipt;
           if (receipt) {
             try {
               // Finish the transaction
-              await IAP.finishTransaction({ purchase, isConsumable: false });
+              await IAPModule.finishTransaction({ purchase, isConsumable: false });
               console.log('PurchaseProvider: Transaction finished, setting premium status');
               await setPremiumStatus(true);
               Alert.alert(
@@ -108,8 +121,8 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
         }
       );
 
-      const purchaseErrorSubscription = IAP.purchaseErrorListener(
-        (error) => {
+      const purchaseErrorSubscription = IAPModule.purchaseErrorListener(
+        (error: any) => {
           console.error('PurchaseProvider: Purchase error:', error);
           if (error.code !== 'E_USER_CANCELLED') {
             Alert.alert('Purchase Failed', 'There was an error processing your purchase. Please try again.');
@@ -120,6 +133,7 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
       return () => {
         purchaseUpdateSubscription.remove();
         purchaseErrorSubscription.remove();
+        IAPModule.endConnection();
       };
     } catch (error) {
       console.error('PurchaseProvider: Error initializing IAP:', error);
@@ -135,7 +149,7 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
       setIsPremium(premium);
       
       // Also check for active purchases to restore automatically
-      if (!premium) {
+      if (!premium && IAP) {
         console.log('PurchaseProvider: Not premium, checking for active purchases');
         await restorePurchases(true);
       }
@@ -144,20 +158,32 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
     } finally {
       setIsLoading(false);
     }
-  }, [restorePurchases]);
+  }, [IAP, restorePurchases]);
 
   useEffect(() => {
     console.log('PurchaseProvider: Initializing IAP and checking premium status');
+    
+    // Initialize IAP first
     initializeIAP();
+    
+    // Check premium status from storage immediately
     checkPremiumStatus();
+  }, []);
 
-    return () => {
-      console.log('PurchaseProvider: Cleaning up IAP connection');
-      IAP.endConnection();
-    };
-  }, [checkPremiumStatus, initializeIAP]);
+  // Check premium status again when IAP is initialized
+  useEffect(() => {
+    if (IAP) {
+      console.log('PurchaseProvider: IAP initialized, checking for active purchases');
+      checkPremiumStatus();
+    }
+  }, [IAP, checkPremiumStatus]);
 
   const purchasePremium = useCallback(async () => {
+    if (!IAP) {
+      Alert.alert('Error', 'In-app purchases are not ready yet. Please try again.');
+      return;
+    }
+
     try {
       console.log('PurchaseProvider: User initiated purchase for product:', PRODUCT_ID);
       
@@ -179,7 +205,7 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
         Alert.alert('Purchase Error', 'Unable to complete purchase. Please try again.');
       }
     }
-  }, []);
+  }, [IAP]);
 
   return (
     <PurchaseContext.Provider

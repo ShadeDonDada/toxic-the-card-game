@@ -11,13 +11,26 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useEffect(() => {
-    console.log('RootLayout: Initializing ad manager');
-    // Initialize ad manager
-    adManager.initialize().then(() => {
-      console.log('RootLayout: Ad manager initialized');
-      // Hide splash screen after initialization
-      SplashScreen.hideAsync();
-    });
+    console.log('RootLayout: Initializing app');
+    
+    // Initialize ad manager after a short delay to ensure native modules are ready
+    const initializeApp = async () => {
+      try {
+        // Wait for native modules to be ready
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        console.log('RootLayout: Initializing ad manager');
+        await adManager.initialize();
+        console.log('RootLayout: Ad manager initialized');
+      } catch (error) {
+        console.error('RootLayout: Error initializing app:', error);
+      } finally {
+        // Hide splash screen after initialization
+        await SplashScreen.hideAsync();
+      }
+    };
+
+    initializeApp();
   }, []);
 
   return (
