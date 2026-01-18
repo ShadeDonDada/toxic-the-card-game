@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as IAP from 'react-native-iap';
 import { Platform, Alert } from 'react-native';
@@ -35,18 +35,13 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    console.log('PurchaseProvider: Initializing IAP and checking premium status');
-    initializeIAP();
-    checkPremiumStatus();
-
-    return () => {
-      console.log('PurchaseProvider: Cleaning up IAP connection');
-      IAP.endConnection();
-    };
+  const setPremiumStatus = useCallback(async (status: boolean) => {
+    console.log('PurchaseProvider: Setting premium status to:', status);
+    setIsPremium(status);
+    await AsyncStorage.setItem(PREMIUM_KEY, status.toString());
   }, []);
 
-  const initializeIAP = async () => {
+  const initializeIAP = useCallback(async () => {
     try {
       console.log('PurchaseProvider: Connecting to IAP store');
       await IAP.initConnection();
@@ -91,9 +86,9 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
     } catch (error) {
       console.error('PurchaseProvider: Error initializing IAP:', error);
     }
-  };
+  }, [setPremiumStatus]);
 
-  const checkPremiumStatus = async () => {
+  const checkPremiumStatus = useCallback(async () => {
     try {
       console.log('PurchaseProvider: Checking stored premium status');
       const storedStatus = await AsyncStorage.getItem(PREMIUM_KEY);
@@ -111,39 +106,9 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const setPremiumStatus = async (status: boolean) => {
-    console.log('PurchaseProvider: Setting premium status to:', status);
-    setIsPremium(status);
-    await AsyncStorage.setItem(PREMIUM_KEY, status.toString());
-  };
-
-  const purchasePremium = async () => {
-    try {
-      console.log('PurchaseProvider: User initiated purchase for product:', PRODUCT_ID);
-      
-      // Get available products
-      const products = await IAP.getProducts({ skus: [PRODUCT_ID] });
-      console.log('PurchaseProvider: Available products:', products);
-      
-      if (products.length === 0) {
-        Alert.alert('Error', 'Product not available. Please try again later.');
-        return;
-      }
-
-      // Request purchase
-      console.log('PurchaseProvider: Requesting purchase');
-      await IAP.requestPurchase({ sku: PRODUCT_ID });
-    } catch (error: any) {
-      console.error('PurchaseProvider: Error purchasing premium:', error);
-      if (error.code !== 'E_USER_CANCELLED') {
-        Alert.alert('Purchase Error', 'Unable to complete purchase. Please try again.');
-      }
-    }
-  };
-
-  const restorePurchases = async (silent: boolean = false) => {
+  const restorePurchases = useCallback(async (silent: boolean = false) => {
     try {
       console.log('PurchaseProvider: Restoring purchases');
       const purchases = await IAP.getAvailablePurchases();
@@ -177,6 +142,41 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
       console.error('PurchaseProvider: Error restoring purchases:', error);
       if (!silent) {
         Alert.alert('Restore Error', 'Unable to restore purchases. Please try again.');
+      }
+    }
+  }, [setPremiumStatus]);
+
+  useEffect(() => {
+    console.log('PurchaseProvider: Initializing IAP and checking premium status');
+    initializeIAP();
+    checkPremiumStatus();
+
+    return () => {
+      console.log('PurchaseProvider: Cleaning up IAP connection');
+      IAP.endConnection();
+    };
+  }, [initializeIAP, checkPremiumStatus]);
+
+  const purchasePremium = async () => {
+    try {
+      console.log('PurchaseProvider: User initiated purchase for product:', PRODUCT_ID);
+      
+      // Get available products
+      const products = await IAP.getProducts({ skus: [PRODUCT_ID] });
+      console.log('PurchaseProvider: Available products:', products);
+      
+      if (products.length === 0) {
+        Alert.alert('Error', 'Product not available. Please try again later.');
+        return;
+      }
+
+      // Request purchase
+      console.log('PurchaseProvider: Requesting purchase');
+      await IAP.requestPurchase({ sku: PRODUCT_ID });
+    } catch (error: any) {
+      console.error('PurchaseProvider: Error purchasing premium:', error);
+      if (error.code !== 'E_USER_CANCELLED') {
+        Alert.alert('Purchase Error', 'Unable to complete purchase. Please try again.');
       }
     }
   };

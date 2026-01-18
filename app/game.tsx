@@ -162,7 +162,7 @@ export default function GameScreen() {
     
     // Reset round counter when starting a new game
     adManager.resetRoundCounter();
-  }, [playerCount, initializeGame, isPremium]);
+  }, [playerCount, playerNames, initializeGame, isPremium]);
 
   useEffect(() => {
     // Update ad manager when premium status changes
