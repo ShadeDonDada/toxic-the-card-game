@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "Toxic - The Card Game",
@@ -46,6 +47,5 @@
     "experiments": {
       "typedRoutes": true
     }
-  },
-  "scheme": "Toxic - The Card Game"
+  }
 }
