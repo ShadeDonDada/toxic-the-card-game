@@ -1,10 +1,14 @@
 
 import { Platform } from 'react-native';
+import {
+  AdMobInterstitial,
+  setTestDeviceIDAsync,
+} from 'expo-ads-admob';
 
 // AdMob Ad Unit IDs - Replace with your actual Ad Unit IDs
 const INTERSTITIAL_AD_UNIT_ID = Platform.select({
   ios: 'ca-app-pub-3940256099942544/4411468910', // Test ID - Replace with your actual iOS Ad Unit ID
-  android: 'ca-app-pub-9650063361649225~8605617788', // Test ID - Replace with your actual Android Ad Unit ID
+  android: 'ca-app-pub-3940256099942544/1033173712', // Test ID - Replace with your actual Android Ad Unit ID
 }) || '';
 
 class AdManager {
@@ -12,7 +16,6 @@ class AdManager {
   private isAdLoaded = false;
   private isPremium = false;
   private roundsCompleted = 0;
-  private AdMobInterstitial: any = null;
 
   async initialize() {
     if (this.isInitialized) {
@@ -23,29 +26,25 @@ class AdManager {
     try {
       console.log('AdManager: Initializing with Ad Unit ID:', INTERSTITIAL_AD_UNIT_ID);
       
-      // Dynamically import expo-ads-admob to avoid early native module access
-      const AdMobModule = await import('expo-ads-admob');
-      this.AdMobInterstitial = AdMobModule.AdMobInterstitial;
-      
       // Set test device for development (optional)
-      // await AdMobModule.setTestDeviceIDAsync('EMULATOR');
+      // await setTestDeviceIDAsync('EMULATOR');
       
       // Set up ad event listeners
-      this.AdMobInterstitial.addEventListener('interstitialDidLoad', () => {
+      AdMobInterstitial.addEventListener('interstitialDidLoad', () => {
         console.log('AdManager: Interstitial ad loaded successfully');
         this.isAdLoaded = true;
       });
 
-      this.AdMobInterstitial.addEventListener('interstitialDidFailToLoad', (error: any) => {
+      AdMobInterstitial.addEventListener('interstitialDidFailToLoad', (error) => {
         console.error('AdManager: Interstitial ad failed to load:', error);
         this.isAdLoaded = false;
       });
 
-      this.AdMobInterstitial.addEventListener('interstitialDidOpen', () => {
+      AdMobInterstitial.addEventListener('interstitialDidOpen', () => {
         console.log('AdManager: Interstitial ad opened');
       });
 
-      this.AdMobInterstitial.addEventListener('interstitialDidClose', () => {
+      AdMobInterstitial.addEventListener('interstitialDidClose', () => {
         console.log('AdManager: Interstitial ad closed, preloading next ad');
         this.isAdLoaded = false;
         // Preload next ad
@@ -54,7 +53,7 @@ class AdManager {
         }
       });
 
-      this.AdMobInterstitial.addEventListener('interstitialWillLeaveApplication', () => {
+      AdMobInterstitial.addEventListener('interstitialWillLeaveApplication', () => {
         console.log('AdManager: User clicked ad and left application');
       });
 
@@ -82,15 +81,10 @@ class AdManager {
       return;
     }
 
-    if (!this.AdMobInterstitial) {
-      console.log('AdManager: AdMob not initialized yet');
-      return;
-    }
-
     try {
       console.log('AdManager: Loading interstitial ad');
-      await this.AdMobInterstitial.setAdUnitID(INTERSTITIAL_AD_UNIT_ID);
-      await this.AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
+      await AdMobInterstitial.setAdUnitID(INTERSTITIAL_AD_UNIT_ID);
+      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
       console.log('AdManager: Ad request sent');
     } catch (error) {
       console.error('AdManager: Error loading ad:', error);
@@ -117,10 +111,10 @@ class AdManager {
     }
 
     // Show ad if loaded
-    if (this.isAdLoaded && this.AdMobInterstitial) {
+    if (this.isAdLoaded) {
       try {
         console.log('AdManager: Showing interstitial ad');
-        await this.AdMobInterstitial.showAdAsync();
+        await AdMobInterstitial.showAdAsync();
       } catch (error) {
         console.error('AdManager: Error showing ad:', error);
         // Try to load a new ad

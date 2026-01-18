@@ -26,7 +26,6 @@
     "@types/difflib": "^0.2.7",
     "difflib": "^0.2.4",
     "eas": "^0.1.0",
-    "eslint-import-resolver-babel-module": "^5.3.2",
     "expo": "~54.0.1",
     "expo-ads-admob": "^13.0.0",
     "expo-blur": "^15.0.6",
