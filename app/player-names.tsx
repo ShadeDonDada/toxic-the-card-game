@@ -1,191 +1,164 @@
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
-import { Button } from '@/components/Button';
+import { useTheme } from '@/contexts/ThemeContext';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { IconSymbol } from '@/components/IconSymbol';
+import React, { useState } from 'react';
+import { Button } from '@/components/Button';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 20,
+    paddingTop: 60,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  backButton: {
+    marginRight: 15,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    fontSize: 16,
+    marginBottom: 30,
+  },
+  inputSection: {
+    marginBottom: 40,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 2,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  buttonContainer: {
+    marginTop: 20,
+  },
+});
 
 export default function PlayerNamesScreen() {
-  const router = useRouter();
   const params = useLocalSearchParams();
-  const { effectiveColorScheme } = useTheme();
-  const colors = getColors(effectiveColorScheme);
-  const playerCount = parseInt(params.playerCount as string) || 4;
+  const playerCount = parseInt(params.playerCount as string) || 2;
   
   const [playerNames, setPlayerNames] = useState<string[]>(
     Array.from({ length: playerCount }, (_, i) => `Player ${i + 1}`)
   );
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  
+  const { theme } = useTheme();
+  const router = useRouter();
+  const colors = getColors(theme);
 
   const handleNameChange = (index: number, name: string) => {
-    const updatedNames = [...playerNames];
-    updatedNames[index] = name;
-    setPlayerNames(updatedNames);
+    const newNames = [...playerNames];
+    newNames[index] = name;
+    setPlayerNames(newNames);
   };
 
   const handleNameFocus = (index: number) => {
-    // Clear the default text when user focuses on the input
+    setFocusedIndex(index);
+    // Clear default name on focus
     if (playerNames[index] === `Player ${index + 1}`) {
-      const updatedNames = [...playerNames];
-      updatedNames[index] = '';
-      setPlayerNames(updatedNames);
+      const newNames = [...playerNames];
+      newNames[index] = '';
+      setPlayerNames(newNames);
     }
   };
 
   const handleNameBlur = (index: number) => {
-    // Only set default name if the field is empty when user finishes editing
-    if (!playerNames[index] || playerNames[index].trim() === '') {
-      const updatedNames = [...playerNames];
-      updatedNames[index] = `Player ${index + 1}`;
-      setPlayerNames(updatedNames);
+    setFocusedIndex(null);
+    // Restore default name if empty
+    if (playerNames[index].trim() === '') {
+      const newNames = [...playerNames];
+      newNames[index] = `Player ${index + 1}`;
+      setPlayerNames(newNames);
     }
   };
 
   const handleStartGame = () => {
-    console.log('Starting game with player names:', playerNames);
-    // Ensure all names are filled before starting
-    const finalNames = playerNames.map((name, index) => 
-      name && name.trim() !== '' ? name : `Player ${index + 1}`
-    );
-    
+    console.log('PlayerNamesScreen: Starting game with names:', playerNames);
     router.push({
       pathname: '/game',
-      params: { 
+      params: {
         playerCount: playerCount.toString(),
-        playerNames: JSON.stringify(finalNames),
+        playerNames: JSON.stringify(playerNames),
       },
     });
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView 
-        style={styles.scrollView} 
-        contentContainerStyle={styles.contentContainer}
-        keyboardShouldPersistTaps="handled"
-      >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <IconSymbol
-            ios_icon_name="chevron.left"
-            android_material_icon_name="arrow-back"
-            size={24}
-            color={colors.primary}
-          />
-          <Text style={[styles.backText, { color: colors.primary }]}>Back</Text>
-        </TouchableOpacity>
+      <ScrollView style={styles.scrollContent}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => {
+              console.log('PlayerNamesScreen: User tapped back button');
+              router.back();
+            }}
+          >
+            <IconSymbol
+              ios_icon_name="chevron.left"
+              android_material_icon_name="arrow-back"
+              size={28}
+              color={colors.text}
+            />
+          </TouchableOpacity>
+          <Text style={[styles.title, { color: colors.text }]}>Player Names</Text>
+        </View>
 
-        <Text style={[styles.title, { color: colors.primary, textShadowColor: colors.accent }]}>Enter Player Names</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Customize your player names or use the defaults</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          Enter names for all {playerCount} players
+        </Text>
 
-        <View style={styles.namesContainer}>
+        <View style={styles.inputSection}>
           {playerNames.map((name, index) => (
-            <View key={index} style={[styles.nameInputContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-              <View style={[styles.playerNumberBadge, { backgroundColor: colors.primary }]}>
-                <Text style={[styles.playerNumberText, { color: colors.background }]}>{index + 1}</Text>
-              </View>
+            <View key={index}>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>
+                Player {index + 1}
+              </Text>
               <TextInput
-                style={[styles.nameInput, { color: colors.text }]}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.cardBackground,
+                    borderColor: focusedIndex === index ? colors.primary : colors.border,
+                    color: colors.text,
+                  },
+                ]}
                 value={name}
                 onChangeText={(text) => handleNameChange(index, text)}
                 onFocus={() => handleNameFocus(index)}
                 onBlur={() => handleNameBlur(index)}
                 placeholder={`Player ${index + 1}`}
                 placeholderTextColor={colors.textSecondary}
-                maxLength={20}
-                autoCapitalize="words"
-                returnKeyType={index === playerNames.length - 1 ? 'done' : 'next'}
               />
             </View>
           ))}
         </View>
 
-        <Button
-          title="Start Game"
-          onPress={handleStartGame}
-          variant="primary"
-          style={styles.startButton}
-        />
+        <View style={styles.buttonContainer}>
+          <Button title="Start Game" onPress={handleStartGame} variant="primary" />
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 120,
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  backText: {
-    fontSize: 18,
-    marginLeft: 8,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: '900',
-    marginBottom: 12,
-    textAlign: 'center',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  namesContainer: {
-    gap: 16,
-    marginBottom: 32,
-  },
-  nameInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    borderWidth: 2,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    boxShadow: '0px 2px 4px rgba(0, 255, 65, 0.15)',
-    elevation: 2,
-  },
-  playerNumberBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  playerNumberText: {
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  nameInput: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '600',
-    padding: 0,
-  },
-  startButton: {
-    width: '100%',
-    marginTop: 10,
-  },
-});
