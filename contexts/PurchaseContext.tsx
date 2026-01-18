@@ -21,8 +21,12 @@ interface PurchaseContextType {
 const PurchaseContext = createContext<PurchaseContextType>({
   isPremium: false,
   isLoading: true,
-  purchasePremium: async () => {},
-  restorePurchases: async () => {},
+  purchasePremium: async () => {
+    console.log('PurchaseContext: purchasePremium called');
+  },
+  restorePurchases: async () => {
+    console.log('PurchaseContext: restorePurchases called');
+  },
 });
 
 export const usePurchase = () => useContext(PurchaseContext);
@@ -52,14 +56,56 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
       // Also check for active purchases to restore automatically
       if (!premium) {
         console.log('PurchaseProvider: Not premium, checking for active purchases');
-        await restorePurchases(true);
+        const purchases = await IAP.getAvailablePurchases();
+        console.log('PurchaseProvider: Available purchases:', purchases);
+        
+        const hasPremium = purchases.some(
+          (purchase) => purchase.productId === PRODUCT_ID
+        );
+
+        if (hasPremium) {
+          console.log('PurchaseProvider: Premium purchase found, restoring silently');
+          await setPremiumStatus(true);
+        }
       }
     } catch (error) {
       console.error('PurchaseProvider: Error checking premium status:', error);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setPremiumStatus]);
+
+  const restorePurchases = useCallback(async () => {
+    try {
+      console.log('PurchaseProvider: Restoring purchases');
+      const purchases = await IAP.getAvailablePurchases();
+      console.log('PurchaseProvider: Available purchases:', purchases);
+      
+      const hasPremium = purchases.some(
+        (purchase) => purchase.productId === PRODUCT_ID
+      );
+
+      if (hasPremium) {
+        console.log('PurchaseProvider: Premium purchase found, restoring');
+        await setPremiumStatus(true);
+        Alert.alert(
+          'Restore Successful',
+          'Your premium purchase has been restored!',
+          [{ text: 'OK' }]
+        );
+      } else {
+        console.log('PurchaseProvider: No premium purchase found');
+        Alert.alert(
+          'No Purchases Found',
+          'No previous purchases were found to restore.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('PurchaseProvider: Error restoring purchases:', error);
+      Alert.alert('Restore Error', 'Unable to restore purchases. Please try again.');
+    }
+  }, [setPremiumStatus]);
 
   const initializeIAP = useCallback(async () => {
     try {
@@ -135,48 +181,11 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
       // Request purchase
       console.log('PurchaseProvider: Requesting purchase');
       await IAP.requestPurchase({ sku: PRODUCT_ID });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('PurchaseProvider: Error purchasing premium:', error);
-      if (error.code !== 'E_USER_CANCELLED') {
+      const err = error as { code?: string };
+      if (err.code !== 'E_USER_CANCELLED') {
         Alert.alert('Purchase Error', 'Unable to complete purchase. Please try again.');
-      }
-    }
-  };
-
-  const restorePurchases = async (silent: boolean = false) => {
-    try {
-      console.log('PurchaseProvider: Restoring purchases');
-      const purchases = await IAP.getAvailablePurchases();
-      console.log('PurchaseProvider: Available purchases:', purchases);
-      
-      const hasPremium = purchases.some(
-        (purchase) => purchase.productId === PRODUCT_ID
-      );
-
-      if (hasPremium) {
-        console.log('PurchaseProvider: Premium purchase found, restoring');
-        await setPremiumStatus(true);
-        if (!silent) {
-          Alert.alert(
-            'Restore Successful',
-            'Your premium purchase has been restored!',
-            [{ text: 'OK' }]
-          );
-        }
-      } else {
-        console.log('PurchaseProvider: No premium purchase found');
-        if (!silent) {
-          Alert.alert(
-            'No Purchases Found',
-            'No previous purchases were found to restore.',
-            [{ text: 'OK' }]
-          );
-        }
-      }
-    } catch (error) {
-      console.error('PurchaseProvider: Error restoring purchases:', error);
-      if (!silent) {
-        Alert.alert('Restore Error', 'Unable to restore purchases. Please try again.');
       }
     }
   };

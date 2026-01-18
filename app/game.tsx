@@ -6,7 +6,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Ima
 import { IconSymbol } from '@/components/IconSymbol';
 import { useGameState } from '@/hooks/useGameState';
 import { Button } from '@/components/Button';
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { adManager } from '@/utils/adManager';
 
@@ -151,7 +151,11 @@ export default function GameScreen() {
   const [showReadyModal, setShowReadyModal] = useState(false);
 
   const playerCount = parseInt(params.playerCount as string) || 2;
-  const playerNames = params.playerNames ? JSON.parse(params.playerNames as string) : [];
+  
+  // Memoize playerNames to prevent it from changing on every render
+  const playerNames = useMemo(() => {
+    return params.playerNames ? JSON.parse(params.playerNames as string) : [];
+  }, [params.playerNames]);
 
   useEffect(() => {
     console.log('GameScreen: Initializing game with player count:', playerCount);

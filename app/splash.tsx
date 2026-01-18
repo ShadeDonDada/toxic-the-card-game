@@ -22,7 +22,7 @@ export default function SplashScreenComponent() {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [colorScheme]);
 
   return (
     <View style={[styles.container, { backgroundColor }]}>

@@ -1,5 +1,5 @@
 
-import { GameState, Player, ResponseCard, ScenarioCard } from '@/types/game';
+import { GameState, Player, ResponseCard } from '@/types/game';
 import { scenarioCards, responseCards } from '@/data/cards';
 import { useState, useCallback } from 'react';
 import { useDemoMode } from './useDemoMode';
