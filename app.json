@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Toxic - The Card Game",
-    "slug": "Toxic - The Card Game",
+    "slug": "toxic-the-card-game",
     "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png",
@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png",
         "backgroundColor": "#1A1A2E"
       },
-      "package": "com.toxicgame.app",
+      "package": "com.StevenAndrePennant.ToxicTheCardGame",
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-3940256099942544~3347511713"
       }

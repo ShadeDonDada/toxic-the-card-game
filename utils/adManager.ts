@@ -8,7 +8,7 @@ import {
 // AdMob Ad Unit IDs - Replace with your actual Ad Unit IDs
 const INTERSTITIAL_AD_UNIT_ID = Platform.select({
   ios: 'ca-app-pub-3940256099942544/4411468910', // Test ID - Replace with your actual iOS Ad Unit ID
-  android: 'ca-app-pub-3940256099942544/1033173712', // Test ID - Replace with your actual Android Ad Unit ID
+  android: 'ca-app-pub-9650063361649225~8605617788', // Test ID - Replace with your actual Android Ad Unit ID
 }) || '';
 
 class AdManager {

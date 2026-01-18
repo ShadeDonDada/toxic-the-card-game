@@ -149,6 +149,7 @@ export default function GameScreen() {
   const [showPassPhoneModal, setShowPassPhoneModal] = useState(false);
   const [nextPlayerName, setNextPlayerName] = useState('');
   const [showReadyModal, setShowReadyModal] = useState(false);
+  const [isLastPlayer, setIsLastPlayer] = useState(false);
 
   const playerCount = parseInt(params.playerCount as string) || 2;
   const playerNames = useMemo(() => {
@@ -199,9 +200,10 @@ export default function GameScreen() {
     console.log('GameScreen: User played card');
     
     // Check if this is the last player
-    const isLastPlayer = gameState.currentPlayerIndex === gameState.players.length - 1;
+    const lastPlayer = gameState.currentPlayerIndex === gameState.players.length - 1;
+    setIsLastPlayer(lastPlayer);
     
-    if (isLastPlayer) {
+    if (lastPlayer) {
       // Last player - show ready modal before awarding points
       console.log('GameScreen: Last player, showing ready modal');
       setShowReadyModal(true);
@@ -215,12 +217,22 @@ export default function GameScreen() {
   };
 
   const handleReadyPress = () => {
-    console.log('GameScreen: User pressed Ready button');
+    console.log('GameScreen: User pressed Ready button, isLastPlayer:', isLastPlayer);
     setShowReadyModal(false);
     setShowPassPhoneModal(false);
-    setSelectedCardId(null);
-    nextPlayer();
-    scrollToTop();
+    
+    if (isLastPlayer) {
+      // Last player - transition to awarding phase
+      console.log('GameScreen: Transitioning to awarding phase');
+      setSelectedCardId(null);
+      awardPoint(''); // Empty string triggers awarding phase
+    } else {
+      // Not last player - move to next player
+      console.log('GameScreen: Moving to next player');
+      setSelectedCardId(null);
+      nextPlayer();
+      scrollToTop();
+    }
   };
 
   const handleAwardPoint = (playerId: string) => {
@@ -493,12 +505,7 @@ export default function GameScreen() {
             </Text>
             <Button
               title="Ready"
-              onPress={() => {
-                console.log('GameScreen: User pressed Ready, transitioning to awarding phase');
-                setShowReadyModal(false);
-                // Transition to awarding phase
-                awardPoint(''); // Empty string triggers awarding phase
-              }}
+              onPress={handleReadyPress}
               variant="primary"
             />
           </View>
