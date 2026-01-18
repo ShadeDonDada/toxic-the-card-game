@@ -1,51 +1,64 @@
-
 {
   "expo": {
     "name": "Toxic - The Card Game",
-    "slug": "toxic-the-card-game",
+    "slug": "Toxic - The Card Game",
     "version": "1.1.1",
     "orientation": "portrait",
-    "icon": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png",
-    "scheme": "toxicgame",
+    "icon": "./assets/images/37a4463c-0dea-4f5f-9b33-cea6e0e6fe48.png",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#1A1A2E"
+      "image": "./assets/images/461262ab-c67c-4edb-83cc-0d620afaa105.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.toxicgame.app",
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-3940256099942544~1458002511"
+      "bundleIdentifier": "com.anonymous.Natively",
+      "requireFullScreen": true,
+      "icon": "./assets/images/69c73f5f-fc7b-4e3f-8595-49a637e13736.png",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIViewControllerBasedStatusBarAppearance": false,
+        "UIStatusBarHidden": true
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png",
-        "backgroundColor": "#1A1A2E"
+        "foregroundImage": "./assets/images/5458815b-3a9c-4d98-a205-ba7b8b0259ba.png",
+        "backgroundColor": "#000000"
       },
-      "package": "com.toxicgame.app",
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-3940256099942544~3347511713"
+      "edgeToEdgeEnabled": true,
+      "package": "com.StevenAndrePennant.ToxicTheCardGame",
+      "statusBar": {
+        "hidden": true,
+        "translucent": true
       }
     },
     "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/cf8fe377-20e1-49ba-a973-c53e0228ba43.png"
+      "favicon": "./assets/images/2887ca82-5f60-49fd-a5cd-8492bf7f98e9.png",
+      "bundler": "metro"
     },
     "plugins": [
+      "expo-font",
       "expo-router",
+      "expo-web-browser",
       [
-        "expo-ads-admob",
+        "expo-splash-screen",
         {
-          "userTrackingPermission": "This app uses ads to support development."
+          "backgroundColor": "#000000",
+          "image": "./assets/images/461262ab-c67c-4edb-83cc-0d620afaa105.png",
+          "resizeMode": "cover"
         }
       ]
     ],
+    "scheme": "natively",
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {}
     }
-  }
+  },
+  "scheme": "Toxic - The Card Game"
 }
