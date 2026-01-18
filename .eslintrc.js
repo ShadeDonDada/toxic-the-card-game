@@ -24,6 +24,9 @@ module.exports = {
     'import/no-unresolved': 'off',
     'react-hooks/exhaustive-deps': 'warn',
     'react/display-name': 'warn',
+    // Disable rules that don't exist in @typescript-eslint/eslint-plugin v6.21.0
+    '@typescript-eslint/no-empty-object-type': 'off',
+    '@typescript-eslint/no-wrapper-object-types': 'off',
   },
   overrides: [
     {
