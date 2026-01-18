@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as IAP from 'react-native-iap';
 import { Platform, Alert } from 'react-native';
@@ -35,18 +35,51 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    console.log('PurchaseProvider: Initializing IAP and checking premium status');
-    initializeIAP();
-    checkPremiumStatus();
-
-    return () => {
-      console.log('PurchaseProvider: Cleaning up IAP connection');
-      IAP.endConnection();
-    };
+  const setPremiumStatus = useCallback(async (status: boolean) => {
+    console.log('PurchaseProvider: Setting premium status to:', status);
+    setIsPremium(status);
+    await AsyncStorage.setItem(PREMIUM_KEY, status.toString());
   }, []);
 
-  const initializeIAP = async () => {
+  const restorePurchases = useCallback(async (silent: boolean = false) => {
+    try {
+      console.log('PurchaseProvider: Restoring purchases');
+      const purchases = await IAP.getAvailablePurchases();
+      console.log('PurchaseProvider: Available purchases:', purchases);
+      
+      const hasPremium = purchases.some(
+        (purchase) => purchase.productId === PRODUCT_ID
+      );
+
+      if (hasPremium) {
+        console.log('PurchaseProvider: Premium purchase found, restoring');
+        await setPremiumStatus(true);
+        if (!silent) {
+          Alert.alert(
+            'Restore Successful',
+            'Your premium purchase has been restored!',
+            [{ text: 'OK' }]
+          );
+        }
+      } else {
+        console.log('PurchaseProvider: No premium purchase found');
+        if (!silent) {
+          Alert.alert(
+            'No Purchases Found',
+            'No previous purchases were found to restore.',
+            [{ text: 'OK' }]
+          );
+        }
+      }
+    } catch (error) {
+      console.error('PurchaseProvider: Error restoring purchases:', error);
+      if (!silent) {
+        Alert.alert('Restore Error', 'Unable to restore purchases. Please try again.');
+      }
+    }
+  }, [setPremiumStatus]);
+
+  const initializeIAP = useCallback(async () => {
     try {
       console.log('PurchaseProvider: Connecting to IAP store');
       await IAP.initConnection();
@@ -91,9 +124,9 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
     } catch (error) {
       console.error('PurchaseProvider: Error initializing IAP:', error);
     }
-  };
+  }, [setPremiumStatus]);
 
-  const checkPremiumStatus = async () => {
+  const checkPremiumStatus = useCallback(async () => {
     try {
       console.log('PurchaseProvider: Checking stored premium status');
       const storedStatus = await AsyncStorage.getItem(PREMIUM_KEY);
@@ -111,15 +144,20 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [restorePurchases]);
 
-  const setPremiumStatus = async (status: boolean) => {
-    console.log('PurchaseProvider: Setting premium status to:', status);
-    setIsPremium(status);
-    await AsyncStorage.setItem(PREMIUM_KEY, status.toString());
-  };
+  useEffect(() => {
+    console.log('PurchaseProvider: Initializing IAP and checking premium status');
+    initializeIAP();
+    checkPremiumStatus();
 
-  const purchasePremium = async () => {
+    return () => {
+      console.log('PurchaseProvider: Cleaning up IAP connection');
+      IAP.endConnection();
+    };
+  }, [checkPremiumStatus, initializeIAP]);
+
+  const purchasePremium = useCallback(async () => {
     try {
       console.log('PurchaseProvider: User initiated purchase for product:', PRODUCT_ID);
       
@@ -141,45 +179,7 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
         Alert.alert('Purchase Error', 'Unable to complete purchase. Please try again.');
       }
     }
-  };
-
-  const restorePurchases = async (silent: boolean = false) => {
-    try {
-      console.log('PurchaseProvider: Restoring purchases');
-      const purchases = await IAP.getAvailablePurchases();
-      console.log('PurchaseProvider: Available purchases:', purchases);
-      
-      const hasPremium = purchases.some(
-        (purchase) => purchase.productId === PRODUCT_ID
-      );
-
-      if (hasPremium) {
-        console.log('PurchaseProvider: Premium purchase found, restoring');
-        await setPremiumStatus(true);
-        if (!silent) {
-          Alert.alert(
-            'Restore Successful',
-            'Your premium purchase has been restored!',
-            [{ text: 'OK' }]
-          );
-        }
-      } else {
-        console.log('PurchaseProvider: No premium purchase found');
-        if (!silent) {
-          Alert.alert(
-            'No Purchases Found',
-            'No previous purchases were found to restore.',
-            [{ text: 'OK' }]
-          );
-        }
-      }
-    } catch (error) {
-      console.error('PurchaseProvider: Error restoring purchases:', error);
-      if (!silent) {
-        Alert.alert('Restore Error', 'Unable to restore purchases. Please try again.');
-      }
-    }
-  };
+  }, []);
 
   return (
     <PurchaseContext.Provider
