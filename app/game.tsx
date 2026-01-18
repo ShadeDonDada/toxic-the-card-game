@@ -6,7 +6,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Ima
 import { IconSymbol } from '@/components/IconSymbol';
 import { useGameState } from '@/hooks/useGameState';
 import { Button } from '@/components/Button';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { adManager } from '@/utils/adManager';
 
@@ -151,9 +151,12 @@ export default function GameScreen() {
   const [showReadyModal, setShowReadyModal] = useState(false);
 
   const playerCount = parseInt(params.playerCount as string) || 2;
-  const playerNames = params.playerNames ? JSON.parse(params.playerNames as string) : [];
+  const playerNames = useMemo(() => {
+    return params.playerNames ? JSON.parse(params.playerNames as string) : [];
+  }, [params.playerNames]);
 
-  useEffect(() => {
+  // Memoize the initialization to avoid recreating on every render
+  const initializeGameCallback = useCallback(() => {
     console.log('GameScreen: Initializing game with player count:', playerCount);
     initializeGame(playerCount, playerNames);
     
@@ -162,7 +165,11 @@ export default function GameScreen() {
     
     // Reset round counter when starting a new game
     adManager.resetRoundCounter();
-  }, [playerCount, initializeGame, isPremium]);
+  }, [playerCount, playerNames, initializeGame, isPremium]);
+
+  useEffect(() => {
+    initializeGameCallback();
+  }, [initializeGameCallback]);
 
   useEffect(() => {
     // Update ad manager when premium status changes
