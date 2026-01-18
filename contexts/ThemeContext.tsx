@@ -1,74 +1,60 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useColorScheme as useSystemColorScheme } from 'react-native';
+import { useColorScheme } from 'react-native';
 
-type ThemeMode = 'light' | 'dark' | 'system';
+type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
-  themeMode: ThemeMode;
-  setThemeMode: (mode: ThemeMode) => void;
-  effectiveColorScheme: 'light' | 'dark';
+  theme: Theme;
+  toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType>({
+  theme: 'dark',
+  toggleTheme: () => {},
+});
 
-const THEME_STORAGE_KEY = '@toxic_theme_mode';
+export const useTheme = () => useContext(ThemeContext);
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const systemColorScheme = useSystemColorScheme();
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
-  const [isLoading, setIsLoading] = useState(true);
+interface ThemeProviderProps {
+  children: ReactNode;
+}
 
-  // Load saved theme preference on mount
+const THEME_KEY = '@toxic_theme';
+
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+  const systemColorScheme = useColorScheme();
+  const [theme, setTheme] = useState<Theme>(systemColorScheme || 'dark');
+
   useEffect(() => {
-    loadThemePreference();
+    loadTheme();
   }, []);
 
-  const loadThemePreference = async () => {
+  const loadTheme = async () => {
     try {
-      const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system')) {
-        setThemeModeState(savedTheme as ThemeMode);
+      const savedTheme = await AsyncStorage.getItem(THEME_KEY);
+      if (savedTheme) {
+        setTheme(savedTheme as Theme);
       }
     } catch (error) {
-      console.log('Error loading theme preference:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error loading theme:', error);
     }
   };
 
-  const setThemeMode = async (mode: ThemeMode) => {
+  const toggleTheme = async () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
     try {
-      await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
-      setThemeModeState(mode);
-      console.log('Theme mode saved:', mode);
+      await AsyncStorage.setItem(THEME_KEY, newTheme);
     } catch (error) {
-      console.log('Error saving theme preference:', error);
+      console.error('Error saving theme:', error);
     }
   };
-
-  // Calculate effective color scheme based on theme mode
-  const effectiveColorScheme: 'light' | 'dark' = 
-    themeMode === 'system' 
-      ? (systemColorScheme || 'dark')
-      : themeMode;
-
-  if (isLoading) {
-    return null;
-  }
 
   return (
-    <ThemeContext.Provider value={{ themeMode, setThemeMode, effectiveColorScheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-}
+};

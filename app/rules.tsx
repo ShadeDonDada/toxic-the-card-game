@@ -1,196 +1,208 @@
 
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
+import React from 'react';
 import { IconSymbol } from '@/components/IconSymbol';
-
-export default function RulesScreen() {
-  const router = useRouter();
-  const { effectiveColorScheme } = useTheme();
-  const colors = getColors(effectiveColorScheme);
-
-  return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => router.back()}
-      >
-        <IconSymbol
-          ios_icon_name="chevron.left"
-          android_material_icon_name="arrow-back"
-          size={24}
-          color={colors.primary}
-        />
-        <Text style={[styles.backText, { color: colors.primary }]}>Back</Text>
-      </TouchableOpacity>
-
-      <Text style={[styles.title, { color: colors.primary, textShadowColor: colors.accent }]}>How to Play</Text>
-
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-        <Text style={[styles.sectionTitle, { color: colors.primary }]}>Objective</Text>
-        <Text style={[styles.bodyText, { color: colors.text }]}>
-          Create the most toxic reaction for each scenario card provided. The goal is to be hilariously petty and outrageously dramatic!
-        </Text>
-      </View>
-
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-        <Text style={[styles.sectionTitle, { color: colors.primary }]}>Overview</Text>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>1.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Game is for 18+ players only</Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>2.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Between 2-10 players</Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>3.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Game is played on one phone</Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>4.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Choose each others consequences</Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>5.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Pass the phone to each player when it&apos;s their turn</Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>6.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Over 150 scenarios & responses</Text>
-        </View>
-      </View>
-
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-        <Text style={[styles.sectionTitle, { color: colors.primary }]}>Gameplay</Text>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>7.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>
-            Create the most toxic conversation through the cards
-          </Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>8.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Each player starts with 6 cards</Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>9.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>Play rotation is counterclockwise</Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>10.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>
-            During play, a player can request to exchange a random card with a player before or after you. Once per round
-          </Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>11.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>
-            Each round is completed when a player is first to finish their hand
-          </Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>12.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>
-            A player may pass if they cannot make a sensible response
-          </Text>
-        </View>
-        <View style={styles.ruleItem}>
-          <Text style={[styles.ruleNumber, { color: colors.accent }]}>13.</Text>
-          <Text style={[styles.ruleText, { color: colors.text }]}>
-            Playing while drinking is highly encouraged 🍺 21+
-          </Text>
-        </View>
-      </View>
-
-      <View style={[styles.card, styles.warningCard, { backgroundColor: colors.warningBackground, borderColor: colors.accent }]}>
-        <IconSymbol
-          ios_icon_name="exclamationmark.triangle.fill"
-          android_material_icon_name="warning"
-          size={32}
-          color={colors.accent}
-          style={styles.warningIcon}
-        />
-        <Text style={[styles.warningText, { color: colors.warningText }]}>
-          Remember: This is all in good fun! Keep it light-hearted and don&apos;t take things too seriously.
-        </Text>
-      </View>
-    </ScrollView>
-  );
-}
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  contentContainer: {
+  scrollContent: {
+    padding: 20,
     paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 120,
   },
-  backButton: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 30,
   },
-  backText: {
-    fontSize: 18,
-    marginLeft: 8,
-    fontWeight: '600',
+  backButton: {
+    marginRight: 15,
   },
   title: {
-    fontSize: 36,
-    fontWeight: '900',
-    marginBottom: 30,
-    textAlign: 'center',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
+    fontSize: 32,
+    fontWeight: 'bold',
   },
-  card: {
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 20,
-    borderWidth: 2,
-    boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
-    elevation: 4,
+  section: {
+    marginBottom: 30,
   },
   sectionTitle: {
     fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 16,
+    fontWeight: 'bold',
+    marginBottom: 15,
   },
-  bodyText: {
+  text: {
     fontSize: 16,
     lineHeight: 24,
+    marginBottom: 10,
   },
   ruleItem: {
     flexDirection: 'row',
-    marginBottom: 16,
-    alignItems: 'flex-start',
+    marginBottom: 12,
   },
   ruleNumber: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginRight: 12,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 10,
     minWidth: 30,
   },
   ruleText: {
     fontSize: 16,
+    lineHeight: 24,
     flex: 1,
-    lineHeight: 24,
-  },
-  warningCard: {
-    alignItems: 'center',
-  },
-  warningIcon: {
-    marginBottom: 12,
-  },
-  warningText: {
-    fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 24,
-    fontWeight: '600',
   },
 });
+
+export default function RulesScreen() {
+  const { theme } = useTheme();
+  const router = useRouter();
+  const colors = getColors(theme);
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView style={styles.scrollContent}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => {
+              console.log('RulesScreen: User tapped back button');
+              router.back();
+            }}
+          >
+            <IconSymbol
+              ios_icon_name="chevron.left"
+              android_material_icon_name="arrow-back"
+              size={28}
+              color={colors.text}
+            />
+          </TouchableOpacity>
+          <Text style={[styles.title, { color: colors.text }]}>Rules</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Overview
+          </Text>
+          <Text style={[styles.text, { color: colors.textSecondary }]}>
+            &quot;Extracting the poison out of you&quot;
+          </Text>
+          <Text style={[styles.text, { color: colors.textSecondary }]}>
+            Objective of the game is to create the most toxic reaction for each scenario card provided.
+          </Text>
+          <Text style={[styles.text, { color: colors.textSecondary }]}>
+            - Each player must draw 6 cards.
+          </Text>
+          <Text style={[styles.text, { color: colors.textSecondary }]}>
+            - One scenario card gets placed then every player places their best response card.
+          </Text>
+          <Text style={[styles.text, { color: colors.textSecondary }]}>
+            - Recommended 2-10 players.
+          </Text>
+          <Text style={[styles.text, { color: colors.textSecondary }]}>
+            - Plays go counterclockwise.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            How to Play
+          </Text>
+          
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>1.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              18+ only.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>2.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              Between 2 - 10 players.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>3.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              Shuffle the response cards.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>4.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              You choose the prize & points system.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>5.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              Place the scenario cards face down in the middle of all players then turn over the top card.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>6.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              Each player must draw 6 response cards.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>7.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              Objective of the game is to create the most toxic scenario through the cards.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>8.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              Players choose who goes first.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>9.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              Play rotation is counterclockwise.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>10.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              Only during play a player can request to exchange a card with any player once.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>11.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              Each round is completed when every player hand is empty.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>12.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              A player may pass if they cannot make a sensible response.
+            </Text>
+          </View>
+
+          <View style={styles.ruleItem}>
+            <Text style={[styles.ruleNumber, { color: colors.text }]}>13.</Text>
+            <Text style={[styles.ruleText, { color: colors.textSecondary }]}>
+              Playing while drinking is highly encouraged.
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
