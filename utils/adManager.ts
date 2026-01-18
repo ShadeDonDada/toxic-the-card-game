@@ -1,6 +1,9 @@
 
 import { Platform } from 'react-native';
-import { AdMobInterstitial } from 'expo-ads-admob';
+import {
+  AdMobInterstitial,
+  setTestDeviceIDAsync,
+} from 'expo-ads-admob';
 
 // AdMob Ad Unit IDs - Replace with your actual Ad Unit IDs
 const INTERSTITIAL_AD_UNIT_ID = Platform.select({
@@ -22,6 +25,9 @@ class AdManager {
 
     try {
       console.log('AdManager: Initializing with Ad Unit ID:', INTERSTITIAL_AD_UNIT_ID);
+      
+      // Set test device for development (optional)
+      // await setTestDeviceIDAsync('EMULATOR');
       
       // Set up ad event listeners
       AdMobInterstitial.addEventListener('interstitialDidLoad', () => {

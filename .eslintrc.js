@@ -1,40 +1,50 @@
-
+// https://docs.expo.dev/guides/using-eslint/
 module.exports = {
-  extends: ['expo', 'plugin:@typescript-eslint/recommended'],
+  extends: [
+    'expo',
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime'
+  ],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'import', 'react'],
-  settings: {
-    'import/resolver': {
-      'babel-module': {
-        alias: {
-          '@': '.',
-        },
-      },
-      typescript: {},
-      node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-        paths: ['.'],
-      },
-    },
+  plugins: ['@typescript-eslint', 'react', 'import'],
+  root: true,
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true
+    }
+  },
+  ignorePatterns: ['/dist/*', '/public/*', '/babel-plugins/*'],
+  env: {
+    browser: true,
   },
   rules: {
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/array-type': ['error', { default: 'array' }],
-    'import/no-unresolved': 'off',
-    'react-hooks/exhaustive-deps': 'warn',
-    'react/display-name': 'warn',
-    // Disable rules that don't exist in @typescript-eslint/eslint-plugin v6.21.0
-    '@typescript-eslint/no-empty-object-type': 'off',
-    '@typescript-eslint/no-wrapper-object-types': 'off',
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/prefer-as-const": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/no-empty-object-type": "off",
+    "@typescript-eslint/no-wrapper-object-types": "off",
+    "@typescript-eslint/ban-tslint-comment": "off",
+    "react/no-unescaped-entities": "off",
+    "import/no-unresolved": "error",
+    "prefer-const": "off",
+    "react/prop-types": 1,
+    "no-case-declarations": "off",
+    "no-empty": "off",
+    "react/display-name": "off",
+    "no-var": "off"
   },
   overrides: [
     {
-      // Disable no-var-requires for config files
-      files: ['*.config.js', '*.config.ts', 'babel.config.js', 'metro.config.js'],
+      files: ['metro.config.js'],
       rules: {
-        '@typescript-eslint/no-var-requires': 'off',
-      },
-    },
-  ],
+        '@typescript-eslint/no-var-requires': 'off'
+      }
+    }
+  ]
 };
