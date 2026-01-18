@@ -1,18 +1,22 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from 'react-native';
+import { getColors } from '@/styles/commonStyles';
 
 type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
+  isDark: boolean;
   toggleTheme: () => void;
+  getColors: (theme: Theme) => ReturnType<typeof getColors>;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'dark',
+  isDark: true,
   toggleTheme: () => {},
+  getColors: (theme: Theme) => getColors(theme),
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -21,39 +25,33 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-const THEME_KEY = '@toxic_theme';
-
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const systemColorScheme = useColorScheme();
-  const [theme, setTheme] = useState<Theme>(systemColorScheme || 'dark');
+  const [theme, setTheme] = useState<Theme>(systemColorScheme === 'dark' ? 'dark' : 'light');
 
   useEffect(() => {
-    loadTheme();
-  }, []);
-
-  const loadTheme = async () => {
-    try {
-      const savedTheme = await AsyncStorage.getItem(THEME_KEY);
-      if (savedTheme) {
-        setTheme(savedTheme as Theme);
-      }
-    } catch (error) {
-      console.error('Error loading theme:', error);
+    console.log('ThemeProvider: System color scheme changed to:', systemColorScheme);
+    if (systemColorScheme) {
+      setTheme(systemColorScheme);
     }
+  }, [systemColorScheme]);
+
+  const toggleTheme = () => {
+    console.log('ThemeProvider: Toggling theme from', theme);
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const toggleTheme = async () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    try {
-      await AsyncStorage.setItem(THEME_KEY, newTheme);
-    } catch (error) {
-      console.error('Error saving theme:', error);
-    }
-  };
+  const isDark = theme === 'dark';
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        isDark,
+        toggleTheme,
+        getColors,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );

@@ -6,7 +6,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Ima
 import { IconSymbol } from '@/components/IconSymbol';
 import { useGameState } from '@/hooks/useGameState';
 import { Button } from '@/components/Button';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { adManager } from '@/utils/adManager';
 
@@ -162,28 +162,28 @@ export default function GameScreen() {
     
     // Reset round counter when starting a new game
     adManager.resetRoundCounter();
-  }, [playerCount, initializeGame, isPremium]);
+  }, [playerCount, playerNames, initializeGame, isPremium]);
 
   useEffect(() => {
     // Update ad manager when premium status changes
     adManager.setPremiumStatus(isPremium);
   }, [isPremium]);
 
-  const scrollToTop = () => {
+  const scrollToTop = useCallback(() => {
     scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-  };
+  }, []);
 
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
-  const handleCardSelect = (cardId: string) => {
+  const handleCardSelect = useCallback((cardId: string) => {
     console.log('GameScreen: User selected card:', cardId);
     setSelectedCardId(cardId);
     if (currentPlayer) {
       selectCard(currentPlayer.id, cardId);
     }
-  };
+  }, [currentPlayer, selectCard]);
 
-  const handlePlayCard = () => {
+  const handlePlayCard = useCallback(() => {
     if (!selectedCardId) {
       Alert.alert('No Card Selected', 'Please select a card to play.');
       return;
@@ -205,18 +205,18 @@ export default function GameScreen() {
       setNextPlayerName(nextPlayer.name);
       setShowPassPhoneModal(true);
     }
-  };
+  }, [selectedCardId, gameState.currentPlayerIndex, gameState.players]);
 
-  const handleReadyPress = () => {
+  const handleReadyPress = useCallback(() => {
     console.log('GameScreen: User pressed Ready button');
     setShowReadyModal(false);
     setShowPassPhoneModal(false);
     setSelectedCardId(null);
     nextPlayer();
     scrollToTop();
-  };
+  }, [nextPlayer, scrollToTop]);
 
-  const handleAwardPoint = (playerId: string) => {
+  const handleAwardPoint = useCallback((playerId: string) => {
     console.log('GameScreen: Awarding point to player:', playerId);
     
     // Award the point first
@@ -226,9 +226,9 @@ export default function GameScreen() {
     // This happens after all players have played their cards
     console.log('GameScreen: Round ended, triggering ad check');
     adManager.showAdAtRoundEnd();
-  };
+  }, [awardPoint]);
 
-  const handlePlayAgain = () => {
+  const handlePlayAgain = useCallback(() => {
     console.log('GameScreen: User tapped Play Again button');
     
     // Check if there are more scenarios
@@ -255,7 +255,7 @@ export default function GameScreen() {
     nextRound();
     setSelectedCardId(null);
     scrollToTop();
-  };
+  }, [gameState.scenarioDeck.length, nextRound, scrollToTop, router]);
 
   // Render awarding phase
   if (gameState.gamePhase === 'awarding' || gameState.gamePhase === 'roundEnd') {

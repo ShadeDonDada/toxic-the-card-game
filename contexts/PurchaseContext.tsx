@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as IAP from 'react-native-iap';
 import { Platform, Alert } from 'react-native';
@@ -35,18 +35,33 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    console.log('PurchaseProvider: Initializing IAP and checking premium status');
-    initializeIAP();
-    checkPremiumStatus();
-
-    return () => {
-      console.log('PurchaseProvider: Cleaning up IAP connection');
-      IAP.endConnection();
-    };
+  const setPremiumStatus = useCallback(async (status: boolean) => {
+    console.log('PurchaseProvider: Setting premium status to:', status);
+    setIsPremium(status);
+    await AsyncStorage.setItem(PREMIUM_KEY, status.toString());
   }, []);
 
-  const initializeIAP = async () => {
+  const checkPremiumStatus = useCallback(async () => {
+    try {
+      console.log('PurchaseProvider: Checking stored premium status');
+      const storedStatus = await AsyncStorage.getItem(PREMIUM_KEY);
+      const premium = storedStatus === 'true';
+      console.log('PurchaseProvider: Stored premium status:', premium);
+      setIsPremium(premium);
+      
+      // Also check for active purchases to restore automatically
+      if (!premium) {
+        console.log('PurchaseProvider: Not premium, checking for active purchases');
+        await restorePurchases(true);
+      }
+    } catch (error) {
+      console.error('PurchaseProvider: Error checking premium status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const initializeIAP = useCallback(async () => {
     try {
       console.log('PurchaseProvider: Connecting to IAP store');
       await IAP.initConnection();
@@ -91,33 +106,18 @@ export const PurchaseProvider: React.FC<PurchaseProviderProps> = ({ children }) 
     } catch (error) {
       console.error('PurchaseProvider: Error initializing IAP:', error);
     }
-  };
+  }, [setPremiumStatus]);
 
-  const checkPremiumStatus = async () => {
-    try {
-      console.log('PurchaseProvider: Checking stored premium status');
-      const storedStatus = await AsyncStorage.getItem(PREMIUM_KEY);
-      const premium = storedStatus === 'true';
-      console.log('PurchaseProvider: Stored premium status:', premium);
-      setIsPremium(premium);
-      
-      // Also check for active purchases to restore automatically
-      if (!premium) {
-        console.log('PurchaseProvider: Not premium, checking for active purchases');
-        await restorePurchases(true);
-      }
-    } catch (error) {
-      console.error('PurchaseProvider: Error checking premium status:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    console.log('PurchaseProvider: Initializing IAP and checking premium status');
+    initializeIAP();
+    checkPremiumStatus();
 
-  const setPremiumStatus = async (status: boolean) => {
-    console.log('PurchaseProvider: Setting premium status to:', status);
-    setIsPremium(status);
-    await AsyncStorage.setItem(PREMIUM_KEY, status.toString());
-  };
+    return () => {
+      console.log('PurchaseProvider: Cleaning up IAP connection');
+      IAP.endConnection();
+    };
+  }, [initializeIAP, checkPremiumStatus]);
 
   const purchasePremium = async () => {
     try {
