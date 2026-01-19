@@ -1,7 +1,16 @@
 
+export interface Player {
+  id: string;
+  name: string;
+  hand: ResponseCard[];
+  score: number;
+  hasExchanged: boolean;
+}
+
 export interface ScenarioCard {
   id: string;
   text: string;
+  category?: string;
 }
 
 export interface ResponseCard {
@@ -11,22 +20,15 @@ export interface ResponseCard {
   customText?: string;
 }
 
-export interface Player {
-  id: string;
-  name: string;
-  hand: ResponseCard[];
-  score: number;
-  selectedCard: ResponseCard | null;
-  hasExchanged: boolean;
-  hasPassed: boolean;
-}
-
 export interface GameState {
   players: Player[];
   currentPlayerIndex: number;
   currentScenario: ScenarioCard | null;
   scenarioDeck: ScenarioCard[];
   responseDeck: ResponseCard[];
-  roundNumber: number;
-  gamePhase: 'playing' | 'awarding' | 'roundEnd';
+  playedCards: { playerId: string; card: ResponseCard }[];
+  round: number;
+  gameStarted: boolean;
+  roundComplete: boolean;
+  gameComplete: boolean;
 }

@@ -1,38 +1,44 @@
 
+import { useMemo } from 'react';
 import { usePurchase } from '@/contexts/PurchaseContext';
+import { scenarioCards, responseCards } from '@/data/cards';
 
-const DEMO_SCENARIO_LIMIT = 3;
-const DEMO_RESPONSE_CARD_LIMIT = 3;
+const MAX_DEMO_ROUNDS = 3;
+const MAX_DEMO_SCENARIOS = 3;
+const MAX_DEMO_RESPONSES = 3;
 
-export const useDemoMode = () => {
-  const { isPremium } = usePurchase();
+export function useDemoMode() {
+  const { isFullVersion } = usePurchase();
 
-  const isDemoMode = !isPremium;
+  const isDemoMode = !isFullVersion;
 
-  const getLimitedScenarios = <T,>(scenarios: T[]): T[] => {
-    if (isPremium) {
-      console.log('useDemoMode: Premium user, returning all scenarios:', scenarios.length);
-      return scenarios;
-    }
-    console.log('useDemoMode: Demo mode, limiting scenarios to:', DEMO_SCENARIO_LIMIT);
-    return scenarios.slice(0, DEMO_SCENARIO_LIMIT);
+  const limitedScenarioCards = useMemo(() => {
+    if (isFullVersion) return scenarioCards;
+    return scenarioCards.slice(0, MAX_DEMO_SCENARIOS);
+  }, [isFullVersion]);
+
+  const limitedResponseCards = useMemo(() => {
+    if (isFullVersion) return responseCards;
+    return responseCards.slice(0, MAX_DEMO_RESPONSES);
+  }, [isFullVersion]);
+
+  const canPlayRound = (currentRound: number) => {
+    if (isFullVersion) return true;
+    return currentRound <= MAX_DEMO_ROUNDS;
   };
 
-  const getLimitedResponseCards = <T,>(cards: T[]): T[] => {
-    if (isPremium) {
-      console.log('useDemoMode: Premium user, returning all response cards:', cards.length);
-      return cards;
-    }
-    console.log('useDemoMode: Demo mode, limiting response cards to:', DEMO_RESPONSE_CARD_LIMIT);
-    return cards.slice(0, DEMO_RESPONSE_CARD_LIMIT);
+  const isDemoLimitReached = (currentRound: number) => {
+    if (isFullVersion) return false;
+    return currentRound > MAX_DEMO_ROUNDS;
   };
 
   return {
     isDemoMode,
-    isPremium,
-    getLimitedScenarios,
-    getLimitedResponseCards,
-    demoScenarioLimit: DEMO_SCENARIO_LIMIT,
-    demoResponseCardLimit: DEMO_RESPONSE_CARD_LIMIT,
+    isFullVersion,
+    limitedScenarioCards,
+    limitedResponseCards,
+    canPlayRound,
+    isDemoLimitReached,
+    maxDemoRounds: MAX_DEMO_ROUNDS,
   };
-};
+}
