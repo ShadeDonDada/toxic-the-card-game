@@ -462,8 +462,14 @@ export default function GameScreen() {
   };
 
   const handleDemoLimitClose = () => {
-    console.log('User closed demo limit modal - navigating to settings');
+    console.log('User closed demo limit modal - resetting game and navigating to settings');
     setShowDemoLimitModal(false);
+    
+    // CRITICAL FIX: Reset the game state before navigating to settings
+    // This ensures that when the user returns to home from settings,
+    // the game is in a fresh state
+    resetGame();
+    
     router.push('/settings');
   };
 

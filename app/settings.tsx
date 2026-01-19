@@ -77,6 +77,12 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleBackToHome = () => {
+    console.log('User pressed Back to Home from settings - navigating to home and resetting game state');
+    // Navigate to home screen and reset any game state
+    router.replace('/(tabs)/(home)/');
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView 
@@ -268,7 +274,7 @@ export default function SettingsScreen() {
       <View style={[styles.buttonContainer, { backgroundColor: colors.background }]}>
         <Button
           title="Back to Home"
-          onPress={() => router.back()}
+          onPress={handleBackToHome}
           variant="secondary"
           style={styles.backButton}
         />
