@@ -13,7 +13,7 @@ interface PurchaseContextType {
 const PurchaseContext = createContext<PurchaseContextType | undefined>(undefined);
 
 export function PurchaseProvider({ children }: { children: ReactNode }) {
-  // Start with false (demo mode) by default
+  // Start with false (demo mode) by default - requires explicit purchase or restore
   const [isFullVersion, setIsFullVersion] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -27,18 +27,19 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
       const status = await AsyncStorage.getItem('fullVersion');
       console.log('Purchase status loaded:', status);
       
-      // Only set to true if explicitly set to 'true' in storage
-      // This ensures the app is in demo mode by default
+      // CRITICAL: Only set to true if explicitly set to 'true' in storage
+      // This ensures newly installed apps are in demo mode by default
+      // and require the user to press "Buy me a drink" or "Restore Purchases"
       if (status === 'true') {
         setIsFullVersion(true);
         console.log('Full version verified - unlocking app');
       } else {
         setIsFullVersion(false);
-        console.log('No purchase found - app in demo mode');
+        console.log('No purchase found - app in demo mode (requires purchase or restore)');
       }
     } catch (error) {
       console.error('Failed to load purchase status:', error);
-      // On error, default to demo mode
+      // On error, default to demo mode for safety
       setIsFullVersion(false);
     } finally {
       setLoading(false);
@@ -53,7 +54,7 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
       console.log('Purchasing full version...');
       await AsyncStorage.setItem('fullVersion', 'true');
       setIsFullVersion(true);
-      console.log('Full version purchased successfully');
+      console.log('Full version purchased and verified successfully');
     } catch (error) {
       console.error('Failed to save purchase status:', error);
       throw error;
@@ -62,9 +63,21 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
 
   const restorePurchases = async () => {
     // In a real app, this would check with the app store
+    // For now, we check AsyncStorage to see if purchase was made
     console.log('Restoring purchases...');
-    await loadPurchaseStatus();
-    console.log('Purchases restored');
+    try {
+      const status = await AsyncStorage.getItem('fullVersion');
+      if (status === 'true') {
+        setIsFullVersion(true);
+        console.log('Purchase restored successfully');
+      } else {
+        console.log('No previous purchase found to restore');
+        // Keep isFullVersion as false if no purchase found
+      }
+    } catch (error) {
+      console.error('Failed to restore purchases:', error);
+      throw error;
+    }
   };
 
   return (

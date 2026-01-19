@@ -24,6 +24,8 @@ export function DemoLimitModal({ visible, onClose }: DemoLimitModalProps) {
           <Text style={[styles.title, { color: theme.colors.text }]}>Demo Limit Reached</Text>
           <Text style={[styles.message, { color: theme.dark ? '#98989D' : '#666' }]}>
             You&apos;ve completed the 3 demo rounds!{'\n\n'}
+            To continue playing, unlock the full version in Settings.
+            {'\n\n'}
             The full version includes:
           </Text>
           
@@ -38,7 +40,7 @@ export function DemoLimitModal({ visible, onClose }: DemoLimitModalProps) {
             </View>
             <View style={styles.featureItem}>
               <IconSymbol ios_icon_name="checkmark.circle.fill" android_material_icon_name="check-circle" size={20} color="#4CAF50" />
-              <Text style={[styles.featureText, { color: theme.colors.text }]}>All response cards</Text>
+              <Text style={[styles.featureText, { color: theme.colors.text }]}>6 cards per player</Text>
             </View>
           </View>
 

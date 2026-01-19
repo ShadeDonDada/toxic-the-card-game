@@ -22,8 +22,8 @@ export default function GameScreen() {
   const playerNamesParam = params.playerNames as string;
   const scrollViewRef = useRef<ScrollView>(null);
   
-  const { loading: purchaseLoading } = usePurchase();
-  const { isDemoLimitReached, canPlayRound, isFullVersion, limitedScenarioCards, getCardsPerPlayer } = useDemoMode();
+  const { loading: purchaseLoading, isFullVersion } = usePurchase();
+  const { isDemoLimitReached, canPlayRound, limitedScenarioCards, getCardsPerPlayer } = useDemoMode();
   
   let playerNames: string[] = [];
   try {
@@ -421,7 +421,17 @@ export default function GameScreen() {
   };
 
   const handlePlayAgain = () => {
-    console.log('Play Again pressed - restarting with same players');
+    console.log('Play Again pressed - checking if demo limit reached');
+    
+    // Check if user is in demo mode and has completed 3 rounds
+    if (!isFullVersion && gameState.round >= 3) {
+      console.log('Demo limit reached after 3 rounds - showing demo limit modal');
+      setShowGameOverModal(false);
+      setShowDemoLimitModal(true);
+      return;
+    }
+    
+    console.log('Restarting with same players');
     setShowGameOverModal(false);
     
     restartGameWithSamePlayers(limitedScenarioCards, cardsPerPlayer);
@@ -432,6 +442,23 @@ export default function GameScreen() {
     setTimeout(() => {
       scrollToTop();
     }, 100);
+  };
+
+  const handleBackToHome = () => {
+    console.log('Back to Home pressed - checking if demo limit reached');
+    
+    // Check if user is in demo mode and has completed 3 rounds
+    if (!isFullVersion && gameState.round >= 3) {
+      console.log('Demo limit reached after 3 rounds - showing demo limit modal');
+      setShowGameOverModal(false);
+      setShowDemoLimitModal(true);
+      return;
+    }
+    
+    console.log('Navigating back to home');
+    setShowGameOverModal(false);
+    resetGame();
+    router.replace('/(tabs)/(home)/');
   };
 
   const handleDemoLimitClose = () => {
@@ -790,11 +817,7 @@ export default function GameScreen() {
             
             <Button
               title="Back to Home"
-              onPress={() => {
-                setShowGameOverModal(false);
-                resetGame();
-                router.replace('/(tabs)/(home)/');
-              }}
+              onPress={handleBackToHome}
               variant="secondary"
               style={styles.playAgainButton}
             />

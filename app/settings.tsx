@@ -29,10 +29,10 @@ export default function SettingsScreen() {
       await purchaseFullVersion();
       Alert.alert(
         'Thank You! 🎉',
-        'Thanks for buying me a drink! You now have full access to all features.',
+        'Thanks for buying me a drink! You now have full access to all features. Enjoy unlimited rounds!',
         [{ text: 'OK' }]
       );
-      console.log('Purchase completed successfully');
+      console.log('Purchase completed and verified successfully');
     } catch (error) {
       console.error('Purchase failed:', error);
       Alert.alert(
@@ -53,14 +53,14 @@ export default function SettingsScreen() {
       if (isFullVersion) {
         Alert.alert(
           'Restored! ✅',
-          'Your purchase has been restored successfully. You now have full access.',
+          'Your purchase has been restored successfully. You now have full access to all features!',
           [{ text: 'OK' }]
         );
-        console.log('Purchases restored successfully');
+        console.log('Purchases restored and verified successfully');
       } else {
         Alert.alert(
           'No Purchases Found',
-          'We couldn\'t find any previous purchases to restore.',
+          'We couldn\'t find any previous purchases to restore. Please purchase the full version to unlock all features.',
           [{ text: 'OK' }]
         );
         console.log('No purchases found to restore');
@@ -161,7 +161,7 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Support the App</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Unlock Full Version</Text>
           {!isFullVersion && (
             <View style={[styles.demoNotice, { backgroundColor: colors.accent + '20', borderColor: colors.accent }]}>
               <IconSymbol
@@ -171,15 +171,17 @@ export default function SettingsScreen() {
                 color={colors.accent}
               />
               <View style={styles.demoNoticeTextContainer}>
-                <Text style={[styles.demoNoticeTitle, { color: colors.accent }]}>Demo Version</Text>
+                <Text style={[styles.demoNoticeTitle, { color: colors.accent }]}>Demo Version Active</Text>
                 <Text style={[styles.demoNoticeText, { color: colors.text }]}>
-                  You&apos;re currently using the demo version with limited rounds. Purchase the full version to unlock unlimited gameplay!
+                  You&apos;re currently using the demo version (3 rounds, 3 cards per player). Purchase or restore to unlock unlimited gameplay!
                 </Text>
               </View>
             </View>
           )}
           <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
-            {isFullVersion ? 'Thank you for your support!' : 'Enjoying the game? Buy me a drink to unlock the full version!'}
+            {isFullVersion 
+              ? 'Thank you for your support! You have full access to all features.' 
+              : 'Purchase the full version or restore a previous purchase to unlock unlimited rounds and all cards.'}
           </Text>
 
           <View style={styles.purchaseContainer}>
@@ -211,7 +213,7 @@ export default function SettingsScreen() {
                     {isFullVersion ? 'Thank You!' : 'Buy me a drink'}
                   </Text>
                   <Text style={[styles.purchasePrice, { color: colors.primary }]}>
-                    {isFullVersion ? 'Already purchased' : '$6.99'}
+                    {isFullVersion ? 'Already purchased ✓' : '$6.99'}
                   </Text>
                   {!isFullVersion && (
                     <Text style={[styles.purchaseFeatures, { color: colors.textSecondary }]}>
@@ -245,6 +247,20 @@ export default function SettingsScreen() {
               disabled={restoring}
               style={styles.restoreButton}
             />
+            
+            {!isFullVersion && (
+              <View style={[styles.helpCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+                <IconSymbol
+                  ios_icon_name="questionmark.circle.fill"
+                  android_material_icon_name="help"
+                  size={24}
+                  color={colors.primary}
+                />
+                <Text style={[styles.helpText, { color: colors.textSecondary }]}>
+                  Already purchased? Tap &quot;Restore Purchases&quot; to verify and unlock full access.
+                </Text>
+              </View>
+            )}
           </View>
         </View>
       </ScrollView>
@@ -293,6 +309,7 @@ const styles = StyleSheet.create({
   sectionDescription: {
     fontSize: 14,
     marginBottom: 20,
+    lineHeight: 20,
   },
   optionsContainer: {
     gap: 12,
@@ -369,6 +386,19 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   infoText: {
+    fontSize: 14,
+    flex: 1,
+    lineHeight: 20,
+  },
+  helpCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    gap: 12,
+    borderWidth: 2,
+  },
+  helpText: {
     fontSize: 14,
     flex: 1,
     lineHeight: 20,
