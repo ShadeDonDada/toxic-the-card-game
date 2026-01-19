@@ -148,6 +148,18 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        <View style={styles.infoCard}>
+          <IconSymbol
+            ios_icon_name="info.circle.fill"
+            android_material_icon_name="info"
+            size={24}
+            color={colors.accent}
+          />
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+            Your theme preference will be saved and applied across the app
+          </Text>
+        </View>
+
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Support the App</Text>
           <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
@@ -213,18 +225,6 @@ export default function SettingsScreen() {
               style={styles.restoreButton}
             />
           </View>
-        </View>
-
-        <View style={styles.infoCard}>
-          <IconSymbol
-            ios_icon_name="info.circle.fill"
-            android_material_icon_name="info"
-            size={24}
-            color={colors.accent}
-          />
-          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            Your theme preference will be saved and applied across the app
-          </Text>
         </View>
       </ScrollView>
 
@@ -342,6 +342,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 12,
     marginTop: 20,
+    marginBottom: 30,
   },
   infoText: {
     fontSize: 14,
