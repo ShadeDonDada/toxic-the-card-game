@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { IconSymbol } from './IconSymbol';
+import { Button } from './Button';
 
 interface DemoLimitModalProps {
   visible: boolean;
@@ -22,7 +23,7 @@ export function DemoLimitModal({ visible, onClose }: DemoLimitModalProps) {
           
           <Text style={[styles.title, { color: theme.colors.text }]}>Demo Limit Reached</Text>
           <Text style={[styles.message, { color: theme.dark ? '#98989D' : '#666' }]}>
-            You've completed the 3 demo rounds!{'\n\n'}
+            You&apos;ve completed the 3 demo rounds!{'\n\n'}
             The full version includes:
           </Text>
           
@@ -41,9 +42,12 @@ export function DemoLimitModal({ visible, onClose }: DemoLimitModalProps) {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={[styles.closeButtonText, { color: theme.colors.primary }]}>Continue Playing</Text>
-          </TouchableOpacity>
+          <Button
+            title="Go to Settings to Purchase"
+            onPress={onClose}
+            variant="primary"
+            style={styles.purchaseButton}
+          />
         </View>
       </View>
     </Modal>
@@ -98,11 +102,7 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 16,
   },
-  closeButton: {
-    paddingVertical: 12,
-  },
-  closeButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  purchaseButton: {
+    width: '100%',
   },
 });

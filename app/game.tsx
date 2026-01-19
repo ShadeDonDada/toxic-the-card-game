@@ -5,10 +5,12 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
 import { useGameState } from '@/hooks/useGameState';
+import { useDemoMode } from '@/hooks/useDemoMode';
 import { GameCard } from '@/components/GameCard';
 import { PlayerHand } from '@/components/PlayerHand';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
+import { DemoLimitModal } from '@/components/DemoLimitModal';
 
 export default function GameScreen() {
   const router = useRouter();
@@ -18,6 +20,8 @@ export default function GameScreen() {
   const playerCount = parseInt(params.playerCount as string) || 4;
   const playerNamesParam = params.playerNames as string;
   const scrollViewRef = useRef<ScrollView>(null);
+  
+  const { isDemoLimitReached, canPlayRound, isFullVersion } = useDemoMode();
   
   let playerNames: string[] = [];
   try {
@@ -50,6 +54,7 @@ export default function GameScreen() {
   const [nextPlayerName, setNextPlayerName] = useState('');
   const [showPointSelection, setShowPointSelection] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
+  const [showDemoLimitModal, setShowDemoLimitModal] = useState(false);
   // Initialize to false - cards will be blank until player presses ready
   const [isPlayerReady, setIsPlayerReady] = useState(false);
 
@@ -58,6 +63,15 @@ export default function GameScreen() {
     // Ensure isPlayerReady is false when game initializes
     setIsPlayerReady(false);
   }, [playerCount, initializeGame]);
+
+  // Check demo limit when round changes
+  useEffect(() => {
+    console.log('Checking demo limit - Round:', gameState.round, 'Is Full Version:', isFullVersion);
+    if (gameState.gameStarted && isDemoLimitReached(gameState.round)) {
+      console.log('Demo limit reached - showing modal');
+      setShowDemoLimitModal(true);
+    }
+  }, [gameState.round, gameState.gameStarted, isDemoLimitReached, isFullVersion]);
 
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
@@ -107,6 +121,13 @@ export default function GameScreen() {
   };
 
   const handlePlayCard = () => {
+    // Check demo limit before allowing play
+    if (!canPlayRound(gameState.round)) {
+      console.log('Cannot play - demo limit reached');
+      setShowDemoLimitModal(true);
+      return;
+    }
+
     if (!selectedCardId || !currentPlayer) {
       console.log('No card selected or no current player');
       return;
@@ -154,6 +175,13 @@ export default function GameScreen() {
   };
 
   const handlePass = () => {
+    // Check demo limit before allowing pass
+    if (!canPlayRound(gameState.round)) {
+      console.log('Cannot pass - demo limit reached');
+      setShowDemoLimitModal(true);
+      return;
+    }
+
     if (!currentPlayer) {
       console.log('No current player');
       return;
@@ -248,6 +276,13 @@ export default function GameScreen() {
   };
 
   const handleExchange = () => {
+    // Check demo limit before allowing exchange
+    if (!canPlayRound(gameState.round)) {
+      console.log('Cannot exchange - demo limit reached');
+      setShowDemoLimitModal(true);
+      return;
+    }
+
     if (!currentPlayer || currentPlayer.hasExchanged) {
       Alert.alert('Exchange Not Available', 'You have already exchanged a card this round.');
       return;
@@ -272,8 +307,10 @@ export default function GameScreen() {
     let targetIndex: number;
     
     if (direction === 'previous') {
+      // Previous player (counterclockwise, so +1)
       targetIndex = (currentIndex + 1) % gameState.players.length;
     } else {
+      // Next player (clockwise, so -1)
       targetIndex = currentIndex - 1;
       if (targetIndex < 0) {
         targetIndex = gameState.players.length - 1;
@@ -331,6 +368,14 @@ export default function GameScreen() {
           ]
         );
       } else {
+        // Check if next round would exceed demo limit
+        const nextRoundNumber = gameState.round + 1;
+        if (!canPlayRound(nextRoundNumber)) {
+          console.log('Next round would exceed demo limit');
+          setShowDemoLimitModal(true);
+          return;
+        }
+
         nextRound(playerId);
         
         setTimeout(() => {
@@ -359,6 +404,12 @@ export default function GameScreen() {
     setTimeout(() => {
       scrollToTop();
     }, 100);
+  };
+
+  const handleDemoLimitClose = () => {
+    console.log('User closed demo limit modal - navigating to settings');
+    setShowDemoLimitModal(false);
+    router.push('/settings');
   };
 
   const getPreviousPlayer = () => {
@@ -721,6 +772,11 @@ export default function GameScreen() {
           </View>
         </View>
       </Modal>
+
+      <DemoLimitModal
+        visible={showDemoLimitModal}
+        onClose={handleDemoLimitClose}
+      />
     </View>
   );
 }
