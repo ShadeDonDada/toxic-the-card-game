@@ -29,7 +29,7 @@ export default function SettingsScreen() {
       await purchaseFullVersion();
       Alert.alert(
         'Thank You! 🎉',
-        'Thanks for buying me a drink! Your support means a lot.',
+        'Thanks for buying me a drink! You now have full access to all features.',
         [{ text: 'OK' }]
       );
       console.log('Purchase completed successfully');
@@ -53,7 +53,7 @@ export default function SettingsScreen() {
       if (isFullVersion) {
         Alert.alert(
           'Restored! ✅',
-          'Your purchase has been restored successfully.',
+          'Your purchase has been restored successfully. You now have full access.',
           [{ text: 'OK' }]
         );
         console.log('Purchases restored successfully');
@@ -137,8 +137,8 @@ export default function SettingsScreen() {
                 </View>
                 {themeMode === option.value && (
                   <IconSymbol
-                    ios_icon_name="lightbulb.fill"
-                    android_material_icon_name="lightbulb"
+                    ios_icon_name="checkmark.circle.fill"
+                    android_material_icon_name="check-circle"
                     size={24}
                     color={colors.primary}
                   />
@@ -146,24 +146,40 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
 
-        <View style={styles.infoCard}>
-          <IconSymbol
-            ios_icon_name="info.circle.fill"
-            android_material_icon_name="info"
-            size={24}
-            color={colors.accent}
-          />
-          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            Your theme preference will be saved and applied across the app
-          </Text>
+          <View style={styles.infoCard}>
+            <IconSymbol
+              ios_icon_name="info.circle.fill"
+              android_material_icon_name="info"
+              size={24}
+              color={colors.accent}
+            />
+            <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+              Your theme preference will be saved and applied across the app
+            </Text>
+          </View>
         </View>
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Support the App</Text>
+          {!isFullVersion && (
+            <View style={[styles.demoNotice, { backgroundColor: colors.accent + '20', borderColor: colors.accent }]}>
+              <IconSymbol
+                ios_icon_name="lock.fill"
+                android_material_icon_name="lock"
+                size={32}
+                color={colors.accent}
+              />
+              <View style={styles.demoNoticeTextContainer}>
+                <Text style={[styles.demoNoticeTitle, { color: colors.accent }]}>Demo Version</Text>
+                <Text style={[styles.demoNoticeText, { color: colors.text }]}>
+                  You&apos;re currently using the demo version with limited rounds. Purchase the full version to unlock unlimited gameplay!
+                </Text>
+              </View>
+            </View>
+          )}
           <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
-            Enjoying the game? Buy me a drink!
+            {isFullVersion ? 'Thank you for your support!' : 'Enjoying the game? Buy me a drink to unlock the full version!'}
           </Text>
 
           <View style={styles.purchaseContainer}>
@@ -197,6 +213,11 @@ export default function SettingsScreen() {
                   <Text style={[styles.purchasePrice, { color: colors.primary }]}>
                     {isFullVersion ? 'Already purchased' : '$6.99'}
                   </Text>
+                  {!isFullVersion && (
+                    <Text style={[styles.purchaseFeatures, { color: colors.textSecondary }]}>
+                      Unlock unlimited rounds & all cards
+                    </Text>
+                  )}
                 </View>
               </View>
               {!isFullVersion && (
@@ -332,6 +353,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  purchaseFeatures: {
+    fontSize: 12,
+    marginTop: 4,
+  },
   restoreButton: {
     width: '100%',
   },
@@ -342,11 +367,31 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 12,
     marginTop: 20,
-    marginBottom: 30,
   },
   infoText: {
     fontSize: 14,
     flex: 1,
+    lineHeight: 20,
+  },
+  demoNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    gap: 16,
+    marginBottom: 16,
+    borderWidth: 2,
+  },
+  demoNoticeTextContainer: {
+    flex: 1,
+  },
+  demoNoticeTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  demoNoticeText: {
+    fontSize: 14,
     lineHeight: 20,
   },
   buttonContainer: {

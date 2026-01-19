@@ -13,8 +13,8 @@ interface PurchaseContextType {
 const PurchaseContext = createContext<PurchaseContextType | undefined>(undefined);
 
 export function PurchaseProvider({ children }: { children: ReactNode }) {
-  // Start with true to avoid showing demo mode before checking purchase status
-  const [isFullVersion, setIsFullVersion] = useState(true);
+  // Start with false (demo mode) by default
+  const [isFullVersion, setIsFullVersion] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,18 +27,19 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
       const status = await AsyncStorage.getItem('fullVersion');
       console.log('Purchase status loaded:', status);
       
-      // Only set to false if explicitly set to 'false' in storage
-      // This ensures the app is not in demo mode by default
-      if (status === 'false') {
-        setIsFullVersion(false);
-      } else {
-        // Default to full version if no status is stored or if it's 'true'
+      // Only set to true if explicitly set to 'true' in storage
+      // This ensures the app is in demo mode by default
+      if (status === 'true') {
         setIsFullVersion(true);
+        console.log('Full version verified - unlocking app');
+      } else {
+        setIsFullVersion(false);
+        console.log('No purchase found - app in demo mode');
       }
     } catch (error) {
       console.error('Failed to load purchase status:', error);
-      // On error, default to full version to avoid blocking users
-      setIsFullVersion(true);
+      // On error, default to demo mode
+      setIsFullVersion(false);
     } finally {
       setLoading(false);
       console.log('Purchase status loading complete');
@@ -55,6 +56,7 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
       console.log('Full version purchased successfully');
     } catch (error) {
       console.error('Failed to save purchase status:', error);
+      throw error;
     }
   };
 
