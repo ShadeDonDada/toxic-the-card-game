@@ -1,8 +1,9 @@
 
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+import { usePurchase } from '@/contexts/PurchaseContext';
 import { getColors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -10,13 +11,71 @@ import { IconSymbol } from '@/components/IconSymbol';
 export default function SettingsScreen() {
   const router = useRouter();
   const { themeMode, setThemeMode, effectiveColorScheme } = useTheme();
+  const { isFullVersion, purchaseFullVersion, restorePurchases } = usePurchase();
   const colors = getColors(effectiveColorScheme);
+  const [purchasing, setPurchasing] = useState(false);
+  const [restoring, setRestoring] = useState(false);
 
   const themeOptions: Array<{ value: 'light' | 'dark' | 'system'; label: string; icon: string; androidIcon: string }> = [
     { value: 'light', label: 'Light Mode', icon: 'lightbulb.fill', androidIcon: 'lightbulb' },
     { value: 'dark', label: 'Dark Mode', icon: 'moon.fill', androidIcon: 'nightlight' },
     { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
   ];
+
+  const handlePurchase = async () => {
+    console.log('User tapped Buy me a drink button');
+    setPurchasing(true);
+    try {
+      await purchaseFullVersion();
+      Alert.alert(
+        'Thank You! 🎉',
+        'Thanks for buying me a drink! Your support means a lot.',
+        [{ text: 'OK' }]
+      );
+      console.log('Purchase completed successfully');
+    } catch (error) {
+      console.error('Purchase failed:', error);
+      Alert.alert(
+        'Purchase Failed',
+        'Something went wrong. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setPurchasing(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    console.log('User tapped Restore Purchases button');
+    setRestoring(true);
+    try {
+      await restorePurchases();
+      if (isFullVersion) {
+        Alert.alert(
+          'Restored! ✅',
+          'Your purchase has been restored successfully.',
+          [{ text: 'OK' }]
+        );
+        console.log('Purchases restored successfully');
+      } else {
+        Alert.alert(
+          'No Purchases Found',
+          'We couldn\'t find any previous purchases to restore.',
+          [{ text: 'OK' }]
+        );
+        console.log('No purchases found to restore');
+      }
+    } catch (error) {
+      console.error('Restore failed:', error);
+      Alert.alert(
+        'Restore Failed',
+        'Something went wrong. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setRestoring(false);
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -86,6 +145,73 @@ export default function SettingsScreen() {
                 )}
               </TouchableOpacity>
             ))}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Support the App</Text>
+          <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
+            Enjoying the game? Buy me a drink!
+          </Text>
+
+          <View style={styles.purchaseContainer}>
+            <TouchableOpacity
+              style={[
+                styles.purchaseCard,
+                { 
+                  backgroundColor: colors.card,
+                  borderColor: colors.primary,
+                  borderWidth: 2,
+                }
+              ]}
+              onPress={handlePurchase}
+              disabled={purchasing || isFullVersion}
+              activeOpacity={0.7}
+            >
+              <View style={styles.purchaseContent}>
+                <IconSymbol
+                  ios_icon_name="cup.and.saucer.fill"
+                  android_material_icon_name="local-cafe"
+                  size={40}
+                  color={isFullVersion ? colors.textSecondary : colors.primary}
+                />
+                <View style={styles.purchaseTextContainer}>
+                  <Text style={[
+                    styles.purchaseTitle,
+                    { color: isFullVersion ? colors.textSecondary : colors.text }
+                  ]}>
+                    {isFullVersion ? 'Thank You!' : 'Buy me a drink'}
+                  </Text>
+                  <Text style={[styles.purchasePrice, { color: colors.primary }]}>
+                    {isFullVersion ? 'Already purchased' : '$6.99'}
+                  </Text>
+                </View>
+              </View>
+              {!isFullVersion && (
+                <IconSymbol
+                  ios_icon_name="arrow.right"
+                  android_material_icon_name="arrow-forward"
+                  size={24}
+                  color={colors.primary}
+                />
+              )}
+              {isFullVersion && (
+                <IconSymbol
+                  ios_icon_name="checkmark.circle.fill"
+                  android_material_icon_name="check-circle"
+                  size={24}
+                  color={colors.primary}
+                />
+              )}
+            </TouchableOpacity>
+
+            <Button
+              title={restoring ? "Restoring..." : "Restore Purchases"}
+              onPress={handleRestore}
+              variant="secondary"
+              disabled={restoring}
+              style={styles.restoreButton}
+            />
           </View>
         </View>
 
@@ -175,6 +301,39 @@ const styles = StyleSheet.create({
   optionSubtext: {
     fontSize: 12,
     marginTop: 4,
+  },
+  purchaseContainer: {
+    gap: 12,
+  },
+  purchaseCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderRadius: 12,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    elevation: 2,
+  },
+  purchaseContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  purchaseTextContainer: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  purchaseTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  purchasePrice: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  restoreButton: {
+    width: '100%',
   },
   infoCard: {
     flexDirection: 'row',
