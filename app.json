@@ -1,4 +1,3 @@
-
 {
   "expo": {
     "name": "Toxic - The Card Game",
@@ -34,10 +33,7 @@
       "statusBar": {
         "hidden": true,
         "translucent": true
-      },
-      "permissions": [
-        "com.android.vending.BILLING"
-      ]
+      }
     },
     "web": {
       "favicon": "./assets/images/2887ca82-5f60-49fd-a5cd-8492bf7f98e9.png",
