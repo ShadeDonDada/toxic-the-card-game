@@ -1,7 +1,8 @@
+
 {
   "expo": {
     "name": "Toxic - The Card Game",
-    "slug": "Toxic - The Card Game",
+    "slug": "toxic-the-card-game",
     "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/37a4463c-0dea-4f5f-9b33-cea6e0e6fe48.png",
@@ -49,6 +50,12 @@
           "backgroundColor": "#000000",
           "image": "./assets/images/461262ab-c67c-4edb-83cc-0d620afaa105.png",
           "resizeMode": "cover"
+        }
+      ],
+      [
+        "expo-superwall",
+        {
+          "iosAppScheme": "toxic-the-card-game"
         }
       ]
     ],
