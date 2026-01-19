@@ -17,6 +17,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { WidgetProvider } from "@/contexts/WidgetContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { PurchaseProvider } from "@/contexts/PurchaseContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -82,59 +83,61 @@ export default function RootLayout() {
     <>
       <StatusBar hidden />
       <ThemeProvider>
-        <NavigationThemeProvider value={CustomDarkTheme}>
-          <WidgetProvider>
-            <GestureHandlerRootView>
-            <Stack>
-              <Stack.Screen name="splash" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="game-setup"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="rules"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="thank-you"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="settings"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="game"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-              <Stack.Screen
-                name="player-names"
-                options={{
-                  headerShown: false,
-                  presentation: "card",
-                }}
-              />
-            </Stack>
-            <SystemBars style={"light"} hidden />
-            </GestureHandlerRootView>
-          </WidgetProvider>
-        </NavigationThemeProvider>
+        <PurchaseProvider>
+          <NavigationThemeProvider value={CustomDarkTheme}>
+            <WidgetProvider>
+              <GestureHandlerRootView>
+              <Stack>
+                <Stack.Screen name="splash" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="game-setup"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+                <Stack.Screen
+                  name="rules"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+                <Stack.Screen
+                  name="thank-you"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+                <Stack.Screen
+                  name="settings"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+                <Stack.Screen
+                  name="game"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+                <Stack.Screen
+                  name="player-names"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+              </Stack>
+              <SystemBars style={"light"} hidden />
+              </GestureHandlerRootView>
+            </WidgetProvider>
+          </NavigationThemeProvider>
+        </PurchaseProvider>
       </ThemeProvider>
     </>
   );
