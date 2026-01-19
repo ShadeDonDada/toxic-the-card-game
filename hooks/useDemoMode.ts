@@ -5,7 +5,7 @@ import { scenarioCards, responseCards } from '@/data/cards';
 
 const MAX_DEMO_ROUNDS = 3;
 const MAX_DEMO_SCENARIOS = 3;
-const MAX_DEMO_RESPONSES = 3;
+const MAX_DEMO_CARDS_PER_PLAYER = 3;
 
 export function useDemoMode() {
   const { isFullVersion } = usePurchase();
@@ -26,9 +26,20 @@ export function useDemoMode() {
       console.log('Full version - using all response cards:', responseCards.length);
       return responseCards;
     }
-    console.log('Demo mode - limiting response cards to:', MAX_DEMO_RESPONSES);
-    return responseCards.slice(0, MAX_DEMO_RESPONSES);
+    // In demo mode, we don't limit the response cards pool itself
+    // Instead, we limit how many cards each player gets (handled in useGameState)
+    console.log('Demo mode - using all response cards for dealing');
+    return responseCards;
   }, [isFullVersion]);
+
+  const getCardsPerPlayer = () => {
+    if (isFullVersion) {
+      console.log('Full version - 6 cards per player');
+      return 6;
+    }
+    console.log('Demo mode - 3 cards per player');
+    return MAX_DEMO_CARDS_PER_PLAYER;
+  };
 
   const canPlayRound = (currentRound: number) => {
     if (isFullVersion) {
@@ -58,5 +69,6 @@ export function useDemoMode() {
     canPlayRound,
     isDemoLimitReached,
     maxDemoRounds: MAX_DEMO_ROUNDS,
+    getCardsPerPlayer,
   };
 }

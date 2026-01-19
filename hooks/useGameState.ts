@@ -26,17 +26,17 @@ export function useGameState() {
     return shuffled;
   };
 
-  const dealCardsToPlayers = (playerCount: number, playerNames: string[] = []) => {
-    console.log('Dealing cards to', playerCount, 'players');
+  const dealCardsToPlayers = (playerCount: number, playerNames: string[] = [], cardsPerPlayer: number = 6) => {
+    console.log('Dealing', cardsPerPlayer, 'cards to', playerCount, 'players');
     
     // Create a fresh shuffled deck
     const shuffledResponses = shuffleArray([...responseCards]);
     
     console.log('Total cards in deck:', shuffledResponses.length);
-    console.log('Cards needed:', playerCount * 6);
+    console.log('Cards needed:', playerCount * cardsPerPlayer);
     
     // Verify we have enough cards
-    if (shuffledResponses.length < playerCount * 6) {
+    if (shuffledResponses.length < playerCount * cardsPerPlayer) {
       console.error('Not enough cards for all players!');
     }
     
@@ -46,9 +46,9 @@ export function useGameState() {
     for (let i = 0; i < playerCount; i++) {
       const hand: ResponseCard[] = [];
       
-      // Each player gets 6 cards from sequential positions in the shuffled deck
-      for (let j = 0; j < 6; j++) {
-        const cardIndex = (i * 6) + j;
+      // Each player gets the specified number of cards from sequential positions in the shuffled deck
+      for (let j = 0; j < cardsPerPlayer; j++) {
+        const cardIndex = (i * cardsPerPlayer) + j;
         
         if (cardIndex < shuffledResponses.length) {
           // Create a deep copy of the card to ensure no reference sharing
@@ -79,7 +79,7 @@ export function useGameState() {
     }
     
     // Remaining cards go back to the deck
-    const remainingDeck = shuffledResponses.slice(playerCount * 6).map(card => ({
+    const remainingDeck = shuffledResponses.slice(playerCount * cardsPerPlayer).map(card => ({
       id: card.id,
       text: card.text,
       isCustom: card.isCustom,
@@ -91,11 +91,12 @@ export function useGameState() {
     return { players, remainingDeck };
   };
 
-  const initializeGame = useCallback((playerCount: number, playerNames: string[] = []) => {
-    console.log('Initializing game with', playerCount, 'players');
+  const initializeGame = useCallback((playerCount: number, playerNames: string[] = [], scenarioCardsToUse: ScenarioCard[] = scenarioCards, cardsPerPlayer: number = 6) => {
+    console.log('Initializing game with', playerCount, 'players and', cardsPerPlayer, 'cards per player');
+    console.log('Using', scenarioCardsToUse.length, 'scenario cards');
     
-    const shuffledScenarios = shuffleArray([...scenarioCards]);
-    const { players, remainingDeck } = dealCardsToPlayers(playerCount, playerNames);
+    const shuffledScenarios = shuffleArray([...scenarioCardsToUse]);
+    const { players, remainingDeck } = dealCardsToPlayers(playerCount, playerNames, cardsPerPlayer);
     
     setGameState({
       players,
@@ -395,8 +396,8 @@ export function useGameState() {
     });
   }, []);
 
-  const restartGameWithSamePlayers = useCallback(() => {
-    console.log('Restarting game with same players');
+  const restartGameWithSamePlayers = useCallback((scenarioCardsToUse: ScenarioCard[] = scenarioCards, cardsPerPlayer: number = 6) => {
+    console.log('Restarting game with same players,', cardsPerPlayer, 'cards per player');
     
     setGameState((prev) => {
       // Extract player names from current players
@@ -404,8 +405,8 @@ export function useGameState() {
       const playerCount = prev.players.length;
       
       // Shuffle and deal new cards
-      const shuffledScenarios = shuffleArray([...scenarioCards]);
-      const { players, remainingDeck } = dealCardsToPlayers(playerCount, playerNames);
+      const shuffledScenarios = shuffleArray([...scenarioCardsToUse]);
+      const { players, remainingDeck } = dealCardsToPlayers(playerCount, playerNames, cardsPerPlayer);
       
       return {
         players,

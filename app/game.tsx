@@ -23,7 +23,7 @@ export default function GameScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   
   const { loading: purchaseLoading } = usePurchase();
-  const { isDemoLimitReached, canPlayRound, isFullVersion } = useDemoMode();
+  const { isDemoLimitReached, canPlayRound, isFullVersion, limitedScenarioCards, getCardsPerPlayer } = useDemoMode();
   
   let playerNames: string[] = [];
   try {
@@ -49,6 +49,8 @@ export default function GameScreen() {
     updateCustomText,
     changeScenarioAndContinue,
   } = useGameState();
+  
+  const cardsPerPlayer = getCardsPerPlayer();
 
   const [selectedCardId, setSelectedCardId] = useState<string | undefined>();
   const [showExchangeOptions, setShowExchangeOptions] = useState(false);
@@ -61,10 +63,11 @@ export default function GameScreen() {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   useEffect(() => {
-    initializeGame(playerCount, playerNames);
+    console.log('Initializing game with limited scenario cards:', limitedScenarioCards.length, 'and', cardsPerPlayer, 'cards per player');
+    initializeGame(playerCount, playerNames, limitedScenarioCards, cardsPerPlayer);
     // Ensure isPlayerReady is false when game initializes
     setIsPlayerReady(false);
-  }, [playerCount, initializeGame]);
+  }, [playerCount, initializeGame, limitedScenarioCards, cardsPerPlayer]);
 
   // Check demo limit when round changes - but only after purchase status is loaded
   useEffect(() => {
@@ -421,7 +424,7 @@ export default function GameScreen() {
     console.log('Play Again pressed - restarting with same players');
     setShowGameOverModal(false);
     
-    restartGameWithSamePlayers();
+    restartGameWithSamePlayers(limitedScenarioCards, cardsPerPlayer);
     
     // Reset isPlayerReady when starting a new game
     setIsPlayerReady(false);
