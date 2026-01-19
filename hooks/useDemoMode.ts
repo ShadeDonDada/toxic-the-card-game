@@ -13,23 +13,41 @@ export function useDemoMode() {
   const isDemoMode = !isFullVersion;
 
   const limitedScenarioCards = useMemo(() => {
-    if (isFullVersion) return scenarioCards;
+    if (isFullVersion) {
+      console.log('Full version - using all scenario cards:', scenarioCards.length);
+      return scenarioCards;
+    }
+    console.log('Demo mode - limiting scenario cards to:', MAX_DEMO_SCENARIOS);
     return scenarioCards.slice(0, MAX_DEMO_SCENARIOS);
   }, [isFullVersion]);
 
   const limitedResponseCards = useMemo(() => {
-    if (isFullVersion) return responseCards;
+    if (isFullVersion) {
+      console.log('Full version - using all response cards:', responseCards.length);
+      return responseCards;
+    }
+    console.log('Demo mode - limiting response cards to:', MAX_DEMO_RESPONSES);
     return responseCards.slice(0, MAX_DEMO_RESPONSES);
   }, [isFullVersion]);
 
   const canPlayRound = (currentRound: number) => {
-    if (isFullVersion) return true;
-    return currentRound <= MAX_DEMO_ROUNDS;
+    if (isFullVersion) {
+      console.log('Full version - can play round:', currentRound);
+      return true;
+    }
+    const canPlay = currentRound <= MAX_DEMO_ROUNDS;
+    console.log('Demo mode - can play round', currentRound, '?', canPlay);
+    return canPlay;
   };
 
   const isDemoLimitReached = (currentRound: number) => {
-    if (isFullVersion) return false;
-    return currentRound > MAX_DEMO_ROUNDS;
+    if (isFullVersion) {
+      console.log('Full version - demo limit never reached');
+      return false;
+    }
+    const limitReached = currentRound > MAX_DEMO_ROUNDS;
+    console.log('Demo mode - limit reached for round', currentRound, '?', limitReached);
+    return limitReached;
   };
 
   return {

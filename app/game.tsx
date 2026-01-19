@@ -6,6 +6,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
 import { useGameState } from '@/hooks/useGameState';
 import { useDemoMode } from '@/hooks/useDemoMode';
+import { usePurchase } from '@/contexts/PurchaseContext';
 import { GameCard } from '@/components/GameCard';
 import { PlayerHand } from '@/components/PlayerHand';
 import { Button } from '@/components/Button';
@@ -21,6 +22,7 @@ export default function GameScreen() {
   const playerNamesParam = params.playerNames as string;
   const scrollViewRef = useRef<ScrollView>(null);
   
+  const { loading: purchaseLoading } = usePurchase();
   const { isDemoLimitReached, canPlayRound, isFullVersion } = useDemoMode();
   
   let playerNames: string[] = [];
@@ -64,14 +66,19 @@ export default function GameScreen() {
     setIsPlayerReady(false);
   }, [playerCount, initializeGame]);
 
-  // Check demo limit when round changes
+  // Check demo limit when round changes - but only after purchase status is loaded
   useEffect(() => {
-    console.log('Checking demo limit - Round:', gameState.round, 'Is Full Version:', isFullVersion);
+    if (purchaseLoading) {
+      console.log('Purchase status still loading, skipping demo limit check');
+      return;
+    }
+    
+    console.log('Checking demo limit - Round:', gameState.round, 'Is Full Version:', isFullVersion, 'Loading:', purchaseLoading);
     if (gameState.gameStarted && isDemoLimitReached(gameState.round)) {
       console.log('Demo limit reached - showing modal');
       setShowDemoLimitModal(true);
     }
-  }, [gameState.round, gameState.gameStarted, isDemoLimitReached, isFullVersion]);
+  }, [gameState.round, gameState.gameStarted, isDemoLimitReached, isFullVersion, purchaseLoading]);
 
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
@@ -121,6 +128,12 @@ export default function GameScreen() {
   };
 
   const handlePlayCard = () => {
+    // Wait for purchase status to load before checking demo limit
+    if (purchaseLoading) {
+      console.log('Purchase status still loading, please wait');
+      return;
+    }
+
     // Check demo limit before allowing play
     if (!canPlayRound(gameState.round)) {
       console.log('Cannot play - demo limit reached');
@@ -175,6 +188,12 @@ export default function GameScreen() {
   };
 
   const handlePass = () => {
+    // Wait for purchase status to load before checking demo limit
+    if (purchaseLoading) {
+      console.log('Purchase status still loading, please wait');
+      return;
+    }
+
     // Check demo limit before allowing pass
     if (!canPlayRound(gameState.round)) {
       console.log('Cannot pass - demo limit reached');
@@ -276,6 +295,12 @@ export default function GameScreen() {
   };
 
   const handleExchange = () => {
+    // Wait for purchase status to load before checking demo limit
+    if (purchaseLoading) {
+      console.log('Purchase status still loading, please wait');
+      return;
+    }
+
     // Check demo limit before allowing exchange
     if (!canPlayRound(gameState.round)) {
       console.log('Cannot exchange - demo limit reached');
@@ -370,7 +395,7 @@ export default function GameScreen() {
       } else {
         // Check if next round would exceed demo limit
         const nextRoundNumber = gameState.round + 1;
-        if (!canPlayRound(nextRoundNumber)) {
+        if (!purchaseLoading && !canPlayRound(nextRoundNumber)) {
           console.log('Next round would exceed demo limit');
           setShowDemoLimitModal(true);
           return;
@@ -425,7 +450,8 @@ export default function GameScreen() {
     return gameState.players[nextIndex];
   };
 
-  if (!gameState.gameStarted || !currentPlayer) {
+  // Show loading screen while purchase status is being loaded
+  if (purchaseLoading || !gameState.gameStarted || !currentPlayer) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
         <Text style={[styles.loadingText, { color: colors.text }]}>Loading game...</Text>
