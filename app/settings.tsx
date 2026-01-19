@@ -23,20 +23,16 @@ export default function SettingsScreen() {
   ];
 
   const handlePurchase = async () => {
-    console.log('User tapped Buy me a drink button - opening Superwall paywall');
+    console.log('User tapped Buy me a drink button');
     setPurchasing(true);
     try {
       await purchaseFullVersion();
-      // The PurchaseContext will handle the success state
-      // Only show alert if purchase was completed
-      if (isFullVersion) {
-        Alert.alert(
-          'Thank You! 🎉',
-          'Thanks for buying me a drink! You now have full access to all features. Enjoy unlimited rounds!',
-          [{ text: 'OK' }]
-        );
-        console.log('Purchase completed and verified successfully');
-      }
+      Alert.alert(
+        'Thank You! 🎉',
+        'Thanks for buying me a drink! You now have full access to all features. Enjoy unlimited rounds!',
+        [{ text: 'OK' }]
+      );
+      console.log('Purchase completed and verified successfully');
     } catch (error) {
       console.error('Purchase failed:', error);
       Alert.alert(
@@ -50,12 +46,10 @@ export default function SettingsScreen() {
   };
 
   const handleRestore = async () => {
-    console.log('User tapped Restore Purchases button - restoring via Superwall');
+    console.log('User tapped Restore Purchases button');
     setRestoring(true);
     try {
       await restorePurchases();
-      
-      // Check the updated status after restore completes
       if (isFullVersion) {
         Alert.alert(
           'Restored! ✅',
@@ -225,11 +219,11 @@ export default function SettingsScreen() {
                     {isFullVersion ? 'Thank You!' : 'Buy me a drink'}
                   </Text>
                   <Text style={[styles.purchasePrice, { color: colors.primary }]}>
-                    {isFullVersion ? 'Already purchased ✓' : 'Unlock full access'}
+                    {isFullVersion ? 'Already purchased ✓' : '$6.99'}
                   </Text>
                   {!isFullVersion && (
                     <Text style={[styles.purchaseFeatures, { color: colors.textSecondary }]}>
-                      Unlimited rounds & all cards
+                      Unlock unlimited rounds & all cards
                     </Text>
                   )}
                 </View>
