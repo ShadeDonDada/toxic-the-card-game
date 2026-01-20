@@ -11,7 +11,7 @@ import { IconSymbol } from '@/components/IconSymbol';
 export default function SettingsScreen() {
   const router = useRouter();
   const { themeMode, setThemeMode, effectiveColorScheme } = useTheme();
-  const { isFullVersion, products, purchaseFullVersion, restorePurchases } = usePurchase();
+  const { isFullVersion, purchaseFullVersion, restorePurchases } = usePurchase();
   const colors = getColors(effectiveColorScheme);
   const [purchasing, setPurchasing] = useState(false);
   const [restoring, setRestoring] = useState(false);
@@ -22,27 +22,24 @@ export default function SettingsScreen() {
     { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
   ];
 
-  // Get the product price from the store (if available)
-  const productPrice = products.length > 0 ? products[0].localizedPrice : '$6.99';
-
   const handlePurchase = async () => {
     console.log('User tapped Buy me a drink button');
     setPurchasing(true);
     try {
       await purchaseFullVersion();
-      // Success alert is shown by the purchase listener in PurchaseContext
-      console.log('Purchase flow initiated successfully');
-    } catch (error: any) {
+      Alert.alert(
+        'Thank You! 🎉',
+        'Thanks for buying me a drink! You now have full access to all features. Enjoy unlimited rounds!',
+        [{ text: 'OK' }]
+      );
+      console.log('Purchase completed and verified successfully');
+    } catch (error) {
       console.error('Purchase failed:', error);
-      
-      // Only show error if it's not a user cancellation
-      if (error.code !== 'E_USER_CANCELLED') {
-        Alert.alert(
-          'Purchase Failed',
-          'Something went wrong. Please try again.',
-          [{ text: 'OK' }]
-        );
-      }
+      Alert.alert(
+        'Purchase Failed',
+        'Something went wrong. Please try again.',
+        [{ text: 'OK' }]
+      );
     } finally {
       setPurchasing(false);
     }
@@ -52,9 +49,8 @@ export default function SettingsScreen() {
     console.log('User tapped Restore Purchases button');
     setRestoring(true);
     try {
-      const restored = await restorePurchases();
-      
-      if (restored) {
+      await restorePurchases();
+      if (isFullVersion) {
         Alert.alert(
           'Restored! ✅',
           'Your purchase has been restored successfully. You now have full access to all features!',
@@ -202,7 +198,6 @@ export default function SettingsScreen() {
                   backgroundColor: colors.card,
                   borderColor: colors.primary,
                   borderWidth: 2,
-                  opacity: (purchasing || isFullVersion) ? 0.6 : 1,
                 }
               ]}
               onPress={handlePurchase}
@@ -221,10 +216,10 @@ export default function SettingsScreen() {
                     styles.purchaseTitle,
                     { color: isFullVersion ? colors.textSecondary : colors.text }
                   ]}>
-                    {isFullVersion ? 'Thank You!' : purchasing ? 'Processing...' : 'Buy me a drink'}
+                    {isFullVersion ? 'Thank You!' : 'Buy me a drink'}
                   </Text>
                   <Text style={[styles.purchasePrice, { color: colors.primary }]}>
-                    {isFullVersion ? 'Already purchased ✓' : productPrice}
+                    {isFullVersion ? 'Already purchased ✓' : '$6.99'}
                   </Text>
                   {!isFullVersion && (
                     <Text style={[styles.purchaseFeatures, { color: colors.textSecondary }]}>
