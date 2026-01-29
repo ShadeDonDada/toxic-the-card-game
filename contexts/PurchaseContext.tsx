@@ -14,9 +14,9 @@ import type {
 // For iOS: Create in App Store Connect under "In-App Purchases"
 // For Android: Create in Google Play Console under "Monetization" > "Products" > "In-app products"
 const PRODUCT_IDS = Platform.select({
-  ios: ['com.toxicgame.fullversion'], // Replace with your iOS product ID
-  android: ['com.toxicgame.fullversion'], // Replace with your Android product ID
-  default: ['com.toxicgame.fullversion'],
+  ios: ['com.stevenandrepennant.toxicthecardgame.fullversion'],
+  android: ['com.stevenandrepennant.toxicthecardgame.fullversion'],
+  default: ['com.stevenandrepennant.toxicthecardgame.fullversion'],
 }) as string[];
 
 interface PurchaseContextType {
@@ -35,13 +35,78 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
   const [isFullVersion, setIsFullVersion] = useState(false);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    initializeIAP();
+    let purchaseUpdateSubscription: any;
+    let purchaseErrorSubscription: any;
+
+    const init = async () => {
+      try {
+        await initializeIAP();
+        
+        // Set up purchase update listener
+        purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
+          async (purchase: Purchase | SubscriptionPurchase) => {
+            console.log('Purchase update received:', purchase);
+            const receipt = purchase.transactionReceipt;
+            
+            if (receipt) {
+              try {
+                // Finish the transaction
+                await RNIap.finishTransaction({ purchase, isConsumable: false });
+                console.log('Transaction finished successfully');
+                
+                // Unlock full version
+                await unlockFullVersion();
+                
+                Alert.alert(
+                  'Purchase Successful! 🎉',
+                  'Thank you for your support! You now have full access to unlimited rounds and all cards.',
+                  [{ text: 'OK' }]
+                );
+              } catch (error) {
+                console.error('Error finishing transaction:', error);
+              }
+            }
+          }
+        );
+
+        // Set up purchase error listener
+        purchaseErrorSubscription = RNIap.purchaseErrorListener(
+          (error: PurchaseError) => {
+            console.error('Purchase error:', error);
+            if (error.code !== 'E_USER_CANCELLED') {
+              Alert.alert(
+                'Purchase Failed',
+                'Something went wrong with your purchase. Please try again.',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        );
+      } catch (error) {
+        console.error('Error in initialization:', error);
+      }
+    };
+
+    init();
     
     return () => {
-      // Cleanup IAP connection on unmount
-      RNIap.endConnection();
+      // Cleanup subscriptions
+      if (purchaseUpdateSubscription) {
+        purchaseUpdateSubscription.remove();
+      }
+      if (purchaseErrorSubscription) {
+        purchaseErrorSubscription.remove();
+      }
+      
+      // End IAP connection
+      if (isInitialized) {
+        RNIap.endConnection().catch((err) => {
+          console.error('Error ending IAP connection:', err);
+        });
+      }
     };
   }, []);
 
@@ -50,8 +115,19 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
       console.log('Initializing In-App Purchases...');
       
       // Connect to the store
-      await RNIap.initConnection();
-      console.log('IAP connection established');
+      const connected = await RNIap.initConnection();
+      console.log('IAP connection established:', connected);
+      setIsInitialized(true);
+
+      // For Android, flush old pending purchases (important for testing)
+      if (Platform.OS === 'android') {
+        try {
+          await RNIap.flushFailedPurchasesCachedAsPendingAndroid();
+          console.log('Flushed failed purchases on Android');
+        } catch (error) {
+          console.error('Error flushing failed purchases:', error);
+        }
+      }
 
       // Load purchase status from AsyncStorage
       await loadPurchaseStatus();
@@ -62,52 +138,6 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
       // Check for any pending purchases (important for handling interrupted purchases)
       await checkPendingPurchases();
 
-      // Set up purchase update listener
-      const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
-        async (purchase: Purchase | SubscriptionPurchase) => {
-          console.log('Purchase update received:', purchase);
-          const receipt = purchase.transactionReceipt;
-          
-          if (receipt) {
-            try {
-              // Finish the transaction
-              await RNIap.finishTransaction({ purchase, isConsumable: false });
-              console.log('Transaction finished successfully');
-              
-              // Unlock full version
-              await unlockFullVersion();
-              
-              Alert.alert(
-                'Purchase Successful! 🎉',
-                'Thank you for your support! You now have full access to unlimited rounds and all cards.',
-                [{ text: 'OK' }]
-              );
-            } catch (error) {
-              console.error('Error finishing transaction:', error);
-            }
-          }
-        }
-      );
-
-      // Set up purchase error listener
-      const purchaseErrorSubscription = RNIap.purchaseErrorListener(
-        (error: PurchaseError) => {
-          console.error('Purchase error:', error);
-          if (error.code !== 'E_USER_CANCELLED') {
-            Alert.alert(
-              'Purchase Failed',
-              'Something went wrong with your purchase. Please try again.',
-              [{ text: 'OK' }]
-            );
-          }
-        }
-      );
-
-      // Store subscriptions for cleanup
-      return () => {
-        purchaseUpdateSubscription.remove();
-        purchaseErrorSubscription.remove();
-      };
     } catch (error) {
       console.error('Error initializing IAP:', error);
       // Continue with demo mode if IAP fails to initialize
@@ -142,12 +172,29 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
 
   const loadProducts = async () => {
     try {
-      console.log('Loading products from store...');
+      console.log('Loading products from store with IDs:', PRODUCT_IDS);
       const availableProducts = await RNIap.getProducts({ skus: PRODUCT_IDS });
       console.log('Products loaded:', availableProducts);
       setProducts(availableProducts);
+      
+      if (availableProducts.length === 0) {
+        console.warn('No products found. Make sure product IDs are configured correctly in App Store Connect / Google Play Console');
+      }
     } catch (error) {
       console.error('Error loading products:', error);
+      // For testing purposes, create a mock product if loading fails
+      if (__DEV__) {
+        console.log('Development mode: Using mock product for testing');
+        setProducts([{
+          productId: PRODUCT_IDS[0],
+          title: 'Full Version',
+          description: 'Unlock unlimited rounds and all cards',
+          price: '6.99',
+          currency: 'USD',
+          localizedPrice: '$6.99',
+          type: 'inapp',
+        } as Product]);
+      }
     }
   };
 
@@ -166,7 +213,12 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
         
         // Finish all pending transactions
         for (const purchase of availablePurchases) {
-          await RNIap.finishTransaction({ purchase, isConsumable: false });
+          try {
+            await RNIap.finishTransaction({ purchase, isConsumable: false });
+            console.log('Finished pending transaction:', purchase.productId);
+          } catch (error) {
+            console.error('Error finishing pending transaction:', error);
+          }
         }
       }
     } catch (error) {
@@ -196,7 +248,13 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
 
       // Request purchase from the store
       console.log('Requesting purchase for product:', PRODUCT_IDS[0]);
-      await RNIap.requestPurchase({ sku: PRODUCT_IDS[0] });
+      await RNIap.requestPurchase({ 
+        sku: PRODUCT_IDS[0],
+        ...(Platform.OS === 'android' && {
+          obfuscatedAccountIdAndroid: undefined,
+          obfuscatedProfileIdAndroid: undefined,
+        }),
+      });
       
       // The purchase will be handled by the purchaseUpdatedListener
       console.log('Purchase request sent to store');
@@ -227,7 +285,12 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
         
         // Finish all transactions
         for (const purchase of availablePurchases) {
-          await RNIap.finishTransaction({ purchase, isConsumable: false });
+          try {
+            await RNIap.finishTransaction({ purchase, isConsumable: false });
+            console.log('Finished restored transaction:', purchase.productId);
+          } catch (error) {
+            console.error('Error finishing restored transaction:', error);
+          }
         }
         
         return true;
