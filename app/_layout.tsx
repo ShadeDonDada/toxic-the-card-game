@@ -30,18 +30,16 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
     if (loaded) {
-      console.log('Fonts loaded, app ready');
-      setAppReady(true);
+      // Don't hide splash screen immediately, let the splash component handle it
+      console.log('Fonts loaded');
     }
   }, [loaded]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (
-      networkState.isConnected !== null &&
       !networkState.isConnected &&
       networkState.isInternetReachable === false
     ) {
@@ -52,7 +50,7 @@ export default function RootLayout() {
     }
   }, [networkState.isConnected, networkState.isInternetReachable]);
 
-  if (!loaded || !appReady) {
+  if (!loaded) {
     return null;
   }
 
@@ -88,54 +86,54 @@ export default function RootLayout() {
         <PurchaseProvider>
           <NavigationThemeProvider value={CustomDarkTheme}>
             <WidgetProvider>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <Stack>
-                  <Stack.Screen name="splash" options={{ headerShown: false }} />
-                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                  <Stack.Screen
-                    name="game-setup"
-                    options={{
-                      headerShown: false,
-                      presentation: "card",
-                    }}
-                  />
-                  <Stack.Screen
-                    name="rules"
-                    options={{
-                      headerShown: false,
-                      presentation: "card",
-                    }}
-                  />
-                  <Stack.Screen
-                    name="thank-you"
-                    options={{
-                      headerShown: false,
-                      presentation: "card",
-                    }}
-                  />
-                  <Stack.Screen
-                    name="settings"
-                    options={{
-                      headerShown: false,
-                      presentation: "card",
-                    }}
-                  />
-                  <Stack.Screen
-                    name="game"
-                    options={{
-                      headerShown: false,
-                      presentation: "card",
-                    }}
-                  />
-                  <Stack.Screen
-                    name="player-names"
-                    options={{
-                      headerShown: false,
-                      presentation: "card",
-                    }}
-                  />
-                </Stack>
-                <SystemBars style={"light"} hidden />
+              <GestureHandlerRootView>
+              <Stack>
+                <Stack.Screen name="splash" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="game-setup"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+                <Stack.Screen
+                  name="rules"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+                <Stack.Screen
+                  name="thank-you"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+                <Stack.Screen
+                  name="settings"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+                <Stack.Screen
+                  name="game"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+                <Stack.Screen
+                  name="player-names"
+                  options={{
+                    headerShown: false,
+                    presentation: "card",
+                  }}
+                />
+              </Stack>
+              <SystemBars style={"light"} hidden />
               </GestureHandlerRootView>
             </WidgetProvider>
           </NavigationThemeProvider>
