@@ -1,7 +1,8 @@
+
 {
   "expo": {
     "name": "Toxic - The Card Game",
-    "slug": "Toxic - The Card Game",
+    "slug": "toxic-the-card-game",
     "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/37a4463c-0dea-4f5f-9b33-cea6e0e6fe48.png",
@@ -14,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.Natively",
+      "bundleIdentifier": "com.stevenandrepennant.toxicthecardgame",
       "requireFullScreen": true,
       "icon": "./assets/images/69c73f5f-fc7b-4e3f-8595-49a637e13736.png",
       "infoPlist": {
@@ -29,7 +30,10 @@
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.StevenAndrePennant.ToxicTheCardGame",
+      "package": "com.stevenandrepennant.toxicthecardgame",
+      "permissions": [
+        "com.android.vending.BILLING"
+      ],
       "statusBar": {
         "hidden": true,
         "translucent": true
@@ -44,6 +48,12 @@
       "expo-router",
       "expo-web-browser",
       [
+        "react-native-iap",
+        {
+          "disableStorekit2": false
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#000000",
@@ -52,13 +62,12 @@
         }
       ]
     ],
-    "scheme": "Toxic - The Card Game",
+    "scheme": "toxicthecardgame",
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
       "router": {}
     }
-  },
-  "scheme": "Toxic - The Card Game"
+  }
 }

@@ -13,19 +13,23 @@
       "distribution": "internal",
       "autoIncrement": true,
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "bundleIdentifier": "com.stevenandrepennant.toxicthecardgame"
       },
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "package": "com.stevenandrepennant.toxicthecardgame"
       }
     },
     "production": {
       "autoIncrement": true,
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "bundleIdentifier": "com.stevenandrepennant.toxicthecardgame"
       },
       "android": {
-        "buildType": "aab"
+        "buildType": "aab",
+        "package": "com.stevenandrepennant.toxicthecardgame"
       }
     }
   },

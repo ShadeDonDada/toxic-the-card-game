@@ -10,9 +10,9 @@ import type {
   SubscriptionPurchase,
 } from 'react-native-iap';
 
-// IMPORTANT: Replace these with your actual product IDs from App Store Connect and Google Play Console
-// For iOS: Create in App Store Connect under "In-App Purchases"
-// For Android: Create in Google Play Console under "Monetization" > "Products" > "In-app products"
+// IMPORTANT: Product IDs must match exactly what's configured in App Store Connect and Google Play Console
+// Bundle ID: com.stevenandrepennant.toxicthecardgame
+// Product ID: com.stevenandrepennant.toxicthecardgame.fullversion
 const PRODUCT_IDS = Platform.select({
   ios: ['com.stevenandrepennant.toxicthecardgame.fullversion'],
   android: ['com.stevenandrepennant.toxicthecardgame.fullversion'],
