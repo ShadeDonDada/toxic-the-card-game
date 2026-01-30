@@ -15,44 +15,46 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-const { width: screenWidth } = Dimensions.get('window');
-
 export default function HomeScreen() {
   const router = useRouter();
   const { effectiveColorScheme } = useTheme();
   const colors = getColors(effectiveColorScheme);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Animation values
-  const scale = useSharedValue(0.5);
-  const opacity = useSharedValue(0);
-  const glowOpacity = useSharedValue(0);
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(0.8);
+  const glowOpacity = useSharedValue(0.3);
 
   useEffect(() => {
-    if (imageLoaded) {
-      // Scale and fade in animation
-      scale.value = withSequence(
-        withTiming(1.1, { duration: 600, easing: Easing.out(Easing.cubic) }),
-        withTiming(1, { duration: 300, easing: Easing.inOut(Easing.cubic) })
-      );
-      
-      opacity.value = withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) });
-      
-      // Pulsating glow effect (repeats 3 times then stops)
-      glowOpacity.value = withSequence(
-        withTiming(0, { duration: 0 }),
-        withRepeat(
-          withSequence(
-            withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease) }),
-            withTiming(0.3, { duration: 500, easing: Easing.inOut(Easing.ease) })
-          ),
-          3,
-          false
-        ),
-        withTiming(0, { duration: 500 })
-      );
-    }
-  }, [imageLoaded]);
+    console.log('Home screen mounted - starting animations');
+    
+    scale.value = withRepeat(
+      withSequence(
+        withTiming(1.05, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.8, { duration: 2000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+
+    glowOpacity.value = withRepeat(
+      withSequence(
+        withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.3, { duration: 2000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+  }, [imageLoaded, scale, opacity, glowOpacity]);
 
   const animatedLogoStyle = useAnimatedStyle(() => {
     return {
@@ -67,213 +69,201 @@ export default function HomeScreen() {
     };
   });
 
+  const handleStartGame = () => {
+    console.log('User tapped Start Game button - navigating to game setup');
+    router.push('/game-setup');
+  };
+
+  const handleViewRules = () => {
+    console.log('User tapped View Rules button - navigating to rules screen');
+    router.push('/rules');
+  };
+
+  const handleSettings = () => {
+    console.log('User tapped Settings button - navigating to settings screen');
+    router.push('/settings');
+  };
+
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header}>
-        {!imageLoaded && (
-          <View style={[styles.logoPlaceholder, { backgroundColor: colors.card }]}>
-            <ActivityIndicator size="large" color={colors.primary} />
-          </View>
-        )}
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.logoContainer}>
-          {/* Glow effect layers */}
-          <Animated.View
-            style={[
-              styles.glowLayer,
-              animatedGlowStyle,
-              {
-                backgroundColor: colors.primary,
-                boxShadow: `0px 0px 60px 30px ${colors.primary}`,
-              },
-            ]}
+          {!imageLoaded && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+          )}
+          
+          <Animated.View style={[styles.glowContainer, animatedGlowStyle]}>
+            <View style={[styles.glow, { backgroundColor: colors.primary }]} />
+          </Animated.View>
+
+          <Animated.View style={animatedLogoStyle}>
+            <Image
+              source={require('@/assets/images/final_quest_240x240.png')}
+              style={styles.logo}
+              resizeMode="contain"
+              onLoad={() => {
+                console.log('Logo image loaded successfully');
+                setImageLoaded(true);
+              }}
+              onError={(error) => {
+                console.error('Logo image failed to load:', error);
+                setImageLoaded(true);
+              }}
+            />
+          </Animated.View>
+        </View>
+
+        <View style={styles.titleContainer}>
+          <Text style={[styles.title, { color: colors.text }]}>Toxic</Text>
+          <Text style={[styles.subtitle, { color: colors.primary }]}>The Card Game</Text>
+          <Text style={[styles.tagline, { color: colors.textSecondary }]}>
+            Extracting the poison out of you
+          </Text>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Start Game"
+            onPress={handleStartGame}
+            variant="primary"
+            style={styles.button}
           />
-          <Animated.View
-            style={[
-              styles.glowLayer,
-              animatedGlowStyle,
-              {
-                backgroundColor: colors.accent,
-                boxShadow: `0px 0px 40px 20px ${colors.accent}`,
-              },
-            ]}
+          
+          <Button
+            title="View Rules"
+            onPress={handleViewRules}
+            variant="secondary"
+            style={styles.button}
           />
-          {/* Logo */}
-          <Animated.Image
-            source={require('@/assets/images/0ed37ab6-3363-4785-9333-7f6211c02e59.png')}
-            style={[styles.logo, animatedLogoStyle]}
-            resizeMode="contain"
-            onLoad={() => setImageLoaded(true)}
-            fadeDuration={0}
+
+          <Button
+            title="Settings"
+            onPress={handleSettings}
+            variant="secondary"
+            style={styles.button}
           />
         </View>
-        <Text style={[styles.tagline, { color: colors.textSecondary }]}>&quot;Extracting the poison out of you&quot;</Text>
-      </View>
 
-      <View style={[styles.descriptionCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-        <Text style={[styles.descriptionText, { color: colors.text }]}>
-          Create the most toxic reaction for each scenario card. Compete with friends to see who can be the most hilariously petty!
-        </Text>
-      </View>
+        <View style={styles.infoContainer}>
+          <View style={styles.infoCard}>
+            <IconSymbol
+              ios_icon_name="person.3.fill"
+              android_material_icon_name="group"
+              size={24}
+              color={colors.primary}
+            />
+            <Text style={[styles.infoText, { color: colors.text }]}>2-10 Players</Text>
+          </View>
 
-      <View style={styles.featuresContainer}>
-        <View style={[styles.featureRow, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-          <IconSymbol
-            ios_icon_name="person.2.fill"
-            android_material_icon_name="people"
-            size={32}
-            color={colors.primary}
-          />
-          <Text style={[styles.featureText, { color: colors.text }]}>2-10 Players</Text>
+          <View style={styles.infoCard}>
+            <IconSymbol
+              ios_icon_name="18.circle.fill"
+              android_material_icon_name="warning"
+              size={24}
+              color={colors.accent}
+            />
+            <Text style={[styles.infoText, { color: colors.text }]}>18+ Only</Text>
+          </View>
         </View>
-        <View style={[styles.featureRow, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-          <IconSymbol
-            ios_icon_name="18.circle.fill"
-            android_material_icon_name="warning"
-            size={32}
-            color={colors.accent}
-          />
-          <Text style={[styles.featureText, { color: colors.text }]}>18+ Only</Text>
-        </View>
-        <View style={[styles.featureRow, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-          <IconSymbol
-            ios_icon_name="arrow.counterclockwise"
-            android_material_icon_name="refresh"
-            size={32}
-            color={colors.primary}
-          />
-          <Text style={[styles.featureText, { color: colors.text }]}>Counterclockwise Play</Text>
-        </View>
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Start New Game"
-          onPress={() => router.push('/game-setup')}
-          variant="primary"
-          style={styles.button}
-        />
-        <Button
-          title="How to Play"
-          onPress={() => router.push('/rules')}
-          variant="secondary"
-          style={styles.button}
-        />
-        <Button
-          title="Thank You"
-          onPress={() => router.push('/thank-you')}
-          variant="secondary"
-          style={styles.button}
-        />
-        <Button
-          title="Settings"
-          onPress={() => router.push('/settings')}
-          variant="secondary"
-          style={styles.button}
-        />
-      </View>
-
-      <View style={[styles.copyrightContainer, { borderTopColor: colors.cardBorder }]}>
-        <Text style={[styles.copyrightText, { color: colors.textSecondary }]}>
-          © 2026 Steven A. Pennant. All rights reserved.
-        </Text>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
+
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  contentContainer: {
+  scrollContent: {
+    flexGrow: 1,
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 120,
-    alignItems: 'center',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 30,
-    width: '100%',
-  },
-  logoPlaceholder: {
-    width: screenWidth * 0.6,
-    height: screenWidth * 0.6,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 12,
-    position: 'absolute',
-    top: 0,
   },
   logoContainer: {
-    width: screenWidth * 0.6,
-    height: screenWidth * 0.6,
-    marginBottom: 20,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 40,
+    height: width * 0.6,
+    position: 'relative',
   },
-  glowLayer: {
+  loadingContainer: {
     position: 'absolute',
-    width: screenWidth * 0.6,
-    height: screenWidth * 0.6,
-    borderRadius: (screenWidth * 0.6) / 2,
-    opacity: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glowContainer: {
+    position: 'absolute',
+    width: width * 0.6,
+    height: width * 0.6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glow: {
+    width: '100%',
+    height: '100%',
+    borderRadius: width * 0.3,
+    opacity: 0.2,
+    boxShadow: '0px 0px 60px 30px',
   },
   logo: {
-    width: screenWidth * 0.6,
-    height: screenWidth * 0.6,
+    width: width * 0.5,
+    height: width * 0.5,
+  },
+  titleContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 24,
+    fontWeight: '600',
+    marginBottom: 12,
   },
   tagline: {
     fontSize: 16,
     fontStyle: 'italic',
-    marginTop: 10,
-  },
-  descriptionCard: {
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 30,
-    borderWidth: 2,
-    boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
-    elevation: 4,
-  },
-  descriptionText: {
-    fontSize: 16,
     textAlign: 'center',
-    lineHeight: 24,
-  },
-  featuresContainer: {
-    width: '100%',
-    marginBottom: 40,
-  },
-  featureRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 2,
-  },
-  featureText: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginLeft: 16,
   },
   buttonContainer: {
-    width: '100%',
     gap: 16,
+    marginBottom: 40,
   },
   button: {
     width: '100%',
   },
-  copyrightContainer: {
-    marginTop: 40,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    width: '100%',
-    alignItems: 'center',
+  infoContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    gap: 16,
   },
-  copyrightText: {
-    fontSize: 12,
-    textAlign: 'center',
+  infoCard: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: 'rgba(128, 128, 128, 0.1)',
+  },
+  infoText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

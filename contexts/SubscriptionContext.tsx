@@ -1,3 +1,4 @@
+
 /**
  * RevenueCat Subscription Context (Anonymous Mode)
  *
@@ -39,9 +40,9 @@ import Constants from "expo-constants";
 const extra = Constants.expoConfig?.extra || {};
 const IOS_API_KEY = extra.revenueCatApiKeyIos || "";
 const ANDROID_API_KEY = extra.revenueCatApiKeyAndroid || "";
-const TEST_IOS_API_KEY = extra.revenueCatTestApiKeyIos || "";
-const TEST_ANDROID_API_KEY = extra.revenueCatTestApiKeyAndroid || "";
-const ENTITLEMENT_ID = extra.revenueCatEntitlementId || "pro";
+const TEST_IOS_API_KEY = extra.revenueCatTestApiKeyIos || "test_quMXNzeUDRgKAgXdvcXRBSwpMlP";
+const TEST_ANDROID_API_KEY = extra.revenueCatTestApiKeyAndroid || "test_quMXNzeUDRgKAgXdvcXRBSwpMlP";
+const ENTITLEMENT_ID = extra.revenueCatEntitlementId || "Toxic - The Card Game Pro";
 
 // Check if running on web
 const isWeb = Platform.OS === "web";
@@ -151,6 +152,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
         if (__DEV__) {
           console.log("[RevenueCat] Initializing in DEV mode with key:", apiKey.substring(0, 10) + "...");
+          console.log("[RevenueCat] Entitlement ID:", ENTITLEMENT_ID);
         }
 
         await Purchases.configure({ apiKey });
@@ -161,6 +163,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
             const hasEntitlement =
               typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !==
               "undefined";
+            console.log("[RevenueCat] Customer info updated, has entitlement:", hasEntitlement);
             setIsSubscribed(hasEntitlement);
           }
         );
@@ -190,12 +193,28 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   const fetchOfferings = async () => {
     if (isWeb) return;
     try {
+      console.log("[RevenueCat] Fetching offerings...");
       const fetchedOfferings = await Purchases.getOfferings();
+      console.log("[RevenueCat] Offerings fetched:", fetchedOfferings);
       setOfferings(fetchedOfferings);
 
       if (fetchedOfferings.current) {
+        console.log("[RevenueCat] Current offering found:", fetchedOfferings.current.identifier);
+        console.log("[RevenueCat] Available packages:", fetchedOfferings.current.availablePackages.length);
         setCurrentOffering(fetchedOfferings.current);
         setPackages(fetchedOfferings.current.availablePackages);
+        
+        // Log package details
+        fetchedOfferings.current.availablePackages.forEach((pkg, index) => {
+          console.log(`[RevenueCat] Package ${index + 1}:`, {
+            identifier: pkg.identifier,
+            productId: pkg.product.identifier,
+            price: pkg.product.priceString,
+            title: pkg.product.title,
+          });
+        });
+      } else {
+        console.warn("[RevenueCat] No current offering found");
       }
     } catch (error) {
       console.error("[RevenueCat] Failed to fetch offerings:", error);
@@ -205,9 +224,12 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   const checkSubscription = async () => {
     if (isWeb) return;
     try {
+      console.log("[RevenueCat] Checking subscription status...");
       const customerInfo = await Purchases.getCustomerInfo();
       const hasEntitlement =
         typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined";
+      console.log("[RevenueCat] Has entitlement:", hasEntitlement);
+      console.log("[RevenueCat] Active entitlements:", Object.keys(customerInfo.entitlements.active));
       setIsSubscribed(hasEntitlement);
     } catch (error) {
       console.error("[RevenueCat] Failed to check subscription:", error);
@@ -221,9 +243,13 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       return false;
     }
     try {
+      console.log("[RevenueCat] Attempting to purchase package:", pkg.identifier);
       const { customerInfo } = await Purchases.purchasePackage(pkg);
+      console.log("[RevenueCat] Purchase completed");
       const hasEntitlement =
         typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined";
+      console.log("[RevenueCat] Has entitlement after purchase:", hasEntitlement);
+      console.log("[RevenueCat] Active entitlements after purchase:", Object.keys(customerInfo.entitlements.active));
       setIsSubscribed(hasEntitlement);
       return hasEntitlement;
     } catch (error: any) {
@@ -232,6 +258,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
         console.error("[RevenueCat] Purchase failed:", error);
         throw error;
       }
+      console.log("[RevenueCat] Purchase cancelled by user");
       return false;
     }
   };
@@ -242,9 +269,13 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       return false;
     }
     try {
+      console.log("[RevenueCat] Attempting to restore purchases...");
       const customerInfo = await Purchases.restorePurchases();
+      console.log("[RevenueCat] Restore completed");
       const hasEntitlement =
         typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined";
+      console.log("[RevenueCat] Has entitlement after restore:", hasEntitlement);
+      console.log("[RevenueCat] Active entitlements after restore:", Object.keys(customerInfo.entitlements.active));
       setIsSubscribed(hasEntitlement);
       return hasEntitlement;
     } catch (error) {

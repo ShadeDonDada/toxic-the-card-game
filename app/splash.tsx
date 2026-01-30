@@ -29,7 +29,7 @@ export default function SplashScreenComponent() {
       isMounted.current = false;
       clearTimeout(timer);
     };
-  }, []);
+  }, [colorScheme]);
 
   return (
     <View style={[styles.container, { backgroundColor }]}>

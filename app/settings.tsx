@@ -7,7 +7,12 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getColors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
-import { UpgradeButton } from "@/components/UpgradeButton";
+
+const themeOptions: { value: 'light' | 'dark' | 'system'; label: string; icon: string; androidIcon: string }[] = [
+  { value: 'light', label: 'Light Mode', icon: 'lightbulb.fill', androidIcon: 'lightbulb' },
+  { value: 'dark', label: 'Dark Mode', icon: 'moon.fill', androidIcon: 'nightlight' },
+  { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
+];
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -16,12 +21,6 @@ export default function SettingsScreen() {
   const colors = getColors(effectiveColorScheme);
   const [purchasing, setPurchasing] = useState(false);
   const [restoring, setRestoring] = useState(false);
-
-  const themeOptions: Array<{ value: 'light' | 'dark' | 'system'; label: string; icon: string; androidIcon: string }> = [
-    { value: 'light', label: 'Light Mode', icon: 'lightbulb.fill', androidIcon: 'lightbulb' },
-    { value: 'dark', label: 'Dark Mode', icon: 'moon.fill', androidIcon: 'nightlight' },
-    { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
-  ];
 
   const productPrice = packages.length > 0 ? packages[0].product.priceString : '$6.99';
 
@@ -51,7 +50,6 @@ export default function SettingsScreen() {
     } catch (error: any) {
       console.error('Purchase failed:', error);
       
-      // Only show error if it's not a user cancellation
       if (!error.userCancelled) {
         Alert.alert(
           'Purchase Failed',
@@ -98,7 +96,6 @@ export default function SettingsScreen() {
 
   const handleBackToHome = () => {
     console.log('User pressed Back to Home from settings - navigating to home and resetting game state');
-    // Navigate to home screen and reset any game state
     router.replace('/(tabs)/(home)/');
   };
 
@@ -116,7 +113,6 @@ export default function SettingsScreen() {
             color={colors.primary}
           />
           <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
-          <UpgradeButton variant="banner" />
         </View>
 
         <View style={styles.section}>
@@ -187,7 +183,7 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Unlock Full Version</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Support the App</Text>
           {!isFullVersion && (
             <View style={[styles.demoNotice, { backgroundColor: colors.accent + '20', borderColor: colors.accent }]}>
               <IconSymbol
@@ -199,7 +195,7 @@ export default function SettingsScreen() {
               <View style={styles.demoNoticeTextContainer}>
                 <Text style={[styles.demoNoticeTitle, { color: colors.accent }]}>Demo Version Active</Text>
                 <Text style={[styles.demoNoticeText, { color: colors.text }]}>
-                  You&apos;re currently using the demo version (3 rounds, 3 cards per player). Purchase or restore to unlock unlimited gameplay!
+                  You&apos;re currently using the demo version (3 rounds, 3 cards per player). Purchase to unlock unlimited gameplay!
                 </Text>
               </View>
             </View>
@@ -207,7 +203,7 @@ export default function SettingsScreen() {
           <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
             {isFullVersion 
               ? 'Thank you for your support! You have full access to all features.' 
-              : 'Purchase the full version or restore a previous purchase to unlock unlimited rounds and all cards.'}
+              : 'Purchase the full version to unlock unlimited rounds and all cards.'}
           </Text>
 
           <View style={styles.purchaseContainer}>

@@ -1,8 +1,8 @@
+
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/IconSymbol";
-import { UpgradeButton } from "@/components/UpgradeButton";
 import { GlassView } from "expo-glass-effect";
 import { useTheme } from "@react-navigation/native";
 
@@ -11,9 +11,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]} edges={['top']}>
-            <UpgradeButton variant="banner" />
-      
-<ScrollView
+      <ScrollView
         style={styles.container}
         contentContainerStyle={[
           styles.contentContainer,
@@ -50,7 +48,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    // backgroundColor handled dynamically
   },
   container: {
     flex: 1,
@@ -59,7 +56,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   contentContainerWithTabBar: {
-    paddingBottom: 100, // Extra padding for floating tab bar
+    paddingBottom: 100,
   },
   profileHeader: {
     alignItems: 'center',
@@ -71,11 +68,9 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: 'bold',
-    // color handled dynamically
   },
   email: {
     fontSize: 16,
-    // color handled dynamically
   },
   section: {
     borderRadius: 12,
@@ -89,6 +84,5 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 16,
-    // color handled dynamically
   },
 });

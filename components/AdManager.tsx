@@ -1,7 +1,7 @@
 
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
-import { usePurchase } from '@/contexts/PurchaseContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 
 // Conditionally import react-native-google-mobile-ads only on native platforms
 let InterstitialAd: any;
@@ -33,7 +33,7 @@ interface AdManagerProps {
 }
 
 export const AdManager = ({ roundNumber, onRoundEnd }: AdManagerProps) => {
-  const { isPremium } = usePurchase();
+  const { isSubscribed } = useSubscription();
   const lastAdRound = useRef(0);
   const interstitialRef = useRef<any>(null);
   const isAdLoaded = useRef(false);
@@ -46,7 +46,7 @@ export const AdManager = ({ roundNumber, onRoundEnd }: AdManagerProps) => {
     }
 
     // Only set up ads for free users
-    if (isPremium) {
+    if (isSubscribed) {
       console.log('Premium user - ads disabled');
       return;
     }
@@ -81,7 +81,7 @@ export const AdManager = ({ roundNumber, onRoundEnd }: AdManagerProps) => {
       
       // Preload the next ad
       setTimeout(() => {
-        if (interstitialRef.current && !isPremium) {
+        if (interstitialRef.current && !isSubscribed) {
           interstitialRef.current.load();
         }
       }, 1000);
@@ -96,7 +96,7 @@ export const AdManager = ({ roundNumber, onRoundEnd }: AdManagerProps) => {
       errorListener();
       closedListener();
     };
-  }, [isPremium]);
+  }, [isSubscribed]);
 
   useEffect(() => {
     // Ads are not supported on web
@@ -105,10 +105,14 @@ export const AdManager = ({ roundNumber, onRoundEnd }: AdManagerProps) => {
     }
 
     // Only show ads for free users
-    if (isPremium) return;
+    if (isSubscribed) {
+      return;
+    }
     
     // Never show ads before first round (roundNumber starts at 1)
-    if (roundNumber <= 1) return;
+    if (roundNumber <= 1) {
+      return;
+    }
     
     // Show ad at round endings (not during gameplay)
     // Only show if this is a new round and we haven't shown an ad for this round yet
@@ -116,7 +120,7 @@ export const AdManager = ({ roundNumber, onRoundEnd }: AdManagerProps) => {
       showInterstitialAd();
       lastAdRound.current = roundNumber;
     }
-  }, [roundNumber, isPremium, onRoundEnd]);
+  }, [roundNumber, isSubscribed, onRoundEnd]);
 
   const showInterstitialAd = async () => {
     try {
