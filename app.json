@@ -48,12 +48,6 @@
       "expo-router",
       "expo-web-browser",
       [
-        "react-native-purchases",
-        {
-          "apiKey": "REVENUECAT_API_KEY_PLACEHOLDER"
-        }
-      ],
-      [
         "expo-splash-screen",
         {
           "backgroundColor": "#000000",
