@@ -103,7 +103,7 @@ export default function HomeScreen() {
 
           <Animated.View style={animatedLogoStyle}>
             <Image
-              source={require('@/assets/images/30bb78b4-7ad8-49c0-b5b7-de3843592db5.png')}
+              source={require('@/assets/images/9fdb7b2d-17b1-4d90-ac0d-5696f20ad1cf.png')}
               style={styles.logo}
               resizeMode="contain"
               onLoad={() => {
