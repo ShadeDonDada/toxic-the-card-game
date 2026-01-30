@@ -19,8 +19,8 @@
  * 1. Wrap your app with <SubscriptionProvider>
  * 2. Run: pnpm install react-native-purchases && npx expo prebuild
  * 3. Configure RevenueCat Dashboard:
- *    - Create entitlement: "pro"
- *    - Create product: "com.stevenandrepennant.toxicthecardgame.fullversion"
+ *    - Create entitlement: "FullVersion"
+ *    - Create product: "toxicthecardgame.fullversion"
  *    - Link product to entitlement
  *    - Add iOS/Android API keys to app.json
  */
@@ -47,7 +47,7 @@ const IOS_API_KEY = extra.revenueCatApiKeyIos || "";
 const ANDROID_API_KEY = extra.revenueCatApiKeyAndroid || "";
 const TEST_IOS_API_KEY = extra.revenueCatTestApiKeyIos || "test_quMXNzeUDRgKAgXdvcXRBSwpMlP";
 const TEST_ANDROID_API_KEY = extra.revenueCatTestApiKeyAndroid || "test_quMXNzeUDRgKAgXdvcXRBSwpMlP";
-const ENTITLEMENT_ID = extra.revenueCatEntitlementId || "pro";
+const ENTITLEMENT_ID = extra.revenueCatEntitlementId || "FullVersion";
 
 // Check if running on web
 const isWeb = Platform.OS === "web";
@@ -158,7 +158,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
         if (__DEV__) {
           console.log("[RevenueCat] Initializing in DEV mode with key:", apiKey.substring(0, 10) + "...");
           console.log("[RevenueCat] Entitlement ID:", ENTITLEMENT_ID);
-          console.log("[RevenueCat] Expected Product ID: com.stevenandrepennant.toxicthecardgame.fullversion");
+          console.log("[RevenueCat] Expected Product ID: toxicthecardgame.fullversion");
         }
 
         await Purchases.configure({ apiKey });
