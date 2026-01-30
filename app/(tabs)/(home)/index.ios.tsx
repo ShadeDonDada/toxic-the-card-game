@@ -13,6 +13,7 @@ import Animated, {
   withSequence,
   withRepeat,
   Easing,
+  withSpring,
 } from 'react-native-reanimated';
 
 export default function HomeScreen() {
@@ -21,51 +22,110 @@ export default function HomeScreen() {
   const colors = getColors(effectiveColorScheme);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(0.8);
-  const glowOpacity = useSharedValue(0.3);
+  const scale = useSharedValue(0.8);
+  const opacity = useSharedValue(0);
+  const rotation = useSharedValue(0);
+  const glowOpacity1 = useSharedValue(0.2);
+  const glowOpacity2 = useSharedValue(0.1);
+  const glowScale1 = useSharedValue(1);
+  const glowScale2 = useSharedValue(1);
 
   useEffect(() => {
-    console.log('Home screen mounted - starting animations');
+    console.log('Home screen mounted - starting enhanced animations');
     
-    scale.value = withRepeat(
+    // Initial entrance animation
+    scale.value = withSpring(1, {
+      damping: 8,
+      stiffness: 100,
+    });
+    
+    opacity.value = withTiming(1, {
+      duration: 800,
+      easing: Easing.out(Easing.ease),
+    });
+
+    // Continuous pulsing scale animation (more pronounced)
+    setTimeout(() => {
+      scale.value = withRepeat(
+        withSequence(
+          withTiming(1.15, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+          withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1,
+        false
+      );
+    }, 800);
+
+    // Subtle rotation animation
+    rotation.value = withRepeat(
+      withTiming(360, {
+        duration: 20000,
+        easing: Easing.linear,
+      }),
+      -1,
+      false
+    );
+
+    // First glow layer - faster pulse
+    glowOpacity1.value = withRepeat(
       withSequence(
-        withTiming(1.05, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.7, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.2, { duration: 1200, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+
+    glowScale1.value = withRepeat(
+      withSequence(
+        withTiming(1.3, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+
+    // Second glow layer - slower, offset pulse
+    glowOpacity2.value = withRepeat(
+      withSequence(
+        withTiming(0.5, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.1, { duration: 2000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+
+    glowScale2.value = withRepeat(
+      withSequence(
+        withTiming(1.5, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
         withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.ease) })
       ),
       -1,
       false
     );
-
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.8, { duration: 2000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-
-    glowOpacity.value = withRepeat(
-      withSequence(
-        withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.3, { duration: 2000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-  }, [imageLoaded, scale, opacity, glowOpacity]);
+  }, [imageLoaded, scale, opacity, rotation, glowOpacity1, glowOpacity2, glowScale1, glowScale2]);
 
   const animatedLogoStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ scale: scale.value }],
+      transform: [
+        { scale: scale.value },
+        { rotate: `${rotation.value}deg` },
+      ],
       opacity: opacity.value,
     };
   });
 
-  const animatedGlowStyle = useAnimatedStyle(() => {
+  const animatedGlow1Style = useAnimatedStyle(() => {
     return {
-      opacity: glowOpacity.value,
+      opacity: glowOpacity1.value,
+      transform: [{ scale: glowScale1.value }],
+    };
+  });
+
+  const animatedGlow2Style = useAnimatedStyle(() => {
+    return {
+      opacity: glowOpacity2.value,
+      transform: [{ scale: glowScale2.value }],
     };
   });
 
@@ -97,8 +157,12 @@ export default function HomeScreen() {
             </View>
           )}
           
-          <Animated.View style={[styles.glowContainer, animatedGlowStyle]}>
-            <View style={[styles.glow, { backgroundColor: colors.primary }]} />
+          <Animated.View style={[styles.glowContainer1, animatedGlow1Style]}>
+            <View style={[styles.glow1, { backgroundColor: colors.primary }]} />
+          </Animated.View>
+
+          <Animated.View style={[styles.glowContainer2, animatedGlow2Style]}>
+            <View style={[styles.glow2, { backgroundColor: colors.accent }]} />
           </Animated.View>
 
           <Animated.View style={animatedLogoStyle}>
@@ -183,15 +247,15 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingTop: 60,
+    paddingTop: 40,
     paddingHorizontal: 20,
     paddingBottom: 120,
   },
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 40,
-    height: width * 0.6,
+    marginBottom: 30,
+    height: width * 0.85,
     position: 'relative',
   },
   loadingContainer: {
@@ -203,23 +267,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  glowContainer: {
+  glowContainer1: {
     position: 'absolute',
-    width: width * 0.6,
-    height: width * 0.6,
+    width: width * 0.8,
+    height: width * 0.8,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  glow: {
+  glow1: {
     width: '100%',
     height: '100%',
-    borderRadius: width * 0.3,
+    borderRadius: width * 0.4,
+    opacity: 0.3,
+    boxShadow: '0px 0px 80px 40px',
+  },
+  glowContainer2: {
+    position: 'absolute',
+    width: width * 0.9,
+    height: width * 0.9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glow2: {
+    width: '100%',
+    height: '100%',
+    borderRadius: width * 0.45,
     opacity: 0.2,
-    boxShadow: '0px 0px 60px 30px',
+    boxShadow: '0px 0px 100px 50px',
   },
   logo: {
-    width: width * 0.5,
-    height: width * 0.5,
+    width: width * 0.7,
+    height: width * 0.7,
   },
   titleContainer: {
     alignItems: 'center',
