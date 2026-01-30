@@ -3,15 +3,16 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
-import { usePurchase } from '@/contexts/PurchaseContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getColors } from '@/styles/commonStyles';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/IconSymbol';
+import { UpgradeButton } from "@/components/UpgradeButton";
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { themeMode, setThemeMode, effectiveColorScheme } = useTheme();
-  const { isFullVersion, productPrice, purchaseFullVersion, restorePurchases } = usePurchase();
+  const { isSubscribed: isFullVersion, packages, purchasePackage, restorePurchases } = useSubscription();
   const colors = getColors(effectiveColorScheme);
   const [purchasing, setPurchasing] = useState(false);
   const [restoring, setRestoring] = useState(false);
@@ -22,13 +23,31 @@ export default function SettingsScreen() {
     { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
   ];
 
+  const productPrice = packages.length > 0 ? packages[0].product.priceString : '$6.99';
+
   const handlePurchase = async () => {
     console.log('User tapped Buy me a drink button');
+    
+    if (packages.length === 0) {
+      Alert.alert(
+        'Product Not Available',
+        'Unable to load product information. Please try again later.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     setPurchasing(true);
     try {
-      await purchaseFullVersion();
-      // Success alert is shown by the purchase listener in PurchaseContext
-      console.log('Purchase flow initiated successfully');
+      const success = await purchasePackage(packages[0]);
+      if (success) {
+        console.log('Purchase successful');
+        Alert.alert(
+          'Purchase Successful! 🎉',
+          'Thank you for your support! You now have full access to unlimited rounds and all cards.',
+          [{ text: 'OK' }]
+        );
+      }
     } catch (error: any) {
       console.error('Purchase failed:', error);
       
@@ -51,8 +70,27 @@ export default function SettingsScreen() {
     try {
       const restored = await restorePurchases();
       console.log('Restore completed, result:', restored);
+      
+      if (restored) {
+        Alert.alert(
+          'Restore Successful! ✅',
+          'Your full version has been restored!',
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'No Purchases Found',
+          'No previous purchases were found for this account.',
+          [{ text: 'OK' }]
+        );
+      }
     } catch (error) {
       console.error('Restore failed:', error);
+      Alert.alert(
+        'Restore Failed',
+        'Unable to restore purchases. Please try again later.',
+        [{ text: 'OK' }]
+      );
     } finally {
       setRestoring(false);
     }
@@ -78,6 +116,7 @@ export default function SettingsScreen() {
             color={colors.primary}
           />
           <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
+          <UpgradeButton variant="banner" />
         </View>
 
         <View style={styles.section}>

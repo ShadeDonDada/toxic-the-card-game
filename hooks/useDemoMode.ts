@@ -1,6 +1,6 @@
 
 import { useMemo } from 'react';
-import { usePurchase } from '@/contexts/PurchaseContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { scenarioCards, responseCards } from '@/data/cards';
 
 const MAX_DEMO_ROUNDS = 3;
@@ -8,9 +8,10 @@ const MAX_DEMO_SCENARIOS = 3;
 const MAX_DEMO_CARDS_PER_PLAYER = 3;
 
 export function useDemoMode() {
-  const { isFullVersion } = usePurchase();
+  const { isSubscribed } = useSubscription();
 
-  const isDemoMode = !isFullVersion;
+  const isFullVersion = isSubscribed;
+  const isDemoMode = !isSubscribed;
 
   const limitedScenarioCards = useMemo(() => {
     if (isFullVersion) {

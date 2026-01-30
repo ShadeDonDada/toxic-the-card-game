@@ -6,7 +6,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
 import { useGameState } from '@/hooks/useGameState';
 import { useDemoMode } from '@/hooks/useDemoMode';
-import { usePurchase } from '@/contexts/PurchaseContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { GameCard } from '@/components/GameCard';
 import { PlayerHand } from '@/components/PlayerHand';
 import { Button } from '@/components/Button';
@@ -22,7 +22,7 @@ export default function GameScreen() {
   const playerNamesParam = params.playerNames as string;
   const scrollViewRef = useRef<ScrollView>(null);
   
-  const { loading: purchaseLoading, isFullVersion } = usePurchase();
+  const { loading: purchaseLoading, isSubscribed: isFullVersion } = useSubscription();
   const { isDemoLimitReached, canPlayRound, limitedScenarioCards, getCardsPerPlayer } = useDemoMode();
   
   let playerNames: string[] = [];

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, ScrollView, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/IconSymbol";
+import { UpgradeButton } from "@/components/UpgradeButton";
 import { GlassView } from "expo-glass-effect";
 import { useTheme } from "@react-navigation/native";
 
@@ -10,7 +11,9 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]} edges={['top']}>
-      <ScrollView
+            <UpgradeButton variant="banner" />
+      
+<ScrollView
         style={styles.container}
         contentContainerStyle={[
           styles.contentContainer,
