@@ -103,15 +103,15 @@ export default function HomeScreen() {
 
           <Animated.View style={animatedLogoStyle}>
             <Image
-              source={require('@/assets/images/final_quest_240x240.png')}
+              source={require('@/assets/images/30bb78b4-7ad8-49c0-b5b7-de3843592db5.png')}
               style={styles.logo}
               resizeMode="contain"
               onLoad={() => {
-                console.log('Logo image loaded successfully');
+                console.log('Toxic logo image loaded successfully');
                 setImageLoaded(true);
               }}
               onError={(error) => {
-                console.error('Logo image failed to load:', error);
+                console.error('Toxic logo image failed to load:', error);
                 setImageLoaded(true);
               }}
             />
