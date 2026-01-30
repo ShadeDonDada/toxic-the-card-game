@@ -14,6 +14,7 @@ import Animated, {
   withRepeat,
   Easing,
   withSpring,
+  withDelay,
 } from 'react-native-reanimated';
 
 export default function HomeScreen() {
@@ -25,13 +26,21 @@ export default function HomeScreen() {
   const scale = useSharedValue(0.8);
   const opacity = useSharedValue(0);
   const rotation = useSharedValue(0);
-  const glowOpacity1 = useSharedValue(0.2);
-  const glowOpacity2 = useSharedValue(0.1);
-  const glowScale1 = useSharedValue(1);
-  const glowScale2 = useSharedValue(1);
+  
+  // Drip animations - 5 drips with different timings
+  const drip1Y = useSharedValue(-50);
+  const drip1Opacity = useSharedValue(0);
+  const drip2Y = useSharedValue(-50);
+  const drip2Opacity = useSharedValue(0);
+  const drip3Y = useSharedValue(-50);
+  const drip3Opacity = useSharedValue(0);
+  const drip4Y = useSharedValue(-50);
+  const drip4Opacity = useSharedValue(0);
+  const drip5Y = useSharedValue(-50);
+  const drip5Opacity = useSharedValue(0);
 
   useEffect(() => {
-    console.log('Home screen mounted - starting enhanced animations');
+    console.log('Home screen mounted - starting toxic drip animations');
     
     // Initial entrance animation
     scale.value = withSpring(1, {
@@ -66,44 +75,130 @@ export default function HomeScreen() {
       false
     );
 
-    // First glow layer - faster pulse
-    glowOpacity1.value = withRepeat(
+    // Drip 1 - Left side
+    drip1Y.value = withRepeat(
       withSequence(
-        withTiming(0.7, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.2, { duration: 1200, easing: Easing.inOut(Easing.ease) })
+        withTiming(200, { duration: 2500, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
+        withTiming(-50, { duration: 0 })
+      ),
+      -1,
+      false
+    );
+    drip1Opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.8, { duration: 300 }),
+        withTiming(0.8, { duration: 1900 }),
+        withTiming(0, { duration: 300 }),
+        withTiming(0, { duration: 0 })
       ),
       -1,
       false
     );
 
-    glowScale1.value = withRepeat(
-      withSequence(
-        withTiming(1.3, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
+    // Drip 2 - Center left (delayed)
+    drip2Y.value = withDelay(
+      500,
+      withRepeat(
+        withSequence(
+          withTiming(220, { duration: 2800, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
+          withTiming(-50, { duration: 0 })
+        ),
+        -1,
+        false
+      )
+    );
+    drip2Opacity.value = withDelay(
+      500,
+      withRepeat(
+        withSequence(
+          withTiming(0.7, { duration: 300 }),
+          withTiming(0.7, { duration: 2200 }),
+          withTiming(0, { duration: 300 }),
+          withTiming(0, { duration: 0 })
+        ),
+        -1,
+        false
+      )
     );
 
-    // Second glow layer - slower, offset pulse
-    glowOpacity2.value = withRepeat(
-      withSequence(
-        withTiming(0.5, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.1, { duration: 2000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
+    // Drip 3 - Center
+    drip3Y.value = withDelay(
+      1000,
+      withRepeat(
+        withSequence(
+          withTiming(240, { duration: 3000, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
+          withTiming(-50, { duration: 0 })
+        ),
+        -1,
+        false
+      )
+    );
+    drip3Opacity.value = withDelay(
+      1000,
+      withRepeat(
+        withSequence(
+          withTiming(0.9, { duration: 300 }),
+          withTiming(0.9, { duration: 2400 }),
+          withTiming(0, { duration: 300 }),
+          withTiming(0, { duration: 0 })
+        ),
+        -1,
+        false
+      )
     );
 
-    glowScale2.value = withRepeat(
-      withSequence(
-        withTiming(1.5, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
+    // Drip 4 - Center right (delayed)
+    drip4Y.value = withDelay(
+      1500,
+      withRepeat(
+        withSequence(
+          withTiming(210, { duration: 2600, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
+          withTiming(-50, { duration: 0 })
+        ),
+        -1,
+        false
+      )
     );
-  }, [imageLoaded, scale, opacity, rotation, glowOpacity1, glowOpacity2, glowScale1, glowScale2]);
+    drip4Opacity.value = withDelay(
+      1500,
+      withRepeat(
+        withSequence(
+          withTiming(0.75, { duration: 300 }),
+          withTiming(0.75, { duration: 2000 }),
+          withTiming(0, { duration: 300 }),
+          withTiming(0, { duration: 0 })
+        ),
+        -1,
+        false
+      )
+    );
+
+    // Drip 5 - Right side
+    drip5Y.value = withDelay(
+      2000,
+      withRepeat(
+        withSequence(
+          withTiming(230, { duration: 2900, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
+          withTiming(-50, { duration: 0 })
+        ),
+        -1,
+        false
+      )
+    );
+    drip5Opacity.value = withDelay(
+      2000,
+      withRepeat(
+        withSequence(
+          withTiming(0.85, { duration: 300 }),
+          withTiming(0.85, { duration: 2300 }),
+          withTiming(0, { duration: 300 }),
+          withTiming(0, { duration: 0 })
+        ),
+        -1,
+        false
+      )
+    );
+  }, [imageLoaded, scale, opacity, rotation, drip1Y, drip1Opacity, drip2Y, drip2Opacity, drip3Y, drip3Opacity, drip4Y, drip4Opacity, drip5Y, drip5Opacity]);
 
   const animatedLogoStyle = useAnimatedStyle(() => {
     return {
@@ -115,17 +210,38 @@ export default function HomeScreen() {
     };
   });
 
-  const animatedGlow1Style = useAnimatedStyle(() => {
+  const animatedDrip1Style = useAnimatedStyle(() => {
     return {
-      opacity: glowOpacity1.value,
-      transform: [{ scale: glowScale1.value }],
+      transform: [{ translateY: drip1Y.value }],
+      opacity: drip1Opacity.value,
     };
   });
 
-  const animatedGlow2Style = useAnimatedStyle(() => {
+  const animatedDrip2Style = useAnimatedStyle(() => {
     return {
-      opacity: glowOpacity2.value,
-      transform: [{ scale: glowScale2.value }],
+      transform: [{ translateY: drip2Y.value }],
+      opacity: drip2Opacity.value,
+    };
+  });
+
+  const animatedDrip3Style = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: drip3Y.value }],
+      opacity: drip3Opacity.value,
+    };
+  });
+
+  const animatedDrip4Style = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: drip4Y.value }],
+      opacity: drip4Opacity.value,
+    };
+  });
+
+  const animatedDrip5Style = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: drip5Y.value }],
+      opacity: drip5Opacity.value,
     };
   });
 
@@ -157,13 +273,28 @@ export default function HomeScreen() {
             </View>
           )}
           
-          <Animated.View style={[styles.glowContainer1, animatedGlow1Style]}>
-            <View style={[styles.glow1, { backgroundColor: colors.primary }]} />
-          </Animated.View>
+          {/* Toxic drip animations behind the logo */}
+          <View style={styles.dripsContainer}>
+            <Animated.View style={[styles.dripWrapper, styles.drip1Position, animatedDrip1Style]}>
+              <View style={[styles.drip, { backgroundColor: colors.primary }]} />
+            </Animated.View>
 
-          <Animated.View style={[styles.glowContainer2, animatedGlow2Style]}>
-            <View style={[styles.glow2, { backgroundColor: colors.accent }]} />
-          </Animated.View>
+            <Animated.View style={[styles.dripWrapper, styles.drip2Position, animatedDrip2Style]}>
+              <View style={[styles.drip, { backgroundColor: colors.accent }]} />
+            </Animated.View>
+
+            <Animated.View style={[styles.dripWrapper, styles.drip3Position, animatedDrip3Style]}>
+              <View style={[styles.drip, { backgroundColor: colors.primary }]} />
+            </Animated.View>
+
+            <Animated.View style={[styles.dripWrapper, styles.drip4Position, animatedDrip4Style]}>
+              <View style={[styles.drip, { backgroundColor: colors.accent }]} />
+            </Animated.View>
+
+            <Animated.View style={[styles.dripWrapper, styles.drip5Position, animatedDrip5Style]}>
+              <View style={[styles.drip, { backgroundColor: colors.primary }]} />
+            </Animated.View>
+          </View>
 
           <Animated.View style={animatedLogoStyle}>
             <Image
@@ -259,33 +390,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  glowContainer1: {
+  dripsContainer: {
     position: 'absolute',
-    width: width * 0.8,
-    height: width * 0.8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  glow1: {
     width: '100%',
     height: '100%',
-    borderRadius: width * 0.4,
-    opacity: 0.3,
-    boxShadow: '0px 0px 80px 40px',
-  },
-  glowContainer2: {
-    position: 'absolute',
-    width: width * 0.9,
-    height: width * 0.9,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
-  glow2: {
-    width: '100%',
-    height: '100%',
-    borderRadius: width * 0.45,
-    opacity: 0.2,
-    boxShadow: '0px 0px 100px 50px',
+  dripWrapper: {
+    position: 'absolute',
+    top: 0,
+  },
+  drip1Position: {
+    left: '20%',
+  },
+  drip2Position: {
+    left: '35%',
+  },
+  drip3Position: {
+    left: '50%',
+  },
+  drip4Position: {
+    left: '65%',
+  },
+  drip5Position: {
+    left: '80%',
+  },
+  drip: {
+    width: 8,
+    height: 60,
+    borderRadius: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   logo: {
     width: width * 0.7,
