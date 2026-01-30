@@ -17,6 +17,8 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 
+const AnimatedImage = Animated.createAnimatedComponent(Image);
+
 export default function HomeScreen() {
   const router = useRouter();
   const { effectiveColorScheme } = useTheme();
@@ -273,27 +275,37 @@ export default function HomeScreen() {
             </View>
           )}
           
-          {/* Toxic drip animations behind the logo */}
+          {/* Toxic drip animations behind the logo - using the toxic droplet image */}
           <View style={styles.dripsContainer}>
-            <Animated.View style={[styles.dripWrapper, styles.drip1Position, animatedDrip1Style]}>
-              <View style={[styles.drip, { backgroundColor: colors.primary }]} />
-            </Animated.View>
+            <AnimatedImage
+              source={require('@/assets/images/709cbf9b-fc3f-4413-a3d2-41b5b1872407.png')}
+              style={[styles.dripImage, styles.drip1Position, animatedDrip1Style]}
+              resizeMode="contain"
+            />
 
-            <Animated.View style={[styles.dripWrapper, styles.drip2Position, animatedDrip2Style]}>
-              <View style={[styles.drip, { backgroundColor: colors.accent }]} />
-            </Animated.View>
+            <AnimatedImage
+              source={require('@/assets/images/709cbf9b-fc3f-4413-a3d2-41b5b1872407.png')}
+              style={[styles.dripImage, styles.drip2Position, animatedDrip2Style]}
+              resizeMode="contain"
+            />
 
-            <Animated.View style={[styles.dripWrapper, styles.drip3Position, animatedDrip3Style]}>
-              <View style={[styles.drip, { backgroundColor: colors.primary }]} />
-            </Animated.View>
+            <AnimatedImage
+              source={require('@/assets/images/709cbf9b-fc3f-4413-a3d2-41b5b1872407.png')}
+              style={[styles.dripImage, styles.drip3Position, animatedDrip3Style]}
+              resizeMode="contain"
+            />
 
-            <Animated.View style={[styles.dripWrapper, styles.drip4Position, animatedDrip4Style]}>
-              <View style={[styles.drip, { backgroundColor: colors.accent }]} />
-            </Animated.View>
+            <AnimatedImage
+              source={require('@/assets/images/709cbf9b-fc3f-4413-a3d2-41b5b1872407.png')}
+              style={[styles.dripImage, styles.drip4Position, animatedDrip4Style]}
+              resizeMode="contain"
+            />
 
-            <Animated.View style={[styles.dripWrapper, styles.drip5Position, animatedDrip5Style]}>
-              <View style={[styles.drip, { backgroundColor: colors.primary }]} />
-            </Animated.View>
+            <AnimatedImage
+              source={require('@/assets/images/709cbf9b-fc3f-4413-a3d2-41b5b1872407.png')}
+              style={[styles.dripImage, styles.drip5Position, animatedDrip5Style]}
+              resizeMode="contain"
+            />
           </View>
 
           <Animated.View style={animatedLogoStyle}>
@@ -397,9 +409,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-  dripWrapper: {
+  dripImage: {
     position: 'absolute',
     top: 0,
+    width: 60,
+    height: 80,
   },
   drip1Position: {
     left: '20%',
@@ -415,16 +429,6 @@ const styles = StyleSheet.create({
   },
   drip5Position: {
     left: '80%',
-  },
-  drip: {
-    width: 8,
-    height: 60,
-    borderRadius: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   logo: {
     width: width * 0.7,
