@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "Toxic - The Card Game",
@@ -61,9 +62,11 @@
     },
     "extra": {
       "router": {},
+      "revenueCatApiKeyIos": "appl_YOUR_IOS_API_KEY_HERE",
+      "revenueCatApiKeyAndroid": "goog_YOUR_ANDROID_API_KEY_HERE",
       "revenueCatTestApiKeyIos": "test_quMXNzeUDRgKAgXdvcXRBSwpMlP",
       "revenueCatTestApiKeyAndroid": "test_quMXNzeUDRgKAgXdvcXRBSwpMlP",
-      "revenueCatEntitlementId": "Toxic - The Card Game Pro"
+      "revenueCatEntitlementId": "pro"
     }
   }
 }

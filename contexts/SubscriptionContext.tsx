@@ -18,6 +18,11 @@
  * SETUP:
  * 1. Wrap your app with <SubscriptionProvider>
  * 2. Run: pnpm install react-native-purchases && npx expo prebuild
+ * 3. Configure RevenueCat Dashboard:
+ *    - Create entitlement: "pro"
+ *    - Create product: "com.stevenandrepennant.toxicthecardgame.fullversion"
+ *    - Link product to entitlement
+ *    - Add iOS/Android API keys to app.json
  */
 
 import React, {
@@ -42,7 +47,7 @@ const IOS_API_KEY = extra.revenueCatApiKeyIos || "";
 const ANDROID_API_KEY = extra.revenueCatApiKeyAndroid || "";
 const TEST_IOS_API_KEY = extra.revenueCatTestApiKeyIos || "test_quMXNzeUDRgKAgXdvcXRBSwpMlP";
 const TEST_ANDROID_API_KEY = extra.revenueCatTestApiKeyAndroid || "test_quMXNzeUDRgKAgXdvcXRBSwpMlP";
-const ENTITLEMENT_ID = extra.revenueCatEntitlementId || "Toxic - The Card Game Pro";
+const ENTITLEMENT_ID = extra.revenueCatEntitlementId || "pro";
 
 // Check if running on web
 const isWeb = Platform.OS === "web";
@@ -153,6 +158,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
         if (__DEV__) {
           console.log("[RevenueCat] Initializing in DEV mode with key:", apiKey.substring(0, 10) + "...");
           console.log("[RevenueCat] Entitlement ID:", ENTITLEMENT_ID);
+          console.log("[RevenueCat] Expected Product ID: com.stevenandrepennant.toxicthecardgame.fullversion");
         }
 
         await Purchases.configure({ apiKey });
@@ -214,7 +220,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
           });
         });
       } else {
-        console.warn("[RevenueCat] No current offering found");
+        console.warn("[RevenueCat] No current offering found - check RevenueCat dashboard configuration");
       }
     } catch (error) {
       console.error("[RevenueCat] Failed to fetch offerings:", error);
@@ -230,6 +236,13 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
         typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined";
       console.log("[RevenueCat] Has entitlement:", hasEntitlement);
       console.log("[RevenueCat] Active entitlements:", Object.keys(customerInfo.entitlements.active));
+      
+      if (hasEntitlement) {
+        console.log("[RevenueCat] ✅ Full version unlocked!");
+      } else {
+        console.log("[RevenueCat] ⚠️ Demo version active");
+      }
+      
       setIsSubscribed(hasEntitlement);
     } catch (error) {
       console.error("[RevenueCat] Failed to check subscription:", error);
@@ -244,12 +257,23 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     }
     try {
       console.log("[RevenueCat] Attempting to purchase package:", pkg.identifier);
+      console.log("[RevenueCat] Product ID:", pkg.product.identifier);
+      console.log("[RevenueCat] Price:", pkg.product.priceString);
+      
       const { customerInfo } = await Purchases.purchasePackage(pkg);
       console.log("[RevenueCat] Purchase completed");
+      
       const hasEntitlement =
         typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined";
       console.log("[RevenueCat] Has entitlement after purchase:", hasEntitlement);
       console.log("[RevenueCat] Active entitlements after purchase:", Object.keys(customerInfo.entitlements.active));
+      
+      if (hasEntitlement) {
+        console.log("[RevenueCat] ✅ Purchase successful - Full version unlocked!");
+      } else {
+        console.warn("[RevenueCat] ⚠️ Purchase completed but entitlement not found - check RevenueCat dashboard configuration");
+      }
+      
       setIsSubscribed(hasEntitlement);
       return hasEntitlement;
     } catch (error: any) {
@@ -272,10 +296,18 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       console.log("[RevenueCat] Attempting to restore purchases...");
       const customerInfo = await Purchases.restorePurchases();
       console.log("[RevenueCat] Restore completed");
+      
       const hasEntitlement =
         typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== "undefined";
       console.log("[RevenueCat] Has entitlement after restore:", hasEntitlement);
       console.log("[RevenueCat] Active entitlements after restore:", Object.keys(customerInfo.entitlements.active));
+      
+      if (hasEntitlement) {
+        console.log("[RevenueCat] ✅ Restore successful - Full version unlocked!");
+      } else {
+        console.log("[RevenueCat] ℹ️ No active purchases found to restore");
+      }
+      
       setIsSubscribed(hasEntitlement);
       return hasEntitlement;
     } catch (error) {
