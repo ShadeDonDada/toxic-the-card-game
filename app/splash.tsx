@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, useColorScheme } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { router } from 'expo-router';
@@ -12,16 +12,23 @@ export default function SplashScreenComponent() {
   const colorScheme = useColorScheme();
   const backgroundColor = colorScheme === 'dark' ? '#000000' : '#0a0a0a';
   const textColor = colorScheme === 'dark' ? '#FFFFFF' : '#f5f5f5';
+  const isMounted = useRef(true);
 
   useEffect(() => {
     console.log('Splash screen mounted, color scheme:', colorScheme);
+    
     // Hide the splash screen after a delay
     const timer = setTimeout(() => {
-      SplashScreen.hideAsync();
-      router.replace('/(tabs)');
+      if (isMounted.current) {
+        SplashScreen.hideAsync();
+        router.replace('/(tabs)');
+      }
     }, 1500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isMounted.current = false;
+      clearTimeout(timer);
+    };
   }, []);
 
   return (

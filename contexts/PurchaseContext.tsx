@@ -210,8 +210,13 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
     } catch (error: any) {
       console.error('Purchase failed:', error);
       
-      // Don't show alert for user cancellation
-      if (error.userCancelled) {
+      // Check if user cancelled - handle different error code formats
+      const isCancelled = error.userCancelled === true || 
+                         error.code === 'PURCHASE_CANCELLED' ||
+                         error.message?.includes('cancelled') ||
+                         error.message?.includes('canceled');
+      
+      if (isCancelled) {
         console.log('User cancelled the purchase');
         return;
       }
