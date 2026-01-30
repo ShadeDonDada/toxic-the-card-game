@@ -11,7 +11,7 @@ import { IconSymbol } from '@/components/IconSymbol';
 export default function SettingsScreen() {
   const router = useRouter();
   const { themeMode, setThemeMode, effectiveColorScheme } = useTheme();
-  const { isFullVersion, products, purchaseFullVersion, restorePurchases } = usePurchase();
+  const { isFullVersion, productPrice, purchaseFullVersion, restorePurchases } = usePurchase();
   const colors = getColors(effectiveColorScheme);
   const [purchasing, setPurchasing] = useState(false);
   const [restoring, setRestoring] = useState(false);
@@ -21,9 +21,6 @@ export default function SettingsScreen() {
     { value: 'dark', label: 'Dark Mode', icon: 'moon.fill', androidIcon: 'nightlight' },
     { value: 'system', label: 'System Default', icon: 'gear', androidIcon: 'settings' },
   ];
-
-  // Get the product price from the store (if available)
-  const productPrice = products.length > 0 ? products[0].localizedPrice : '$6.99';
 
   const handlePurchase = async () => {
     console.log('User tapped Buy me a drink button');
@@ -36,7 +33,7 @@ export default function SettingsScreen() {
       console.error('Purchase failed:', error);
       
       // Only show error if it's not a user cancellation
-      if (error.code !== 'E_USER_CANCELLED') {
+      if (!error.userCancelled) {
         Alert.alert(
           'Purchase Failed',
           'Something went wrong. Please try again.',
@@ -53,29 +50,9 @@ export default function SettingsScreen() {
     setRestoring(true);
     try {
       const restored = await restorePurchases();
-      
-      if (restored) {
-        Alert.alert(
-          'Restored! ✅',
-          'Your purchase has been restored successfully. You now have full access to all features!',
-          [{ text: 'OK' }]
-        );
-        console.log('Purchases restored and verified successfully');
-      } else {
-        Alert.alert(
-          'No Purchases Found',
-          'We couldn\'t find any previous purchases to restore. Please purchase the full version to unlock all features.',
-          [{ text: 'OK' }]
-        );
-        console.log('No purchases found to restore');
-      }
+      console.log('Restore completed, result:', restored);
     } catch (error) {
       console.error('Restore failed:', error);
-      Alert.alert(
-        'Restore Failed',
-        'Something went wrong. Please try again.',
-        [{ text: 'OK' }]
-      );
     } finally {
       setRestoring(false);
     }

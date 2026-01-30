@@ -2,28 +2,31 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Alert } from 'react-native';
-import * as RNIap from 'react-native-iap';
-import type {
-  Product,
-  Purchase,
-  PurchaseError,
-  SubscriptionPurchase,
-} from 'react-native-iap';
+import Purchases, { 
+  PurchasesPackage, 
+  CustomerInfo,
+  LOG_LEVEL,
+  PurchasesStoreProduct
+} from 'react-native-purchases';
 
 // IMPORTANT: Product IDs must match exactly what's configured in App Store Connect and Google Play Console
 // Bundle ID: com.stevenandrepennant.toxicthecardgame
 // Product ID: com.stevenandrepennant.toxicthecardgame.fullversion
-const PRODUCT_IDS = Platform.select({
-  ios: ['com.stevenandrepennant.toxicthecardgame.fullversion'],
-  android: ['com.stevenandrepennant.toxicthecardgame.fullversion'],
-  default: ['com.stevenandrepennant.toxicthecardgame.fullversion'],
-}) as string[];
+const PRODUCT_ID = 'com.stevenandrepennant.toxicthecardgame.fullversion';
+
+// RevenueCat API Keys - You need to get these from RevenueCat dashboard
+// For testing, you can use the same key for both platforms or separate keys
+const REVENUECAT_API_KEY = Platform.select({
+  ios: 'appl_YOUR_IOS_API_KEY_HERE',
+  android: 'goog_YOUR_ANDROID_API_KEY_HERE',
+}) as string;
 
 interface PurchaseContextType {
   isFullVersion: boolean;
   loading: boolean;
   subscriptionStatus: string;
-  products: Product[];
+  products: PurchasesStoreProduct[];
+  productPrice: string;
   purchaseFullVersion: () => Promise<void>;
   restorePurchases: () => Promise<void>;
 }
@@ -34,113 +37,39 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
   // Start with false (demo mode) by default - requires explicit purchase or restore
   const [isFullVersion, setIsFullVersion] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [products, setProducts] = useState<PurchasesStoreProduct[]>([]);
+  const [productPrice, setProductPrice] = useState('6.99');
 
   useEffect(() => {
-    let purchaseUpdateSubscription: any;
-    let purchaseErrorSubscription: any;
-
-    const init = async () => {
-      try {
-        await initializeIAP();
-        
-        // Set up purchase update listener
-        purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
-          async (purchase: Purchase | SubscriptionPurchase) => {
-            console.log('Purchase update received:', purchase);
-            const receipt = purchase.transactionReceipt;
-            
-            if (receipt) {
-              try {
-                // Finish the transaction
-                await RNIap.finishTransaction({ purchase, isConsumable: false });
-                console.log('Transaction finished successfully');
-                
-                // Unlock full version
-                await unlockFullVersion();
-                
-                Alert.alert(
-                  'Purchase Successful! 🎉',
-                  'Thank you for your support! You now have full access to unlimited rounds and all cards.',
-                  [{ text: 'OK' }]
-                );
-              } catch (error) {
-                console.error('Error finishing transaction:', error);
-              }
-            }
-          }
-        );
-
-        // Set up purchase error listener
-        purchaseErrorSubscription = RNIap.purchaseErrorListener(
-          (error: PurchaseError) => {
-            console.error('Purchase error:', error);
-            if (error.code !== 'E_USER_CANCELLED') {
-              Alert.alert(
-                'Purchase Failed',
-                'Something went wrong with your purchase. Please try again.',
-                [{ text: 'OK' }]
-              );
-            }
-          }
-        );
-      } catch (error) {
-        console.error('Error in initialization:', error);
-      }
-    };
-
-    init();
-    
-    return () => {
-      // Cleanup subscriptions
-      if (purchaseUpdateSubscription) {
-        purchaseUpdateSubscription.remove();
-      }
-      if (purchaseErrorSubscription) {
-        purchaseErrorSubscription.remove();
-      }
-      
-      // End IAP connection
-      if (isInitialized) {
-        RNIap.endConnection().catch((err) => {
-          console.error('Error ending IAP connection:', err);
-        });
-      }
-    };
+    initializePurchases();
   }, []);
 
-  const initializeIAP = async () => {
+  const initializePurchases = async () => {
     try {
-      console.log('Initializing In-App Purchases...');
+      console.log('Initializing RevenueCat Purchases...');
       
-      // Connect to the store
-      const connected = await RNIap.initConnection();
-      console.log('IAP connection established:', connected);
-      setIsInitialized(true);
-
-      // For Android, flush old pending purchases (important for testing)
-      if (Platform.OS === 'android') {
-        try {
-          await RNIap.flushFailedPurchasesCachedAsPendingAndroid();
-          console.log('Flushed failed purchases on Android');
-        } catch (error) {
-          console.error('Error flushing failed purchases:', error);
-        }
+      // Configure RevenueCat SDK
+      if (__DEV__) {
+        // Enable debug logs in development
+        Purchases.setLogLevel(LOG_LEVEL.DEBUG);
       }
 
-      // Load purchase status from AsyncStorage
+      // Initialize Purchases SDK
+      await Purchases.configure({ apiKey: REVENUECAT_API_KEY });
+      console.log('RevenueCat SDK configured successfully');
+
+      // Load purchase status from local storage first (for offline support)
       await loadPurchaseStatus();
 
-      // Get available products from the store
+      // Check current customer info from RevenueCat
+      await checkCustomerInfo();
+
+      // Load available products
       await loadProducts();
 
-      // Check for any pending purchases (important for handling interrupted purchases)
-      await checkPendingPurchases();
-
     } catch (error) {
-      console.error('Error initializing IAP:', error);
-      // Continue with demo mode if IAP fails to initialize
+      console.error('Error initializing Purchases:', error);
+      // Continue with demo mode if initialization fails
       setLoading(false);
     }
   };
@@ -155,74 +84,77 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
       // This ensures newly installed apps are in demo mode by default
       if (status === 'true') {
         setIsFullVersion(true);
-        console.log('Full version verified - unlocking app');
+        console.log('Full version verified from local storage');
       } else {
         setIsFullVersion(false);
-        console.log('No purchase found - app in demo mode (requires purchase or restore)');
+        console.log('No purchase found in local storage - app in demo mode');
       }
     } catch (error) {
       console.error('Failed to load purchase status:', error);
       // On error, default to demo mode for safety
       setIsFullVersion(false);
-    } finally {
+    }
+  };
+
+  const checkCustomerInfo = async () => {
+    try {
+      console.log('Checking customer info from RevenueCat...');
+      const customerInfo = await Purchases.getCustomerInfo();
+      console.log('Customer info received:', customerInfo);
+      
+      // Check if user has active entitlement for full version
+      const hasFullVersion = customerInfo.entitlements.active['full_version'] !== undefined;
+      
+      if (hasFullVersion) {
+        console.log('User has active full version entitlement');
+        await unlockFullVersion();
+      } else {
+        console.log('No active entitlement found - user in demo mode');
+        setIsFullVersion(false);
+        await AsyncStorage.setItem('fullVersion', 'false');
+      }
+      
       setLoading(false);
-      console.log('Purchase status loading complete');
+    } catch (error) {
+      console.error('Error checking customer info:', error);
+      setLoading(false);
     }
   };
 
   const loadProducts = async () => {
     try {
-      console.log('Loading products from store with IDs:', PRODUCT_IDS);
-      const availableProducts = await RNIap.getProducts({ skus: PRODUCT_IDS });
-      console.log('Products loaded:', availableProducts);
-      setProducts(availableProducts);
+      console.log('Loading products from RevenueCat...');
       
-      if (availableProducts.length === 0) {
-        console.warn('No products found. Make sure product IDs are configured correctly in App Store Connect / Google Play Console');
-      }
-    } catch (error) {
-      console.error('Error loading products:', error);
-      // For testing purposes, create a mock product if loading fails
-      if (__DEV__) {
-        console.log('Development mode: Using mock product for testing');
-        setProducts([{
-          productId: PRODUCT_IDS[0],
-          title: 'Full Version',
-          description: 'Unlock unlimited rounds and all cards',
-          price: '6.99',
-          currency: 'USD',
-          localizedPrice: '$6.99',
-          type: 'inapp',
-        } as Product]);
-      }
-    }
-  };
-
-  const checkPendingPurchases = async () => {
-    try {
-      console.log('Checking for pending purchases...');
+      // Get available products
+      const offerings = await Purchases.getOfferings();
+      console.log('Offerings received:', offerings);
       
-      // Get available purchases (purchases that haven't been finished)
-      const availablePurchases = await RNIap.getAvailablePurchases();
-      console.log('Available purchases:', availablePurchases);
-
-      if (availablePurchases && availablePurchases.length > 0) {
-        // User has made a purchase - unlock full version
-        console.log('Found existing purchase - unlocking full version');
-        await unlockFullVersion();
+      if (offerings.current && offerings.current.availablePackages.length > 0) {
+        const availableProducts = offerings.current.availablePackages.map(
+          (pkg: PurchasesPackage) => pkg.product
+        );
+        console.log('Products loaded:', availableProducts);
+        setProducts(availableProducts);
         
-        // Finish all pending transactions
-        for (const purchase of availablePurchases) {
-          try {
-            await RNIap.finishTransaction({ purchase, isConsumable: false });
-            console.log('Finished pending transaction:', purchase.productId);
-          } catch (error) {
-            console.error('Error finishing pending transaction:', error);
-          }
+        // Set the price from the first product
+        if (availableProducts.length > 0) {
+          const price = availableProducts[0].priceString;
+          setProductPrice(price);
+          console.log('Product price set to:', price);
+        }
+      } else {
+        console.warn('No offerings found. Make sure products are configured in RevenueCat dashboard');
+        
+        // For development/testing, create a mock product
+        if (__DEV__) {
+          console.log('Development mode: Using mock product for testing');
+          setProductPrice('$6.99');
         }
       }
     } catch (error) {
-      console.error('Error checking pending purchases:', error);
+      console.error('Error loading products:', error);
+      // Use default price if loading fails
+      setProductPrice('$6.99');
     }
   };
 
@@ -242,30 +174,53 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
     try {
       console.log('User initiated purchase...');
       
-      if (PRODUCT_IDS.length === 0) {
-        throw new Error('No product IDs configured');
+      // Get current offerings
+      const offerings = await Purchases.getOfferings();
+      
+      if (!offerings.current || offerings.current.availablePackages.length === 0) {
+        throw new Error('No products available for purchase');
       }
 
-      // Request purchase from the store
-      console.log('Requesting purchase for product:', PRODUCT_IDS[0]);
-      await RNIap.requestPurchase({ 
-        sku: PRODUCT_IDS[0],
-        ...(Platform.OS === 'android' && {
-          obfuscatedAccountIdAndroid: undefined,
-          obfuscatedProfileIdAndroid: undefined,
-        }),
-      });
-      
-      // The purchase will be handled by the purchaseUpdatedListener
-      console.log('Purchase request sent to store');
+      // Get the first package (you can customize this to select specific packages)
+      const packageToPurchase = offerings.current.availablePackages[0];
+      console.log('Purchasing package:', packageToPurchase.identifier);
+
+      // Make the purchase
+      const { customerInfo } = await Purchases.purchasePackage(packageToPurchase);
+      console.log('Purchase completed, customer info:', customerInfo);
+
+      // Check if the purchase was successful
+      if (customerInfo.entitlements.active['full_version'] !== undefined) {
+        console.log('Purchase successful - unlocking full version');
+        await unlockFullVersion();
+        
+        Alert.alert(
+          'Purchase Successful! 🎉',
+          'Thank you for your support! You now have full access to unlimited rounds and all cards.',
+          [{ text: 'OK' }]
+        );
+      } else {
+        console.warn('Purchase completed but entitlement not found');
+        Alert.alert(
+          'Purchase Processing',
+          'Your purchase is being processed. Please restart the app in a few moments.',
+          [{ text: 'OK' }]
+        );
+      }
     } catch (error: any) {
       console.error('Purchase failed:', error);
       
       // Don't show alert for user cancellation
-      if (error.code === 'E_USER_CANCELLED') {
+      if (error.userCancelled) {
         console.log('User cancelled the purchase');
         return;
       }
+      
+      Alert.alert(
+        'Purchase Failed',
+        error.message || 'Something went wrong with your purchase. Please try again.',
+        [{ text: 'OK' }]
+      );
       
       throw error;
     }
@@ -274,32 +229,44 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
   const restorePurchases = async () => {
     console.log('Restoring purchases...');
     try {
-      // Get all available purchases from the store
-      const availablePurchases = await RNIap.getAvailablePurchases();
-      console.log('Available purchases for restore:', availablePurchases);
+      // Restore purchases through RevenueCat
+      const customerInfo = await Purchases.restorePurchases();
+      console.log('Restore completed, customer info:', customerInfo);
 
-      if (availablePurchases && availablePurchases.length > 0) {
-        // Found previous purchases - unlock full version
-        await unlockFullVersion();
+      // Check if user has active entitlement
+      if (customerInfo.entitlements.active['full_version'] !== undefined) {
         console.log('Purchase restored successfully');
+        await unlockFullVersion();
         
-        // Finish all transactions
-        for (const purchase of availablePurchases) {
-          try {
-            await RNIap.finishTransaction({ purchase, isConsumable: false });
-            console.log('Finished restored transaction:', purchase.productId);
-          } catch (error) {
-            console.error('Error finishing restored transaction:', error);
-          }
-        }
+        Alert.alert(
+          'Restore Successful! ✅',
+          'Your full version has been restored!',
+          [{ text: 'OK' }]
+        );
         
         return true;
       } else {
         console.log('No previous purchases found to restore');
+        setIsFullVersion(false);
+        await AsyncStorage.setItem('fullVersion', 'false');
+        
+        Alert.alert(
+          'No Purchases Found',
+          'No previous purchases were found for this account.',
+          [{ text: 'OK' }]
+        );
+        
         return false;
       }
     } catch (error) {
       console.error('Failed to restore purchases:', error);
+      
+      Alert.alert(
+        'Restore Failed',
+        'Unable to restore purchases. Please try again later.',
+        [{ text: 'OK' }]
+      );
+      
       throw error;
     }
   };
@@ -311,6 +278,7 @@ export function PurchaseProvider({ children }: { children: ReactNode }) {
         loading, 
         subscriptionStatus: isFullVersion ? 'ACTIVE' : 'INACTIVE',
         products,
+        productPrice,
         purchaseFullVersion,
         restorePurchases
       }}
