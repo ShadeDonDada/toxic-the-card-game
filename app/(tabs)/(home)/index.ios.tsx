@@ -182,14 +182,6 @@ export default function HomeScreen() {
           </Animated.View>
         </View>
 
-        <View style={styles.titleContainer}>
-          <Text style={[styles.title, { color: colors.text }]}>Toxic</Text>
-          <Text style={[styles.subtitle, { color: colors.primary }]}>The Card Game</Text>
-          <Text style={[styles.tagline, { color: colors.textSecondary }]}>
-            Extracting the poison out of you
-          </Text>
-        </View>
-
         <View style={styles.buttonContainer}>
           <Button
             title="Start Game"
@@ -254,7 +246,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 30,
+    marginBottom: 50,
     height: width * 0.85,
     position: 'relative',
   },
@@ -298,25 +290,6 @@ const styles = StyleSheet.create({
   logo: {
     width: width * 0.7,
     height: width * 0.7,
-  },
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  tagline: {
-    fontSize: 16,
-    fontStyle: 'italic',
-    textAlign: 'center',
   },
   buttonContainer: {
     gap: 16,
