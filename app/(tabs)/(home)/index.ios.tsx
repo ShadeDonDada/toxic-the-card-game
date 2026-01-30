@@ -25,7 +25,7 @@ export default function HomeScreen() {
 
   const scale = useSharedValue(0.8);
   const opacity = useSharedValue(0);
-  const rotation = useSharedValue(0);
+  const rotation = useSharedValue(360);
   
   // Drip animations - 5 drips with different timings
   const drip1Y = useSharedValue(-50);
@@ -40,7 +40,7 @@ export default function HomeScreen() {
   const drip5Opacity = useSharedValue(0);
 
   useEffect(() => {
-    console.log('Home screen mounted - starting toxic drip animations');
+    console.log('Home screen mounted - starting toxic drip animations with counter-clockwise rotation');
     
     // Initial entrance animation
     scale.value = withSpring(1, {
@@ -65,9 +65,9 @@ export default function HomeScreen() {
       );
     }, 800);
 
-    // Subtle rotation animation
+    // Counter-clockwise rotation animation (360 -> 0)
     rotation.value = withRepeat(
-      withTiming(360, {
+      withTiming(0, {
         duration: 20000,
         easing: Easing.linear,
       }),

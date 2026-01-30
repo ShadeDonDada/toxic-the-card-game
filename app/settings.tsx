@@ -25,7 +25,7 @@ export default function SettingsScreen() {
   const productPrice = packages.length > 0 ? packages[0].product.priceString : '$6.99';
 
   const handlePurchase = async () => {
-    console.log('User tapped Buy me a drink button');
+    console.log('User tapped Buy me a drink button - one-time payment for full version');
     
     if (packages.length === 0) {
       Alert.alert(
@@ -40,7 +40,7 @@ export default function SettingsScreen() {
     try {
       const success = await purchasePackage(packages[0]);
       if (success) {
-        console.log('Purchase successful');
+        console.log('One-time purchase successful - full version unlocked');
         Alert.alert(
           'Purchase Successful! 🎉',
           'Thank you for your support! You now have full access to unlimited rounds and all cards.',
@@ -203,7 +203,7 @@ export default function SettingsScreen() {
           <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
             {isFullVersion 
               ? 'Thank you for your support! You have full access to all features.' 
-              : 'Purchase the full version to unlock unlimited rounds and all cards.'}
+              : 'One-time payment to unlock unlimited rounds and all cards. No subscriptions!'}
           </Text>
 
           <View style={styles.purchaseContainer}>
@@ -240,7 +240,7 @@ export default function SettingsScreen() {
                   </Text>
                   {!isFullVersion && (
                     <Text style={[styles.purchaseFeatures, { color: colors.textSecondary }]}>
-                      Unlock unlimited rounds & all cards
+                      One-time payment • Unlock unlimited rounds & all cards
                     </Text>
                   )}
                 </View>
