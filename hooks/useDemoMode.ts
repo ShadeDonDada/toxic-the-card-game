@@ -4,7 +4,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { scenarioCards, responseCards } from '@/data/cards';
 
 const MAX_DEMO_ROUNDS = 3;
-const MAX_DEMO_SCENARIOS = 5; // Changed from 3 to 5 as requested
+const MAX_DEMO_SCENARIOS = 5;
 const MAX_DEMO_CARDS_PER_PLAYER = 3;
 
 // Helper function to shuffle an array
@@ -17,8 +17,8 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-// Generate a consistent set of 5 random scenario cards for demo mode
-// This is called once and cached, so the same 5 scenarios are used throughout the demo
+// Cache for demo scenarios - persists across game sessions
+// This ensures the same 5 random scenarios are used throughout demo mode
 let cachedDemoScenarios: typeof scenarioCards | null = null;
 
 function getDemoScenarios() {
@@ -26,6 +26,9 @@ function getDemoScenarios() {
     console.log('Demo mode - generating consistent set of 5 random scenario cards');
     const shuffled = shuffleArray([...scenarioCards]);
     cachedDemoScenarios = shuffled.slice(0, MAX_DEMO_SCENARIOS);
+    console.log('Demo scenarios cached:', cachedDemoScenarios.map(s => s.id));
+  } else {
+    console.log('Demo mode - using cached scenario cards:', cachedDemoScenarios.map(s => s.id));
   }
   return cachedDemoScenarios;
 }
@@ -42,7 +45,7 @@ export function useDemoMode() {
       console.log('Full version - using all scenario cards:', scenarioCards.length);
       return scenarioCards;
     }
-    console.log('Demo mode - using consistent set of 5 random scenario cards');
+    console.log('Demo mode - retrieving consistent set of 5 scenario cards');
     return getDemoScenarios();
   }, [isFullVersion]);
 
@@ -55,6 +58,7 @@ export function useDemoMode() {
       return responseCards;
     }
     // In demo mode, shuffle the response cards so players get random cards
+    // But the scenarios remain the same 5
     console.log('Demo mode - shuffling response cards for random dealing');
     return shuffleArray([...responseCards]);
   }, [isFullVersion]);
@@ -74,7 +78,7 @@ export function useDemoMode() {
       return true;
     }
     const canPlay = currentRound <= MAX_DEMO_ROUNDS;
-    console.log('Demo mode - can play round', currentRound, '?', canPlay);
+    console.log('Demo mode - can play round', currentRound, '?', canPlay, '(limit:', MAX_DEMO_ROUNDS, ')');
     return canPlay;
   };
 
@@ -84,7 +88,7 @@ export function useDemoMode() {
       return false;
     }
     const limitReached = currentRound > MAX_DEMO_ROUNDS;
-    console.log('Demo mode - limit reached for round', currentRound, '?', limitReached);
+    console.log('Demo mode - limit reached for round', currentRound, '?', limitReached, '(limit:', MAX_DEMO_ROUNDS, ')');
     return limitReached;
   };
 

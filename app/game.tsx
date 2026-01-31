@@ -63,11 +63,17 @@ export default function GameScreen() {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   useEffect(() => {
-    console.log('Initializing game with random scenario cards and', cardsPerPlayer, 'cards per player');
-    // Get fresh random scenario cards each time the game initializes
+    console.log('=== GAME INITIALIZATION ===');
+    console.log('Demo mode active:', !isFullVersion);
+    console.log('Cards per player:', cardsPerPlayer);
+    
+    // Get scenario cards - in demo mode, this returns the same 5 cached scenarios
     const scenarioCardsToUse = getScenarioCards();
     console.log('Using', scenarioCardsToUse.length, 'scenario cards');
+    console.log('Scenario IDs:', scenarioCardsToUse.map(s => s.id).join(', '));
+    
     initializeGame(playerCount, playerNames, scenarioCardsToUse, cardsPerPlayer);
+    
     // Ensure isPlayerReady is false when game initializes
     setIsPlayerReady(false);
   }, [playerCount, initializeGame, cardsPerPlayer, getScenarioCards]);
@@ -79,7 +85,11 @@ export default function GameScreen() {
       return;
     }
     
-    console.log('Checking demo limit - Round:', gameState.round, 'Is Full Version:', isFullVersion, 'Loading:', purchaseLoading);
+    console.log('=== DEMO LIMIT CHECK ===');
+    console.log('Round:', gameState.round);
+    console.log('Is Full Version:', isFullVersion);
+    console.log('Demo limit reached:', isDemoLimitReached(gameState.round));
+    
     if (gameState.gameStarted && isDemoLimitReached(gameState.round)) {
       console.log('Demo limit reached - showing modal');
       setShowDemoLimitModal(true);
@@ -424,7 +434,9 @@ export default function GameScreen() {
   };
 
   const handlePlayAgain = () => {
-    console.log('Play Again pressed - checking if demo limit reached');
+    console.log('=== PLAY AGAIN PRESSED ===');
+    console.log('Current round:', gameState.round);
+    console.log('Is full version:', isFullVersion);
     
     // Check if user is in demo mode and has completed 3 rounds
     if (!isFullVersion && gameState.round >= 3) {
@@ -434,13 +446,15 @@ export default function GameScreen() {
       return;
     }
     
-    console.log('Restarting with same players and fresh random cards');
+    console.log('Restarting with same players and same 5 demo scenarios');
     setShowGameOverModal(false);
     
-    // Get fresh random scenario cards for the new game
-    const freshScenarioCards = getScenarioCards();
-    console.log('Using', freshScenarioCards.length, 'fresh random scenario cards');
-    restartGameWithSamePlayers(freshScenarioCards, cardsPerPlayer);
+    // Get the same scenario cards (cached in demo mode)
+    const scenarioCardsToUse = getScenarioCards();
+    console.log('Using', scenarioCardsToUse.length, 'scenario cards for restart');
+    console.log('Scenario IDs:', scenarioCardsToUse.map(s => s.id).join(', '));
+    
+    restartGameWithSamePlayers(scenarioCardsToUse, cardsPerPlayer);
     
     // Reset isPlayerReady when starting a new game
     setIsPlayerReady(false);
