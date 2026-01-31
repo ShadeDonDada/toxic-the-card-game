@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, Platform } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
 
@@ -43,6 +43,7 @@ export function Button({ title, onPress, variant = 'primary', disabled, style }:
       style={[
         styles.button,
         { backgroundColor: getBackgroundColor(), borderColor: variant === 'secondary' ? colors.cardBorder : colors.primary },
+        Platform.OS === 'ios' && styles.shadowIOS,
         disabled && styles.disabled,
         style,
       ]}
@@ -61,9 +62,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 200,
-    boxShadow: '0px 4px 6px rgba(0, 255, 65, 0.3)',
     elevation: 3,
     borderWidth: 2,
+  },
+  shadowIOS: {
+    shadowColor: 'rgba(0, 255, 65, 0.3)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
   },
   buttonText: {
     fontSize: 18,

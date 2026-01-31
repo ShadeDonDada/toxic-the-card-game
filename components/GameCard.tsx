@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, useColorScheme, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, useColorScheme, Image, Platform } from 'react-native';
 import { getColors } from '@/styles/commonStyles';
 
 interface GameCardProps {
@@ -80,6 +80,7 @@ export function GameCard({
         selected && { borderColor: colors.accent, borderWidth: 4 },
         disabled && styles.disabledCard,
         isCustom && styles.customCard,
+        Platform.OS === 'ios' && styles.shadowIOS,
       ]}
     >
       {isScenario && (
@@ -118,9 +119,14 @@ const styles = StyleSheet.create({
     minHeight: 140,
     justifyContent: 'center',
     alignItems: 'center',
-    boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
     elevation: 5,
     borderWidth: 3,
+  },
+  shadowIOS: {
+    shadowColor: 'rgba(0, 255, 65, 0.25)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
   },
   blankCard: {
     backgroundColor: '#1a1a1a',

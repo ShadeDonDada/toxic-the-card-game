@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getColors } from '@/styles/commonStyles';
@@ -38,7 +38,7 @@ export default function GameSetupScreen() {
 
       <Text style={[styles.title, { color: colors.primary, textShadowColor: colors.accent }]}>Game Setup</Text>
 
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }, Platform.OS === 'ios' && styles.shadowIOS]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Number of Players</Text>
         <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>Select between 2-10 players</Text>
 
@@ -74,7 +74,7 @@ export default function GameSetupScreen() {
         </View>
       </View>
 
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }, Platform.OS === 'ios' && styles.shadowIOS]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Reminders</Text>
         <View style={styles.reminderItem}>
           <Text style={[styles.reminderBullet, { color: colors.accent }]}>•</Text>
@@ -140,8 +140,13 @@ const styles = StyleSheet.create({
     padding: 24,
     marginBottom: 20,
     borderWidth: 2,
-    boxShadow: '0px 4px 8px rgba(0, 255, 65, 0.25)',
     elevation: 4,
+  },
+  shadowIOS: {
+    shadowColor: 'rgba(0, 255, 65, 0.25)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
   },
   sectionTitle: {
     fontSize: 22,

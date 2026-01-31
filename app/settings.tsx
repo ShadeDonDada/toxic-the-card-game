@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -131,7 +131,8 @@ export default function SettingsScreen() {
                     backgroundColor: colors.card,
                     borderColor: themeMode === option.value ? colors.primary : colors.cardBorder,
                     borderWidth: themeMode === option.value ? 3 : 2,
-                  }
+                  },
+                  Platform.OS === 'ios' && styles.shadowIOS,
                 ]}
                 onPress={() => setThemeMode(option.value)}
                 activeOpacity={0.7}
@@ -215,7 +216,8 @@ export default function SettingsScreen() {
                   borderColor: colors.primary,
                   borderWidth: 2,
                   opacity: (purchasing || isFullVersion) ? 0.6 : 1,
-                }
+                },
+                Platform.OS === 'ios' && styles.shadowIOS,
               ]}
               onPress={handlePurchase}
               disabled={purchasing || isFullVersion}
@@ -343,8 +345,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderRadius: 12,
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     elevation: 2,
+  },
+  shadowIOS: {
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
   },
   optionContent: {
     flexDirection: 'row',
@@ -372,7 +379,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
     borderRadius: 12,
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     elevation: 2,
   },
   purchaseContent: {

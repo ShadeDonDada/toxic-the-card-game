@@ -86,7 +86,7 @@ export default function PlayerNamesScreen() {
 
         <View style={styles.namesContainer}>
           {playerNames.map((name, index) => (
-            <View key={index} style={[styles.nameInputContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+            <View key={index} style={[styles.nameInputContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }, Platform.OS === 'ios' && styles.shadowIOS]}>
               <View style={[styles.playerNumberBadge, { backgroundColor: colors.primary }]}>
                 <Text style={[styles.playerNumberText, { color: colors.background }]}>{index + 1}</Text>
               </View>
@@ -163,8 +163,13 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    boxShadow: '0px 2px 4px rgba(0, 255, 65, 0.15)',
     elevation: 2,
+  },
+  shadowIOS: {
+    shadowColor: 'rgba(0, 255, 65, 0.15)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
   },
   playerNumberBadge: {
     width: 36,
