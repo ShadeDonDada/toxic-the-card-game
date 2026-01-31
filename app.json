@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "Toxic - The Card Game",
@@ -59,7 +60,8 @@
       [
         "react-native-purchases",
         {
-          "apiKey": "appl_LIJcLIuXhozRLfOFccDninfKCot"
+          "iosApiKey": "appl_LIJcLIuXhozRLfOFccDninfKCot",
+          "androidApiKey": "goog_WLRFYxyxbjgPvJbihpsMoCrYmJw"
         }
       ]
     ],
