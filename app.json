@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Toxic - The Card Game",
-    "slug": "Toxic - The Card Game",
+    "slug": "toxic-the-card-game",
     "version": "1.1.5",
     "orientation": "portrait",
     "icon": "./assets/images/37a4463c-0dea-4f5f-9b33-cea6e0e6fe48.png",
@@ -15,6 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.stevenandrepennant.toxicthecardgame",
+      "buildNumber": "1",
       "requireFullScreen": true,
       "icon": "./assets/images/69c73f5f-fc7b-4e3f-8595-49a637e13736.png",
       "infoPlist": {
@@ -28,6 +29,7 @@
         "foregroundImage": "./assets/images/5458815b-3a9c-4d98-a205-ba7b8b0259ba.png",
         "backgroundColor": "#000000"
       },
+      "versionCode": 5,
       "edgeToEdgeEnabled": true,
       "package": "com.stevenandrepennant.toxicthecardgame",
       "permissions": [
@@ -55,7 +57,7 @@
         }
       ]
     ],
-    "scheme": "Toxic - The Card Game",
+    "scheme": "toxicthecardgame",
     "experiments": {
       "typedRoutes": true
     },
