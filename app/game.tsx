@@ -23,7 +23,7 @@ export default function GameScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   
   const { loading: purchaseLoading, isSubscribed: isFullVersion } = useSubscription();
-  const { isDemoLimitReached, canPlayRound, limitedScenarioCards, getCardsPerPlayer } = useDemoMode();
+  const { isDemoLimitReached, canPlayRound, getCardsPerPlayer, getScenarioCards } = useDemoMode();
   
   let playerNames: string[] = [];
   try {
@@ -63,11 +63,14 @@ export default function GameScreen() {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   useEffect(() => {
-    console.log('Initializing game with limited scenario cards:', limitedScenarioCards.length, 'and', cardsPerPlayer, 'cards per player');
-    initializeGame(playerCount, playerNames, limitedScenarioCards, cardsPerPlayer);
+    console.log('Initializing game with random scenario cards and', cardsPerPlayer, 'cards per player');
+    // Get fresh random scenario cards each time the game initializes
+    const scenarioCardsToUse = getScenarioCards();
+    console.log('Using', scenarioCardsToUse.length, 'scenario cards');
+    initializeGame(playerCount, playerNames, scenarioCardsToUse, cardsPerPlayer);
     // Ensure isPlayerReady is false when game initializes
     setIsPlayerReady(false);
-  }, [playerCount, initializeGame, limitedScenarioCards, cardsPerPlayer]);
+  }, [playerCount, initializeGame, cardsPerPlayer, getScenarioCards]);
 
   // Check demo limit when round changes - but only after purchase status is loaded
   useEffect(() => {
@@ -431,10 +434,13 @@ export default function GameScreen() {
       return;
     }
     
-    console.log('Restarting with same players');
+    console.log('Restarting with same players and fresh random cards');
     setShowGameOverModal(false);
     
-    restartGameWithSamePlayers(limitedScenarioCards, cardsPerPlayer);
+    // Get fresh random scenario cards for the new game
+    const freshScenarioCards = getScenarioCards();
+    console.log('Using', freshScenarioCards.length, 'fresh random scenario cards');
+    restartGameWithSamePlayers(freshScenarioCards, cardsPerPlayer);
     
     // Reset isPlayerReady when starting a new game
     setIsPlayerReady(false);
