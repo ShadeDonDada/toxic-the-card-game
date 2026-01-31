@@ -65,7 +65,7 @@
       "revenueCatApiKeyIos": "appl_YOUR_IOS_API_KEY_HERE",
       "revenueCatApiKeyAndroid": "goog_WLRFYxyxbjgPvJbihpsMoCrYmJw",
       "revenueCatTestApiKeyIos": "test_quMXNzeUDRgKAgXdvcXRBSwpMlP",
-      //"revenueCatTestApiKeyAndroid": "test_quMXNzeUDRgKAgXdvcXRBSwpMlP",
+      "revenueCatTestApiKeyAndroid": "test_quMXNzeUDRgKAgXdvcXRBSwpMlP",
       "revenueCatEntitlementId": "FullVersion"
     }
   }
