@@ -55,6 +55,12 @@
           "image": "./assets/images/461262ab-c67c-4edb-83cc-0d620afaa105.png",
           "resizeMode": "cover"
         }
+      ],
+      [
+        "react-native-purchases",
+        {
+          "apiKey": "appl_LIJcLIuXhozRLfOFccDninfKCot"
+        }
       ]
     ],
     "scheme": "toxicthecardgame",
