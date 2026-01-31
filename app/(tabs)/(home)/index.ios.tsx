@@ -27,7 +27,7 @@ export default function HomeScreen() {
 
   const scale = useSharedValue(0.8);
   const opacity = useSharedValue(0);
-  const rotation = useSharedValue(360);
+  const rotation = useSharedValue(0);
   
   // Drip animations - 5 drips with different timings
   const drip1Y = useSharedValue(-50);
@@ -67,9 +67,9 @@ export default function HomeScreen() {
       );
     }, 800);
 
-    // Counter-clockwise rotation animation (360 -> 0)
+    // Smooth continuous counter-clockwise rotation (0 -> -360, repeating infinitely)
     rotation.value = withRepeat(
-      withTiming(0, {
+      withTiming(-360, {
         duration: 20000,
         easing: Easing.linear,
       }),

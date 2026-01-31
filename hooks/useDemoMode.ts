@@ -4,7 +4,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { scenarioCards, responseCards } from '@/data/cards';
 
 const MAX_DEMO_ROUNDS = 3;
-const MAX_DEMO_SCENARIOS = 3;
+const MAX_DEMO_SCENARIOS = 5; // Changed from 3 to 5 as requested
 const MAX_DEMO_CARDS_PER_PLAYER = 3;
 
 // Helper function to shuffle an array
@@ -17,22 +17,33 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
+// Generate a consistent set of 5 random scenario cards for demo mode
+// This is called once and cached, so the same 5 scenarios are used throughout the demo
+let cachedDemoScenarios: typeof scenarioCards | null = null;
+
+function getDemoScenarios() {
+  if (!cachedDemoScenarios) {
+    console.log('Demo mode - generating consistent set of 5 random scenario cards');
+    const shuffled = shuffleArray([...scenarioCards]);
+    cachedDemoScenarios = shuffled.slice(0, MAX_DEMO_SCENARIOS);
+  }
+  return cachedDemoScenarios;
+}
+
 export function useDemoMode() {
   const { isSubscribed } = useSubscription();
 
   const isFullVersion = isSubscribed;
   const isDemoMode = !isSubscribed;
 
-  // Function to get scenario cards - generates fresh random selection each call
+  // Function to get scenario cards - returns consistent 5 scenarios for demo mode
   const getScenarioCards = useCallback(() => {
     if (isFullVersion) {
       console.log('Full version - using all scenario cards:', scenarioCards.length);
       return scenarioCards;
     }
-    console.log('Demo mode - shuffling and selecting', MAX_DEMO_SCENARIOS, 'random scenario cards');
-    // Shuffle the scenario cards and take the first MAX_DEMO_SCENARIOS
-    const shuffled = shuffleArray([...scenarioCards]);
-    return shuffled.slice(0, MAX_DEMO_SCENARIOS);
+    console.log('Demo mode - using consistent set of 5 random scenario cards');
+    return getDemoScenarios();
   }, [isFullVersion]);
 
   // For initial render, provide a set of scenario cards
@@ -86,6 +97,6 @@ export function useDemoMode() {
     isDemoLimitReached,
     maxDemoRounds: MAX_DEMO_ROUNDS,
     getCardsPerPlayer,
-    getScenarioCards, // Export function to get fresh random scenario cards
+    getScenarioCards, // Export function to get consistent demo scenario cards
   };
 }
