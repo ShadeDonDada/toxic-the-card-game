@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getColors } from '@/styles/commonStyles';
@@ -22,15 +23,27 @@ export default function SettingsScreen() {
   const [purchasing, setPurchasing] = useState(false);
   const [restoring, setRestoring] = useState(false);
 
+  const isExpoGo = Constants.appOwnership === 'expo';
   const productPrice = packages.length > 0 ? packages[0].product.priceString : '$6.99';
 
   const handlePurchase = async () => {
     console.log('User tapped Buy me a drink button - one-time payment for full version');
     
+    if (isExpoGo) {
+      const expoGoMessage = 'In-app purchases require a development build or production build.\n\nTo test purchases:\n\n1. Run: npx expo run:ios\n   or: npx expo run:android\n\n2. Or build with EAS:\n   eas build --profile development\n\nExpo Go cannot process real purchases.';
+      Alert.alert(
+        'Development Build Required',
+        expoGoMessage,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+    
     if (packages.length === 0) {
+      const noPackagesMessage = 'Unable to load product information from RevenueCat.\n\nPlease check:\n1. RevenueCat dashboard has products configured\n2. Product ID matches: toxicthecardgame.fullversion\n3. Entitlement ID matches: FullVersion\n4. Product is linked to the entitlement';
       Alert.alert(
         'Product Not Available',
-        'Unable to load product information. Please try again later.',
+        noPackagesMessage,
         [{ text: 'OK' }]
       );
       return;
@@ -51,9 +64,10 @@ export default function SettingsScreen() {
       console.error('Purchase failed:', error);
       
       if (!error.userCancelled) {
+        const errorMessage = error.message || 'Something went wrong. Please try again.';
         Alert.alert(
           'Purchase Failed',
-          'Something went wrong. Please try again.',
+          errorMessage,
           [{ text: 'OK' }]
         );
       }
@@ -64,6 +78,17 @@ export default function SettingsScreen() {
 
   const handleRestore = async () => {
     console.log('User tapped Restore Purchases button');
+    
+    if (isExpoGo) {
+      const expoGoMessage = 'Restore purchases requires a development build or production build.\n\nTo test restore:\n\n1. Run: npx expo run:ios\n   or: npx expo run:android\n\n2. Or build with EAS:\n   eas build --profile development\n\nExpo Go cannot restore purchases.';
+      Alert.alert(
+        'Development Build Required',
+        expoGoMessage,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+    
     setRestoring(true);
     try {
       const restored = await restorePurchases();
@@ -82,11 +107,12 @@ export default function SettingsScreen() {
           [{ text: 'OK' }]
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Restore failed:', error);
+      const errorMessage = error.message || 'Unable to restore purchases. Please try again later.';
       Alert.alert(
         'Restore Failed',
-        'Unable to restore purchases. Please try again later.',
+        errorMessage,
         [{ text: 'OK' }]
       );
     } finally {
@@ -185,7 +211,23 @@ export default function SettingsScreen() {
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Support the App</Text>
-          {!isFullVersion && (
+          {isExpoGo && (
+            <View style={[styles.demoNotice, { backgroundColor: colors.primary + '20', borderColor: colors.primary }]}>
+              <IconSymbol
+                ios_icon_name="info.circle.fill"
+                android_material_icon_name="info"
+                size={32}
+                color={colors.primary}
+              />
+              <View style={styles.demoNoticeTextContainer}>
+                <Text style={[styles.demoNoticeTitle, { color: colors.primary }]}>Expo Go Detected</Text>
+                <Text style={[styles.demoNoticeText, { color: colors.text }]}>
+                  In-app purchases require a development build. Run &quot;npx expo run:ios&quot; or &quot;npx expo run:android&quot; to test purchases.
+                </Text>
+              </View>
+            </View>
+          )}
+          {!isFullVersion && !isExpoGo && (
             <View style={[styles.demoNotice, { backgroundColor: colors.accent + '20', borderColor: colors.accent }]}>
               <IconSymbol
                 ios_icon_name="lock.fill"

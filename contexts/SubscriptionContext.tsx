@@ -132,6 +132,19 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
           return;
         }
 
+        // Check if running in Expo Go (development mode)
+        const isExpoGo = Constants.appOwnership === 'expo';
+        
+        if (isExpoGo) {
+          console.log("[RevenueCat] Expo Go detected - RevenueCat requires a development build or production build to work.");
+          console.log("[RevenueCat] To test purchases:");
+          console.log("[RevenueCat] 1. Run: npx expo run:ios or npx expo run:android");
+          console.log("[RevenueCat] 2. Or create a development build: eas build --profile development");
+          console.log("[RevenueCat] For now, running in demo mode.");
+          setLoading(false);
+          return;
+        }
+
         // Use DEBUG log level in development, INFO in production
         Purchases.setLogLevel(__DEV__ ? LOG_LEVEL.DEBUG : LOG_LEVEL.INFO);
 
@@ -245,6 +258,14 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       console.warn("[RevenueCat] Purchases not available on web");
       return false;
     }
+    
+    // Check if running in Expo Go
+    const isExpoGo = Constants.appOwnership === 'expo';
+    if (isExpoGo) {
+      console.warn("[RevenueCat] Purchases not available in Expo Go. Please use a development build or production build.");
+      throw new Error("Purchases require a development build or production build. Run: npx expo run:ios or npx expo run:android");
+    }
+    
     try {
       console.log("[RevenueCat] Attempting to purchase package:", pkg.identifier);
       console.log("[RevenueCat] Product ID:", pkg.product.identifier);
@@ -282,6 +303,14 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       console.warn("[RevenueCat] Restore not available on web");
       return false;
     }
+    
+    // Check if running in Expo Go
+    const isExpoGo = Constants.appOwnership === 'expo';
+    if (isExpoGo) {
+      console.warn("[RevenueCat] Restore not available in Expo Go. Please use a development build or production build.");
+      throw new Error("Restore requires a development build or production build. Run: npx expo run:ios or npx expo run:android");
+    }
+    
     try {
       console.log("[RevenueCat] Attempting to restore purchases...");
       const customerInfo = await Purchases.restorePurchases();
