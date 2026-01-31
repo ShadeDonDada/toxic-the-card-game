@@ -8,7 +8,6 @@
  * Supports:
  * - Native iOS/Android via RevenueCat SDK
  * - Web preview via RevenueCat REST API (read-only pricing display)
- * - Expo Go via test store keys
  *
  * NOTE: Running in anonymous mode - purchases won't sync across devices.
  * To enable cross-device sync:
@@ -45,8 +44,6 @@ import Constants from "expo-constants";
 const extra = Constants.expoConfig?.extra || {};
 const IOS_API_KEY = extra.revenueCatApiKeyIos || "";
 const ANDROID_API_KEY = extra.revenueCatApiKeyAndroid || "";
-const TEST_IOS_API_KEY = extra.revenueCatTestApiKeyIos || "test_quMXNzeUDRgKAgXdvcXRBSwpMlP";
-const TEST_ANDROID_API_KEY = extra.revenueCatTestApiKeyAndroid || "test_quMXNzeUDRgKAgXdvcXRBSwpMlP";
 const ENTITLEMENT_ID = extra.revenueCatEntitlementId || "FullVersion";
 
 // Check if running on web
@@ -92,8 +89,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   // Fetch offerings via REST API for web platform
   const fetchOfferingsViaRest = async () => {
     try {
-      // Use any available test key for REST API (test keys work for both platforms)
-      const apiKey = TEST_IOS_API_KEY || TEST_ANDROID_API_KEY || IOS_API_KEY || ANDROID_API_KEY;
+      const apiKey = IOS_API_KEY || ANDROID_API_KEY;
       if (!apiKey) {
         console.warn("[RevenueCat] No API key available for web REST API");
         return;
@@ -139,12 +135,8 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
         // Use DEBUG log level in development, INFO in production
         Purchases.setLogLevel(__DEV__ ? LOG_LEVEL.DEBUG : LOG_LEVEL.INFO);
 
-        // Get API key based on platform and environment
-        // In development (__DEV__), use ANY available test key (test store works for all platforms)
-        // This allows Expo Go to work on iOS even without a platform-specific test key
-        const testKey = TEST_IOS_API_KEY || TEST_ANDROID_API_KEY;
-        const productionKey = Platform.OS === "ios" ? IOS_API_KEY : ANDROID_API_KEY;
-        const apiKey = __DEV__ && testKey ? testKey : productionKey;
+        // Get API key based on platform
+        const apiKey = Platform.OS === "ios" ? IOS_API_KEY : ANDROID_API_KEY;
 
         if (!apiKey) {
           console.warn(
@@ -155,11 +147,9 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
           return;
         }
 
-        if (__DEV__) {
-          console.log("[RevenueCat] Initializing in DEV mode with key:", apiKey.substring(0, 10) + "...");
-          console.log("[RevenueCat] Entitlement ID:", ENTITLEMENT_ID);
-          console.log("[RevenueCat] Expected Product ID: toxicthecardgame.fullversion");
-        }
+        console.log("[RevenueCat] Initializing with key:", apiKey.substring(0, 10) + "...");
+        console.log("[RevenueCat] Entitlement ID:", ENTITLEMENT_ID);
+        console.log("[RevenueCat] Expected Product ID: toxicthecardgame.fullversion");
 
         await Purchases.configure({ apiKey });
 
